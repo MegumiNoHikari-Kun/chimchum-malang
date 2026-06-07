@@ -3,11 +3,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/fireba
 import {
   getFirestore,
   collection,
-  getDocs
+  getDocs,
+  addDoc,
+  deleteDoc,
+  updateDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAGnCd4162tVEu_ADZBXN5CNE_7C_muCXA",
+  apiKey: "YOUR_API_KEY",
   authDomain: "chimchum-malang.firebaseapp.com",
   projectId: "chimchum-malang",
   storageBucket: "chimchum-malang.firebasestorage.app",
@@ -19,4 +23,12 @@ const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
 
-export { db, collection, getDocs };
+export {
+  db,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  updateDoc,
+  doc
+};
