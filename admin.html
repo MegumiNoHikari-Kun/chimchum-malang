@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ChimChum Malang</title>
+<title>Menu Admin - ChimChum</title>
 
 <style>
 :root{
@@ -15,8 +15,8 @@
 }
 
 body{
-  margin:0;
   font-family:Arial,sans-serif;
+  margin:0;
   background:var(--secondary);
   color:var(--dark);
 }
@@ -25,7 +25,7 @@ body{
 header{
   background:var(--primary);
   color:white;
-  padding:20px;
+  padding:18px;
   text-align:center;
   font-size:20px;
   font-weight:bold;
@@ -36,7 +36,7 @@ header{
   padding:20px;
 }
 
-/* FORM */
+/* CARD */
 .card{
   background:white;
   padding:15px;
@@ -45,10 +45,11 @@ header{
   box-shadow:0 2px 10px rgba(0,0,0,0.08);
 }
 
+/* INPUT */
 input,textarea{
   width:100%;
   padding:10px;
-  margin-top:8px;
+  margin-top:6px;
   margin-bottom:12px;
   border:1px solid #ddd;
   border-radius:8px;
@@ -60,82 +61,86 @@ button{
   border:none;
   border-radius:8px;
   cursor:pointer;
-  transition:0.2s;
 }
 
-button:hover{
-  opacity:0.8;
-}
+.btn-primary{background:var(--primary); color:white;}
+.btn-edit{background:#ffa502; color:white;}
+.btn-delete{background:#ff4757; color:white;}
 
-.btn-primary{
-  background:var(--primary);
-  color:white;
-}
-
-.btn-edit{
-  background:#ffa502;
-  color:white;
-  margin-right:5px;
-}
-
-.btn-delete{
-  background:#ff4757;
-  color:white;
-}
-
-/* GRID PRODUCT */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:15px;
-}
-
-.product{
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
   background:white;
   border-radius:12px;
   overflow:hidden;
   box-shadow:0 2px 10px rgba(0,0,0,0.08);
 }
 
-.product img{
-  width:100%;
-  height:120px;
+th,td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  font-size:14px;
+}
+
+th{
+  background:#fff1ea;
+}
+
+img{
+  width:60px;
+  height:60px;
   object-fit:cover;
+  border-radius:8px;
 }
 
-.product .content{
-  padding:10px;
-}
-
-.price{
-  color:var(--primary);
-  font-weight:bold;
+.action-btns{
+  display:flex;
+  gap:5px;
 }
 </style>
 </head>
 
 <body>
 
-<header>ChimChum Malang</header>
+<header>Admin Menu ChimChum</header>
 
 <div class="container">
 
-<!-- FORM CRUD -->
+<!-- FORM -->
 <div class="card">
-<h3>Tambah Produk</h3>
+<h3>Tambah / Edit Produk</h3>
 
 <input id="nama" placeholder="Nama Produk">
+<input id="kategori" placeholder="Kategori">
+<input id="isi" type="number" placeholder="Isi (gram / pcs)">
 <input id="harga" type="number" placeholder="Harga">
 <input id="stok" type="number" placeholder="Stok">
 <input id="foto" placeholder="URL Foto">
+<textarea id="deskripsi" placeholder="Deskripsi"></textarea>
 
-<button class="btn-primary" onclick="addProduct()">
-Tambah
+<button class="btn-primary" onclick="saveProduct()">
+Simpan Produk
 </button>
 </div>
 
-<!-- LIST -->
-<div class="grid" id="list"></div>
+<!-- TABLE -->
+<table>
+<thead>
+<tr>
+<th>Foto</th>
+<th>Nama</th>
+<th>Kategori</th>
+<th>Isi</th>
+<th>Harga</th>
+<th>Stok</th>
+<th>Aksi</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+</table>
 
 </div>
 
@@ -145,67 +150,99 @@ db, collection, getDocs,
 addDoc, deleteDoc, updateDoc, doc
 } from './firebase.js';
 
-const list = document.getElementById("list");
+const tableBody = document.getElementById("tableBody");
 
-/* READ */
-window.load = async () => {
-  list.innerHTML = "";
+let editId = null;
+
+/* LOAD */
+window.loadProducts = async () => {
+  tableBody.innerHTML = "";
 
   const snap = await getDocs(collection(db,"products"));
 
   snap.forEach(d=>{
     const p = d.data();
 
-    list.innerHTML += `
-      <div class="product">
-        <img src="${p.foto}">
-        <div class="content">
-          <div><b>${p.nama}</b></div>
-          <div class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</div>
-          <small>Stok: ${p.stok}</small>
-          <br><br>
-
-          <button class="btn-edit" onclick="edit('${d.id}')">Edit</button>
-          <button class="btn-delete" onclick="hapus('${d.id}')">Hapus</button>
-        </div>
-      </div>
+    tableBody.innerHTML += `
+      <tr>
+        <td><img src="${p.foto}"></td>
+        <td>${p.nama}</td>
+        <td>${p.kategori}</td>
+        <td>${p.isi}</td>
+        <td>Rp ${Number(p.harga).toLocaleString('id-ID')}</td>
+        <td>${p.stok}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-edit" onclick="editProduct('${d.id}', \`${p.nama}\`, \`${p.kategori}\`, ${p.isi}, ${p.harga}, ${p.stok}, \`${p.foto}\`, \`${p.deskripsi}\`)">
+              Edit
+            </button>
+            <button class="btn-delete" onclick="deleteProduct('${d.id}')">
+              Hapus
+            </button>
+          </div>
+        </td>
+      </tr>
     `;
   });
 };
 
-/* CREATE */
-window.addProduct = async () => {
-  await addDoc(collection(db,"products"),{
+/* CREATE / UPDATE */
+window.saveProduct = async () => {
+
+  const data = {
     nama: nama.value,
+    kategori: kategori.value,
+    isi: Number(isi.value),
     harga: Number(harga.value),
     stok: Number(stok.value),
+    deskripsi: deskripsi.value,
     foto: foto.value,
-    aktif:true
-  });
+    aktif: true
+  };
 
-  load();
+  if(editId){
+    await updateDoc(doc(db,"products",editId),data);
+    editId = null;
+  }else{
+    await addDoc(collection(db,"products"),data);
+  }
+
+  clearForm();
+  loadProducts();
 };
 
 /* DELETE */
-window.hapus = async (id) => {
-  if(!confirm("Hapus produk?")) return;
+window.deleteProduct = async (id) => {
+  if(!confirm("Hapus produk ini?")) return;
   await deleteDoc(doc(db,"products",id));
-  load();
+  loadProducts();
 };
 
-/* UPDATE */
-window.edit = async (id) => {
-  const newPrice = prompt("Harga baru:");
-  if(!newPrice) return;
+/* EDIT */
+window.editProduct = (id, n, k, i, h, s, f, d) => {
+  editId = id;
 
-  await updateDoc(doc(db,"products",id),{
-    harga:Number(newPrice)
-  });
-
-  load();
+  nama.value = n;
+  kategori.value = k;
+  isi.value = i;
+  harga.value = h;
+  stok.value = s;
+  foto.value = f;
+  deskripsi.value = d;
 };
 
-load();
+/* CLEAR */
+function clearForm(){
+  nama.value = "";
+  kategori.value = "";
+  isi.value = "";
+  harga.value = "";
+  stok.value = "";
+  foto.value = "";
+  deskripsi.value = "";
+}
+
+loadProducts();
 </script>
 
 </body>
