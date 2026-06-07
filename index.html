@@ -136,12 +136,28 @@ display:grid;
 grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
 gap:25px;
 }
-
 .card{
-background:white;
-border-radius:18px;
-overflow:hidden;
-box-shadow:0 5px 20px rgba(0,0,0,.08);
+position:relative;
+transition:.3s;
+cursor:pointer;
+}
+
+.card:hover{
+transform:translateY(-8px);
+box-shadow:0 20px 40px rgba(0,0,0,.12);
+}
+
+.badge{
+position:absolute;
+top:12px;
+left:12px;
+background:#ff6b35;
+color:white;
+padding:6px 12px;
+font-size:12px;
+font-weight:600;
+border-radius:50px;
+z-index:2;
 }
 
 .card img{
@@ -164,6 +180,115 @@ font-weight:700;
 font-size:20px;
 margin-top:10px;
 }
+/* ===== ORDER MODAL ===== */
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:99999;
+padding:20px;
+backdrop-filter:blur(4px);
+}
+
+.modal-content{
+background:white;
+width:100%;
+max-width:500px;
+padding:30px;
+border-radius:24px;
+box-shadow:0 20px 50px rgba(0,0,0,.2);
+animation:popup .25s ease;
+}
+
+@keyframes popup{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.product-info{
+background:#fff5f0;
+padding:15px;
+border-radius:15px;
+margin-bottom:20px;
+}
+
+.product-info h3{
+margin-bottom:8px;
+}
+
+.form-control{
+width:100%;
+padding:14px;
+border:1px solid #ddd;
+border-radius:12px;
+margin-bottom:15px;
+font-size:15px;
+outline:none;
+}
+
+.form-control:focus{
+border-color:#ff6b35;
+}
+
+.qty-box{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:15px;
+margin-bottom:20px;
+}
+
+.qty-btn{
+width:45px;
+height:45px;
+border:none;
+background:#ff6b35;
+color:white;
+font-size:24px;
+border-radius:12px;
+cursor:pointer;
+}
+
+#qtyText{
+font-size:22px;
+font-weight:700;
+min-width:40px;
+text-align:center;
+}
+
+.total-box{
+background:#f6f6f6;
+padding:15px;
+border-radius:12px;
+text-align:center;
+font-size:20px;
+font-weight:700;
+margin-bottom:20px;
+}
+
+.btn-full{
+width:100%;
+border:none;
+cursor:pointer;
+margin-top:10px;
+}
+
+.btn-secondary{
+background:#999;
+}
+
+
+
 
 .gallery{
 display:grid;
@@ -280,7 +405,7 @@ Nikmati cita rasa premium dengan bahan berkualitas,
 fresh setiap hari, dan dibuat dengan penuh cinta.
 </p>
 
-<a href="https://wa.me/6281234567890" class="btn">
+<a href="https://wa.me/6285723785380" class="btn">
 Pesan Sekarang
 </a>
 
@@ -397,11 +522,11 @@ Dimsum Mentai • Ohiyong • Frozen Food
 <br>
 
 <p>
-WhatsApp : 0812-3456-7890
+WhatsApp : 0857-2378-5380
 </p>
 
 <p>
-Instagram : @chimchummalang
+Instagram : @chimchumofficial
 </p>
 
 <br>
@@ -414,245 +539,208 @@ Instagram : @chimchummalang
 
 <a
 class="whatsapp-float"
-href="https://wa.me/6281234567890"
+href="https://wa.me/6285723785380"
 target="_blank">
 WhatsApp
 </a>
 <script type="module">
-
-import {
-  db,
-  collection,
-  getDocs,
-  addDoc,
-  serverTimestamp
-}
-from './firebase.js';
-
-const menuContainer =
-document.getElementById("menuContainer");
-
 let selectedProduct = null;
-
-/* =========================
-   MODAL ORDER
-========================= */
+let qty = 1;
 
 window.openOrderModal =
 (id,nama,harga)=>{
 
-    selectedProduct = {
-        id,
-        nama,
-        harga
-    };
+selectedProduct = {
+id,
+nama,
+harga
+};
 
-    document
-      .getElementById("orderModal")
-      .style.display = "block";
+qty = 1;
+
+document.getElementById(
+"productName"
+).innerText = nama;
+
+document.getElementById(
+"productPrice"
+).innerText =
+"Rp " +
+Number(harga).toLocaleString("id-ID");
+
+document.getElementById(
+"qtyText"
+).innerText = qty;
+
+updateTotal();
+
+document.getElementById(
+"orderModal"
+).style.display = "flex";
 };
 
 window.closeModal = ()=>{
 
-    document
-      .getElementById("orderModal")
-      .style.display = "none";
+document.getElementById(
+"orderModal"
+).style.display = "none";
 };
 
-/* =========================
-   LOAD PRODUCTS
-========================= */
+window.changeQty = (value)=>{
 
-async function loadProducts(){
+qty += value;
 
-    try{
-
-        const snapshot =
-        await getDocs(
-            collection(db,"products")
-        );
-
-        menuContainer.innerHTML = "";
-
-        snapshot.forEach((d)=>{
-
-            const p = d.data();
-
-            menuContainer.innerHTML += `
-            <div class="card">
-
-                <img
-                    src="${p.foto}"
-                    alt="${p.nama}"
-                >
-
-                <div class="card-content">
-
-                    <h3>${p.nama}</h3>
-
-                    <p>${p.deskripsi || ''}</p>
-
-                    <p>
-                        Isi ${p.isi || '-'} pcs
-                    </p>
-
-                    <div class="price">
-                        Rp ${Number(p.harga)
-                        .toLocaleString('id-ID')}
-                    </div>
-
-                    <br>
-
-                    <button
-                        class="btn"
-                        onclick="openOrderModal(
-                        '${d.id}',
-                        '${p.nama}',
-                        ${p.harga}
-                        )">
-
-                        Order Sekarang
-
-                    </button>
-
-                </div>
-
-            </div>
-            `;
-        });
-
-    }catch(error){
-
-        console.error(error);
-
-        menuContainer.innerHTML =
-        "<p>Gagal mengambil data menu.</p>";
-    }
+if(qty < 1){
+qty = 1;
 }
 
-/* =========================
-   SUBMIT ORDER
-========================= */
+document.getElementById(
+"qtyText"
+).innerText = qty;
+
+updateTotal();
+};
+
+function updateTotal(){
+
+if(!selectedProduct) return;
+
+const total =
+qty *
+selectedProduct.harga;
+
+document.getElementById(
+"totalPrice"
+).innerText =
+"Rp " +
+total.toLocaleString("id-ID");
+}
 
 window.submitOrder =
 async()=>{
 
-    const customerName =
-    document.getElementById(
-        "customerName"
-    ).value;
+const customerName =
+document.getElementById(
+"customerName"
+).value.trim();
 
-    const customerPhone =
-    document.getElementById(
-        "customerPhone"
-    ).value;
+const customerPhone =
+document.getElementById(
+"customerPhone"
+).value.trim();
 
-    const customerAddress =
-    document.getElementById(
-        "customerAddress"
-    ).value;
+const customerAddress =
+document.getElementById(
+"customerAddress"
+).value.trim();
 
-    const qty =
-    Number(
-      document.getElementById(
-        "orderQty"
-      ).value
-    );
+if(
+!customerName ||
+!customerPhone
+){
 
-    if(
-      !customerName ||
-      !customerPhone
-    ){
+alert(
+"Nama dan WhatsApp wajib diisi"
+);
 
-        alert(
-          "Nama dan WhatsApp wajib diisi"
-        );
+return;
+}
 
-        return;
-    }
+try{
 
-    try{
+const total =
+qty *
+selectedProduct.harga;
 
-        const total =
-        qty *
-        selectedProduct.harga;
+await addDoc(
+collection(db,"orders"),
+{
 
-        await addDoc(
-            collection(db,"orders"),
-            {
+customer_name:
+customerName,
 
-                customer_name:
-                customerName,
+phone:
+customerPhone,
 
-                phone:
-                customerPhone,
+address:
+customerAddress,
 
-                address:
-                customerAddress,
+product_id:
+selectedProduct.id,
 
-                product_id:
-                selectedProduct.id,
+product_name:
+selectedProduct.nama,
 
-                product_name:
-                selectedProduct.nama,
+qty:
+qty,
 
-                qty:
-                qty,
+price:
+selectedProduct.harga,
 
-                price:
-                selectedProduct.harga,
+total:
+total,
 
-                total:
-                total,
+status:
+"NEW",
 
-                status:
-                "NEW",
+created_at:
+serverTimestamp()
 
-                created_at:
-                serverTimestamp()
+}
+);
 
-            }
-        );
+const waText =
+encodeURIComponent(
 
-        alert(
-          "Pesanan berhasil dikirim"
-        );
+`Halo ChimChum Malang 👋
 
-        closeModal();
+Saya ingin memesan:
 
-        document
-        .getElementById(
-          "customerName"
-        ).value = "";
+🍜 Produk : ${selectedProduct.nama}
+📦 Jumlah : ${qty}
 
-        document
-        .getElementById(
-          "customerPhone"
-        ).value = "";
+👤 Nama : ${customerName}
+📱 WA : ${customerPhone}
+📍 Alamat : ${customerAddress}
 
-        document
-        .getElementById(
-          "customerAddress"
-        ).value = "";
+💰 Total : Rp ${total.toLocaleString('id-ID')}
 
-        document
-        .getElementById(
-          "orderQty"
-        ).value = 1;
+Terima kasih.`
+);
 
-    }catch(error){
+window.open(
+`https://wa.me/6281234567890?text=${waText}`,
+"_blank"
+);
 
-        console.error(error);
+alert(
+"Pesanan berhasil dikirim"
+);
 
-        alert(
-          "Gagal menyimpan order"
-        );
-    }
+closeModal();
 
+document.getElementById(
+"customerName"
+).value = "";
+
+document.getElementById(
+"customerPhone"
+).value = "";
+
+document.getElementById(
+"customerAddress"
+).value = "";
+
+}
+catch(error){
+
+console.error(error);
+
+alert(
+"Gagal menyimpan order"
+);
+}
 };
-
-loadProducts();
-
 </script>
 <div id="orderModal" class="modal">
 
@@ -675,12 +763,20 @@ loadProducts();
     id="customerAddress"
     placeholder="Alamat Pengiriman"></textarea>
 
-    <input
-    class="form-control"
-    id="orderQty"
-    type="number"
-    value="1"
-    min="1">
+    <div class="qty-box">
+
+        <button onclick="changeQty(-1)">
+        −
+
+        </button>
+
+        <span id="qtyText">1</span>
+
+        <button onclick="changeQty(1)">
+        +
+        </button>
+
+    </div>
 
     <button
     class="btn"
