@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ChimChum Malang | Dimsum Mentai & Ohiyong</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+--primary:#ff6b35;
+--secondary:#fff5f0;
+--dark:#222;
+--gray:#666;
+--white:#fff;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+scroll-behavior:smooth;
+}
+
+body{
+background:#fafafa;
+color:var(--dark);
+}
+
+.container{
+width:90%;
+max-width:1200px;
+margin:auto;
+}
+
+header{
+position:fixed;
+top:0;
+width:100%;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+z-index:999;
+}
+
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 0;
+}
+
+.logo{
+font-size:24px;
+font-weight:700;
+color:var(--primary);
+}
+
+.nav-links{
+display:flex;
+gap:20px;
+}
+
+.nav-links a{
+text-decoration:none;
+color:#333;
+font-weight:500;
+}
+
+.hero{
+min-height:100vh;
+display:flex;
+align-items:center;
+background:
+linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+url('https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1600&q=80');
+background-size:cover;
+background-position:center;
+color:white;
+text-align:center;
+padding:100px 20px;
+}
+
+.hero-content{
+max-width:800px;
+margin:auto;
+}
+
+.hero h1{
+font-size:55px;
+margin-bottom:20px;
+}
+
+.hero p{
+font-size:20px;
+margin-bottom:35px;
+}
+
+.btn{
+display:inline-block;
+padding:14px 28px;
+background:var(--primary);
+color:white;
+text-decoration:none;
+border-radius:10px;
+font-weight:600;
+transition:.3s;
+}
+
+.btn:hover{
+transform:translateY(-3px);
+}
+
+.section{
+padding:90px 0;
+}
+
+.section-title{
+text-align:center;
+font-size:36px;
+margin-bottom:15px;
+}
+
+.section-subtitle{
+text-align:center;
+color:var(--gray);
+margin-bottom:50px;
+}
+
+.menu-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:25px;
+}
+
+.card{
+background:white;
+border-radius:18px;
+overflow:hidden;
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.card img{
+width:100%;
+height:220px;
+object-fit:cover;
+}
+
+.card-content{
+padding:20px;
+}
+
+.card h3{
+margin-bottom:10px;
+}
+
+.price{
+color:var(--primary);
+font-weight:700;
+font-size:20px;
+margin-top:10px;
+}
+
+.gallery{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:15px;
+}
+
+.gallery img{
+width:100%;
+height:250px;
+object-fit:cover;
+border-radius:15px;
+}
+
+.testimonials{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:20px;
+}
+
+.testimonial{
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.testimonial h4{
+margin-top:15px;
+color:var(--primary);
+}
+
+.cta{
+background:var(--primary);
+color:white;
+text-align:center;
+padding:90px 20px;
+}
+
+.cta h2{
+font-size:38px;
+margin-bottom:20px;
+}
+
+footer{
+background:#111;
+color:white;
+padding:40px 20px;
+text-align:center;
+}
+
+.whatsapp-float{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#25D366;
+color:white;
+padding:16px 20px;
+border-radius:50px;
+text-decoration:none;
+font-weight:600;
+box-shadow:0 5px 15px rgba(0,0,0,.2);
+}
+
+@media(max-width:768px){
+
+.hero h1{
+font-size:36px;
+}
+
+.hero p{
+font-size:16px;
+}
+
+.nav-links{
+display:none;
+}
+
+.section-title{
+font-size:28px;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<header>
+<div class="container navbar">
+
+<div class="logo">
+CHIMCHUM MALANG
+</div>
+
+<div class="nav-links">
+<a href="#menu">Menu</a>
+<a href="#gallery">Galeri</a>
+<a href="#testimoni">Testimoni</a>
+<a href="#order">Order</a>
+</div>
+
+</div>
+</header>
+
+<section class="hero">
+
+<div class="hero-content">
+
+<h1>Dimsum Mentai & Ohiyong Favorit Kota Malang</h1>
+
+<p>
+Nikmati cita rasa premium dengan bahan berkualitas,
+fresh setiap hari, dan dibuat dengan penuh cinta.
+</p>
+
+<a href="https://wa.me/6281234567890" class="btn">
+Pesan Sekarang
+</a>
+
+</div>
+
+</section>
+
+<section class="section" id="menu">
+
+  <div class="container">
+
+    <h2 class="section-title">Menu Favorit</h2>
+
+    <p class="section-subtitle">
+      Menu terlaris pelanggan ChimChum Malang
+    </p>
+
+    <div class="menu-grid" id="menuContainer">
+      <p>Memuat menu...</p>
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="section" id="gallery">
+
+<div class="container">
+
+<h2 class="section-title">Galeri Menu</h2>
+
+<div class="gallery">
+
+<img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80">
+
+<img src="https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=800&q=80">
+
+<img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80">
+
+<img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80">
+
+</div>
+
+</div>
+
+</section>
+
+<section class="section" id="testimoni">
+
+<div class="container">
+
+<h2 class="section-title">Testimoni Pelanggan</h2>
+
+<div class="testimonials">
+
+<div class="testimonial">
+⭐⭐⭐⭐⭐
+<p>
+Dimsumnya lembut dan saus mentainya benar-benar melimpah.
+</p>
+<h4>Rina - Malang</h4>
+</div>
+
+<div class="testimonial">
+⭐⭐⭐⭐⭐
+<p>
+Order untuk keluarga, semuanya suka. Pasti repeat order.
+</p>
+<h4>Andi - Batu</h4>
+</div>
+
+<div class="testimonial">
+⭐⭐⭐⭐⭐
+<p>
+Pengiriman cepat dan makanan masih hangat.
+</p>
+<h4>Siska - Kepanjen</h4>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="cta" id="order">
+
+<h2>Siap Mencoba Menu Favorit Kami?</h2>
+
+<p style="margin-bottom:25px;">
+Klik tombol di bawah untuk order melalui WhatsApp.
+</p>
+
+<a href="https://wa.me/6281234567890" class="btn">
+Order via WhatsApp
+</a>
+
+</section>
+
+<footer>
+
+<h3>CHIMCHUM MALANG</h3>
+
+<p>
+Dimsum Mentai • Ohiyong • Frozen Food
+</p>
+
+<br>
+
+<p>
+WhatsApp : 0812-3456-7890
+</p>
+
+<p>
+Instagram : @chimchummalang
+</p>
+
+<br>
+
+<p>
+© 2026 ChimChum Malang
+</p>
+
+</footer>
+
+<a
+class="whatsapp-float"
+href="https://wa.me/6281234567890"
+target="_blank">
+WhatsApp
+</a>
+<script type="module">
+
+import {
+  db,
+  collection,
+  getDocs,
+  addDoc,
+  serverTimestamp
+}
+from './firebase.js';
+
+const menuContainer =
+document.getElementById("menuContainer");
+
+let selectedProduct = null;
+
+/* =========================
+   MODAL ORDER
+========================= */
+
+window.openOrderModal =
+(id,nama,harga)=>{
+
+    selectedProduct = {
+        id,
+        nama,
+        harga
+    };
+
+    document
+      .getElementById("orderModal")
+      .style.display = "block";
+};
+
+window.closeModal = ()=>{
+
+    document
+      .getElementById("orderModal")
+      .style.display = "none";
+};
+
+/* =========================
+   LOAD PRODUCTS
+========================= */
+
+async function loadProducts(){
+
+    try{
+
+        const snapshot =
+        await getDocs(
+            collection(db,"products")
+        );
+
+        menuContainer.innerHTML = "";
+
+        snapshot.forEach((d)=>{
+
+            const p = d.data();
+
+            menuContainer.innerHTML += `
+            <div class="card">
+
+                <img
+                    src="${p.foto}"
+                    alt="${p.nama}"
+                >
+
+                <div class="card-content">
+
+                    <h3>${p.nama}</h3>
+
+                    <p>${p.deskripsi || ''}</p>
+
+                    <p>
+                        Isi ${p.isi || '-'} pcs
+                    </p>
+
+                    <div class="price">
+                        Rp ${Number(p.harga)
+                        .toLocaleString('id-ID')}
+                    </div>
+
+                    <br>
+
+                    <button
+                        class="btn"
+                        onclick="openOrderModal(
+                        '${d.id}',
+                        '${p.nama}',
+                        ${p.harga}
+                        )">
+
+                        Order Sekarang
+
+                    </button>
+
+                </div>
+
+            </div>
+            `;
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        menuContainer.innerHTML =
+        "<p>Gagal mengambil data menu.</p>";
+    }
+}
+
+/* =========================
+   SUBMIT ORDER
+========================= */
+
+window.submitOrder =
+async()=>{
+
+    const customerName =
+    document.getElementById(
+        "customerName"
+    ).value;
+
+    const customerPhone =
+    document.getElementById(
+        "customerPhone"
+    ).value;
+
+    const customerAddress =
+    document.getElementById(
+        "customerAddress"
+    ).value;
+
+    const qty =
+    Number(
+      document.getElementById(
+        "orderQty"
+      ).value
+    );
+
+    if(
+      !customerName ||
+      !customerPhone
+    ){
+
+        alert(
+          "Nama dan WhatsApp wajib diisi"
+        );
+
+        return;
+    }
+
+    try{
+
+        const total =
+        qty *
+        selectedProduct.harga;
+
+        await addDoc(
+            collection(db,"orders"),
+            {
+
+                customer_name:
+                customerName,
+
+                phone:
+                customerPhone,
+
+                address:
+                customerAddress,
+
+                product_id:
+                selectedProduct.id,
+
+                product_name:
+                selectedProduct.nama,
+
+                qty:
+                qty,
+
+                price:
+                selectedProduct.harga,
+
+                total:
+                total,
+
+                status:
+                "NEW",
+
+                created_at:
+                serverTimestamp()
+
+            }
+        );
+
+        alert(
+          "Pesanan berhasil dikirim"
+        );
+
+        closeModal();
+
+        document
+        .getElementById(
+          "customerName"
+        ).value = "";
+
+        document
+        .getElementById(
+          "customerPhone"
+        ).value = "";
+
+        document
+        .getElementById(
+          "customerAddress"
+        ).value = "";
+
+        document
+        .getElementById(
+          "orderQty"
+        ).value = 1;
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(
+          "Gagal menyimpan order"
+        );
+    }
+
+};
+
+loadProducts();
+
+</script>
+<div id="orderModal" class="modal">
+
+    <div class="modal-content">
+
+    <h2>Order Produk</h2>
+
+    <input
+    class="form-control"
+    id="customerName"
+    placeholder="Nama Pelanggan">
+
+    <input
+    class="form-control"
+    id="customerPhone"
+    placeholder="Nomor WhatsApp">
+
+    <textarea
+    class="form-control"
+    id="customerAddress"
+    placeholder="Alamat Pengiriman"></textarea>
+
+    <input
+    class="form-control"
+    id="orderQty"
+    type="number"
+    value="1"
+    min="1">
+
+    <button
+    class="btn"
+    onclick="submitOrder()">
+    Kirim Order
+    </button>
+
+    <button
+    class="btn"
+    style="background:#999;margin-left:10px;"
+    onclick="closeModal()">
+    Batal
+    </button>
+
+    </div>
+
+</div>
+</body>
+</html>
