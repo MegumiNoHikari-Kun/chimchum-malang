@@ -508,8 +508,8 @@ async function loadTestimoni() {
       const t = doc.data();
       container.innerHTML += `
         <div class="testimonial">
-          <div class="stars">${stars(t.bintang)}</div>
-          <p>${t.pesan}</p>
+          <div class="stars">${stars(t.rating)}</div>
+          <p>${t.komentar}</p>
           <h4>${t.nama} — ${t.kota}</h4>
         </div>`;
     });
