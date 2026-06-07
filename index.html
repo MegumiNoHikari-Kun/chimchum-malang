@@ -444,7 +444,7 @@ import { db, collection, getDocs } from './firebase.js';
 const menuContainer = document.getElementById('menuContainer');
 
 async function loadProducts() {
-
+    console.log("Firebase connected");
     try {
 
         const snapshot = await getDocs(
