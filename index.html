@@ -290,25 +290,23 @@ Pesan Sekarang
 
 <section class="section" id="menu">
 
-<div class="container">
+  <div class="container">
 
-<h2 class="section-title">Menu Favorit</h2>
-<p class="section-subtitle">
-Menu terlaris pelanggan ChimChum Malang
-</p>
+    <h2 class="section-title">Menu Favorit</h2>
 
-<div class="menu-grid">
+    <p class="section-subtitle">
+      Menu terlaris pelanggan ChimChum Malang
+    </p>
 
-<div class="card">
-<img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80">
-<div class="card-content">
-<h3>Dimsum Mentai</h3>
-<p>Dimsum premium dengan saus mentai melimpah.</p>
-<div class="price">Rp 15.000</div>
-</div>
-</div>
+    <div class="menu-grid" id="menuContainer">
+      <p>Memuat menu...</p>
+    </div>
 
-<div class="card">
+  </div>
+
+</section>
+
+<div class="menu-grid" id="menuContainer" id="menuContainer">
 <img src="https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=800&q=80">
 <div class="card-content">
 <h3>Ohiyong Seafood</h3>
@@ -317,7 +315,7 @@ Menu terlaris pelanggan ChimChum Malang
 </div>
 </div>
 
-<div class="card">
+<div class="menu-grid" id="menuContainer" id="menuContainer">
 <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80">
 <div class="card-content">
 <h3>Paket Hemat</h3>
@@ -439,5 +437,74 @@ target="_blank">
 WhatsApp
 </a>
 
+<script type="module">
+
+import { db, collection, getDocs } from './firebase.js';
+
+const menuContainer = document.getElementById('menuContainer');
+
+async function loadProducts() {
+
+    try {
+
+        const snapshot = await getDocs(
+            collection(db, 'products')
+        );
+
+        menuContainer.innerHTML = '';
+
+        if(snapshot.empty){
+            menuContainer.innerHTML =
+            '<p>Belum ada menu tersedia.</p>';
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+
+            const product = doc.data();
+
+            menuContainer.innerHTML += `
+                <div class="card">
+                    <img
+                        src="${product.foto}"
+                        alt="${product.nama}"
+                    >
+
+                    <div class="card-content">
+
+                        <h3>
+                            ${product.nama}
+                        </h3>
+
+                        <p>
+                            ${product.deskripsi}
+                        </p>
+
+                        <p>
+                            Isi ${product.isi} pcs
+                        </p>
+
+                        <div class="price">
+                            Rp ${Number(product.harga)
+                                .toLocaleString('id-ID')}
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        });
+
+    } catch(error) {
+
+        console.error(error);
+
+        menuContainer.innerHTML =
+        '<p>Gagal mengambil data menu dari Firebase.</p>';
+    }
+}
+
+loadProducts();
+
+</script>
 </body>
 </html>
