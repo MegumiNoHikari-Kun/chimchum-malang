@@ -1,4 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 
 import {
   getFirestore,
@@ -8,10 +9,11 @@ import {
   deleteDoc,
   updateDoc,
   doc
-} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+}
+from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyAGnCd4162tVEu_ADZBXN5CNE_7C_muCXA",
   authDomain: "chimchum-malang.firebaseapp.com",
   projectId: "chimchum-malang",
   storageBucket: "chimchum-malang.firebasestorage.app",
