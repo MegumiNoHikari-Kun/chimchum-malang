@@ -1,63 +1,38 @@
-import { initializeApp } 
-from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+// firebase.js
+import { initializeApp }           from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection,
+         getDocs, addDoc,
+         serverTimestamp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, signInAnonymously,
+         onAuthStateChanged }       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  updateDoc,
-  doc,
-  serverTimestamp
-} 
-from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
-import {
-  getAuth,
-  onAuthStateChanged
-} 
-from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-
+// ── GANTI DENGAN CONFIG FIREBASE PROJECT KAMU ───────────────
 const firebaseConfig = {
-  apiKey: "AIzaSyAGnCd4162tVEu_ADZBXN5CNE_7C_muCXA",
-  authDomain: "chimchum-malang.firebaseapp.com",
-  projectId: "chimchum-malang",
-  storageBucket: "chimchum-malang.firebasestorage.app",
-  messagingSenderId: "224277456881",
-  appId: "1:224277456881:web:4583b5897ba1c23df68650"
+  apiKey            : 'GANTI_API_KEY',
+  authDomain        : 'GANTI_PROJECT_ID.firebaseapp.com',
+  projectId         : 'GANTI_PROJECT_ID',
+  storageBucket     : 'GANTI_PROJECT_ID.appspot.com',
+  messagingSenderId : 'GANTI_MESSAGING_SENDER_ID',
+  appId             : 'GANTI_APP_ID',
 };
+// ────────────────────────────────────────────────────────────
 
-const app = initializeApp(firebaseConfig);
-
-// Firestore
-const db = getFirestore(app);
-
-// Auth
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
 const auth = getAuth(app);
 
-// ambil UID user login
-let currentUID = null;
+// Auto anonymous sign-in — wajib karena Firestore rules butuh request.auth != null
+signInAnonymously(auth).catch((err) => {
+  console.error('Anonymous sign-in gagal:', err.message);
+});
 
+// Optional: pantau status auth
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    currentUID = user.uid;
-    console.log("User login UID:", currentUID);
+    console.log('Auth OK — UID:', user.uid, '| anonymous:', user.isAnonymous);
   } else {
-    currentUID = null;
-    console.log("User belum login");
+    console.warn('User belum login');
   }
 });
 
-export {
-  db,
-  auth,
-  currentUID,
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  updateDoc,
-  doc,
-  serverTimestamp
-};
+export { db, collection, getDocs, addDoc, serverTimestamp };
