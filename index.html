@@ -3,863 +3,398 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>ChimChum Malang | Dimsum Mentai & Ohiyong</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-
 :root{
---primary:#ff6b35;
---secondary:#fff5f0;
---dark:#222;
---gray:#666;
---white:#fff;
+  --primary:#ff6b35;
+  --secondary:#fff5f0;
+  --dark:#222;
+  --gray:#666;
+  --white:#fff;
 }
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;scroll-behavior:smooth;}
+body{background:#fafafa;color:var(--dark);}
+.container{width:90%;max-width:1200px;margin:auto;}
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
-scroll-behavior:smooth;
-}
+/* NAV */
+header{position:fixed;top:0;width:100%;background:white;box-shadow:0 2px 10px rgba(0,0,0,.08);z-index:999;}
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;}
+.logo{font-size:24px;font-weight:700;color:var(--primary);}
+.nav-links{display:flex;gap:20px;}
+.nav-links a{text-decoration:none;color:#333;font-weight:500;}
 
-body{
-background:#fafafa;
-color:var(--dark);
-}
-
-.container{
-width:90%;
-max-width:1200px;
-margin:auto;
-}
-
-header{
-position:fixed;
-top:0;
-width:100%;
-background:white;
-box-shadow:0 2px 10px rgba(0,0,0,.08);
-z-index:999;
-}
-
-.navbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px 0;
-}
-
-.logo{
-font-size:24px;
-font-weight:700;
-color:var(--primary);
-}
-
-.nav-links{
-display:flex;
-gap:20px;
-}
-
-.nav-links a{
-text-decoration:none;
-color:#333;
-font-weight:500;
-}
-
+/* HERO */
 .hero{
-min-height:100vh;
-display:flex;
-align-items:center;
-background:
-linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
-url('https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1600&q=80');
-background-size:cover;
-background-position:center;
-color:white;
-text-align:center;
-padding:100px 20px;
+  min-height:100vh;display:flex;align-items:center;
+  background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+  url('https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1600&q=80');
+  background-size:cover;background-position:center;
+  color:white;text-align:center;padding:100px 20px;
 }
+.hero-content{max-width:800px;margin:auto;}
+.hero h1{font-size:55px;margin-bottom:20px;}
+.hero p{font-size:20px;margin-bottom:35px;}
+.btn{display:inline-block;padding:14px 28px;background:var(--primary);color:white;text-decoration:none;border-radius:10px;font-weight:600;transition:.3s;border:none;cursor:pointer;font-size:15px;}
+.btn:hover{transform:translateY(-3px);}
 
-.hero-content{
-max-width:800px;
-margin:auto;
-}
+/* SECTION */
+.section{padding:90px 0;}
+.section-title{text-align:center;font-size:36px;margin-bottom:15px;}
+.section-subtitle{text-align:center;color:var(--gray);margin-bottom:50px;}
 
-.hero h1{
-font-size:55px;
-margin-bottom:20px;
+/* MENU CARD */
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;}
+.card{position:relative;transition:.3s;cursor:pointer;background:white;border-radius:15px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.08);}
+.card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,.12);}
+.badge{position:absolute;top:12px;left:12px;background:#ff6b35;color:white;padding:6px 12px;font-size:12px;font-weight:600;border-radius:50px;z-index:2;}
+.card img{width:100%;height:220px;object-fit:cover;}
+.card-content{padding:20px;}
+.card h3{margin-bottom:10px;}
+.price{color:var(--primary);font-weight:700;font-size:20px;margin-top:10px;}
+.btn-order{
+  margin-top:15px;width:100%;padding:12px;
+  background:var(--primary);color:white;border:none;
+  border-radius:10px;font-weight:600;cursor:pointer;
+  font-size:14px;transition:.2s;
 }
+.btn-order:hover{background:#e55a24;}
 
-.hero p{
-font-size:20px;
-margin-bottom:35px;
-}
-
-.btn{
-display:inline-block;
-padding:14px 28px;
-background:var(--primary);
-color:white;
-text-decoration:none;
-border-radius:10px;
-font-weight:600;
-transition:.3s;
-}
-
-.btn:hover{
-transform:translateY(-3px);
-}
-
-.section{
-padding:90px 0;
-}
-
-.section-title{
-text-align:center;
-font-size:36px;
-margin-bottom:15px;
-}
-
-.section-subtitle{
-text-align:center;
-color:var(--gray);
-margin-bottom:50px;
-}
-
-.menu-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:25px;
-}
-.card{
-position:relative;
-transition:.3s;
-cursor:pointer;
-}
-
-.card:hover{
-transform:translateY(-8px);
-box-shadow:0 20px 40px rgba(0,0,0,.12);
-}
-
-.badge{
-position:absolute;
-top:12px;
-left:12px;
-background:#ff6b35;
-color:white;
-padding:6px 12px;
-font-size:12px;
-font-weight:600;
-border-radius:50px;
-z-index:2;
-}
-
-.card img{
-width:100%;
-height:220px;
-object-fit:cover;
-}
-
-.card-content{
-padding:20px;
-}
-
-.card h3{
-margin-bottom:10px;
-}
-
-.price{
-color:var(--primary);
-font-weight:700;
-font-size:20px;
-margin-top:10px;
-}
-/* ===== ORDER MODAL ===== */
-
+/* MODAL */
 .modal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.65);
-display:none;
-justify-content:center;
-align-items:center;
-z-index:99999;
-padding:20px;
-backdrop-filter:blur(4px);
+  position:fixed;inset:0;background:rgba(0,0,0,.65);
+  display:none;justify-content:center;align-items:center;
+  z-index:99999;padding:20px;backdrop-filter:blur(4px);
 }
-
+.modal.active{display:flex;}
 .modal-content{
-background:white;
-width:100%;
-max-width:500px;
-padding:30px;
-border-radius:24px;
-box-shadow:0 20px 50px rgba(0,0,0,.2);
-animation:popup .25s ease;
+  background:white;width:100%;max-width:500px;
+  padding:30px;border-radius:24px;
+  box-shadow:0 20px 50px rgba(0,0,0,.2);
+  animation:popup .25s ease;
+  max-height:90vh;overflow-y:auto;
 }
-
 @keyframes popup{
-from{
-opacity:0;
-transform:translateY(20px);
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
 }
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
-.product-info{
-background:#fff5f0;
-padding:15px;
-border-radius:15px;
-margin-bottom:20px;
-}
-
-.product-info h3{
-margin-bottom:8px;
-}
-
+.modal-content h2{margin-bottom:20px;}
+.product-info{background:#fff5f0;padding:15px;border-radius:15px;margin-bottom:20px;}
+.product-info h3{margin-bottom:5px;}
+.product-info .price{font-size:18px;}
 .form-control{
-width:100%;
-padding:14px;
-border:1px solid #ddd;
-border-radius:12px;
-margin-bottom:15px;
-font-size:15px;
-outline:none;
+  width:100%;padding:14px;border:1px solid #ddd;
+  border-radius:12px;margin-bottom:15px;font-size:15px;
+  outline:none;font-family:'Poppins',sans-serif;
 }
+.form-control:focus{border-color:#ff6b35;}
+.qty-box{display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:20px;}
+.qty-btn{width:45px;height:45px;border:none;background:#ff6b35;color:white;font-size:24px;border-radius:12px;cursor:pointer;}
+#qtyText{font-size:22px;font-weight:700;min-width:40px;text-align:center;}
+.total-box{background:#f6f6f6;padding:15px;border-radius:12px;text-align:center;font-size:20px;font-weight:700;margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions .btn{flex:1;text-align:center;}
+.btn-secondary{background:#999;}
 
-.form-control:focus{
-border-color:#ff6b35;
-}
+/* GALLERY */
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px;}
+.gallery img{width:100%;height:250px;object-fit:cover;border-radius:15px;}
 
-.qty-box{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:15px;
-margin-bottom:20px;
-}
+/* TESTIMONIAL */
+.testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;}
+.testimonial{background:white;padding:25px;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,.08);}
+.testimonial h4{margin-top:15px;color:var(--primary);}
 
-.qty-btn{
-width:45px;
-height:45px;
-border:none;
-background:#ff6b35;
-color:white;
-font-size:24px;
-border-radius:12px;
-cursor:pointer;
-}
+/* CTA */
+.cta{background:var(--primary);color:white;text-align:center;padding:90px 20px;}
+.cta h2{font-size:38px;margin-bottom:20px;}
 
-#qtyText{
-font-size:22px;
-font-weight:700;
-min-width:40px;
-text-align:center;
-}
+/* FOOTER */
+footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 
-.total-box{
-background:#f6f6f6;
-padding:15px;
-border-radius:12px;
-text-align:center;
-font-size:20px;
-font-weight:700;
-margin-bottom:20px;
-}
-
-.btn-full{
-width:100%;
-border:none;
-cursor:pointer;
-margin-top:10px;
-}
-
-.btn-secondary{
-background:#999;
-}
-
-
-
-
-.gallery{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:15px;
-}
-
-.gallery img{
-width:100%;
-height:250px;
-object-fit:cover;
-border-radius:15px;
-}
-
-.testimonials{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-gap:20px;
-}
-
-.testimonial{
-background:white;
-padding:25px;
-border-radius:15px;
-box-shadow:0 5px 20px rgba(0,0,0,.08);
-}
-
-.testimonial h4{
-margin-top:15px;
-color:var(--primary);
-}
-
-.cta{
-background:var(--primary);
-color:white;
-text-align:center;
-padding:90px 20px;
-}
-
-.cta h2{
-font-size:38px;
-margin-bottom:20px;
-}
-
-footer{
-background:#111;
-color:white;
-padding:40px 20px;
-text-align:center;
-}
-
+/* WA FLOAT */
 .whatsapp-float{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#25D366;
-color:white;
-padding:16px 20px;
-border-radius:50px;
-text-decoration:none;
-font-weight:600;
-box-shadow:0 5px 15px rgba(0,0,0,.2);
+  position:fixed;bottom:20px;right:20px;
+  background:#25D366;color:white;
+  padding:16px 20px;border-radius:50px;
+  text-decoration:none;font-weight:600;
+  box-shadow:0 5px 15px rgba(0,0,0,.2);z-index:998;
 }
 
 @media(max-width:768px){
-
-.hero h1{
-font-size:36px;
+  .hero h1{font-size:36px;}
+  .hero p{font-size:16px;}
+  .nav-links{display:none;}
+  .section-title{font-size:28px;}
 }
-
-.hero p{
-font-size:16px;
-}
-
-.nav-links{
-display:none;
-}
-
-.section-title{
-font-size:28px;
-}
-
-}
-
 </style>
 </head>
 <body>
 
 <header>
-<div class="container navbar">
-
-<div class="logo">
-CHIMCHUM MALANG
-</div>
-
-<div class="nav-links">
-<a href="#menu">Menu</a>
-<a href="#gallery">Galeri</a>
-<a href="#testimoni">Testimoni</a>
-<a href="#order">Order</a>
-</div>
-
-</div>
+  <div class="container navbar">
+    <div class="logo">CHIMCHUM MALANG</div>
+    <div class="nav-links">
+      <a href="#menu">Menu</a>
+      <a href="#gallery">Galeri</a>
+      <a href="#testimoni">Testimoni</a>
+      <a href="#order">Order</a>
+    </div>
+  </div>
 </header>
 
 <section class="hero">
-
-<div class="hero-content">
-
-<h1>Dimsum Mentai & Ohiyong Favorit Kota Malang</h1>
-
-<p>
-Nikmati cita rasa premium dengan bahan berkualitas,
-fresh setiap hari, dan dibuat dengan penuh cinta.
-</p>
-
-<a href="https://wa.me/6285723785380" class="btn">
-Pesan Sekarang
-</a>
-
-</div>
-
+  <div class="hero-content">
+    <h1>Dimsum Mentai & Ohiyong Favorit Kota Malang</h1>
+    <p>Nikmati cita rasa premium dengan bahan berkualitas, fresh setiap hari, dan dibuat dengan penuh cinta.</p>
+    <a href="https://wa.me/6285723785380" class="btn">Pesan Sekarang</a>
+  </div>
 </section>
 
 <section class="section" id="menu">
-
   <div class="container">
-
     <h2 class="section-title">Menu Favorit</h2>
-
-    <p class="section-subtitle">
-      Menu terlaris pelanggan ChimChum Malang
-    </p>
-
+    <p class="section-subtitle">Menu terlaris pelanggan ChimChum Malang</p>
     <div class="menu-grid" id="menuContainer">
       <p>Memuat menu...</p>
     </div>
-
   </div>
-
-</section>
-
-</div>
-
-</div>
-
 </section>
 
 <section class="section" id="gallery">
-
-<div class="container">
-
-<h2 class="section-title">Galeri Menu</h2>
-
-<div class="gallery">
-
-<img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80">
-
-<img src="https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=800&q=80">
-
-<img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80">
-
-<img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80">
-
-</div>
-
-</div>
-
+  <div class="container">
+    <h2 class="section-title">Galeri Menu</h2>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80" alt="gallery">
+      <img src="https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=800&q=80" alt="gallery">
+      <img src="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80" alt="gallery">
+      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80" alt="gallery">
+    </div>
+  </div>
 </section>
 
 <section class="section" id="testimoni">
-
-<div class="container">
-
-<h2 class="section-title">Testimoni Pelanggan</h2>
-
-<div class="testimonials">
-
-<div class="testimonial">
-⭐⭐⭐⭐⭐
-<p>
-Dimsumnya lembut dan saus mentainya benar-benar melimpah.
-</p>
-<h4>Rina - Malang</h4>
-</div>
-
-<div class="testimonial">
-⭐⭐⭐⭐⭐
-<p>
-Order untuk keluarga, semuanya suka. Pasti repeat order.
-</p>
-<h4>Andi - Batu</h4>
-</div>
-
-<div class="testimonial">
-⭐⭐⭐⭐⭐
-<p>
-Pengiriman cepat dan makanan masih hangat.
-</p>
-<h4>Siska - Kepanjen</h4>
-</div>
-
-</div>
-
-</div>
-
+  <div class="container">
+    <h2 class="section-title">Testimoni Pelanggan</h2>
+    <div class="testimonials">
+      <div class="testimonial">⭐⭐⭐⭐⭐<p>Dimsumnya lembut dan saus mentainya benar-benar melimpah.</p><h4>Rina - Malang</h4></div>
+      <div class="testimonial">⭐⭐⭐⭐⭐<p>Order untuk keluarga, semuanya suka. Pasti repeat order.</p><h4>Andi - Batu</h4></div>
+      <div class="testimonial">⭐⭐⭐⭐⭐<p>Pengiriman cepat dan makanan masih hangat.</p><h4>Siska - Kepanjen</h4></div>
+    </div>
+  </div>
 </section>
 
 <section class="cta" id="order">
-
-<h2>Siap Mencoba Menu Favorit Kami?</h2>
-
-<p style="margin-bottom:25px;">
-Klik tombol di bawah untuk order melalui WhatsApp.
-</p>
-
-<a href="https://wa.me/6281234567890" class="btn">
-Order via WhatsApp
-</a>
-
+  <h2>Siap Mencoba Menu Favorit Kami?</h2>
+  <p style="margin-bottom:25px;">Klik tombol di bawah untuk order melalui WhatsApp.</p>
+  <a href="https://wa.me/6285723785380" class="btn">Order via WhatsApp</a>
 </section>
 
 <footer>
-
-<h3>CHIMCHUM MALANG</h3>
-
-<p>
-Dimsum Mentai • Ohiyong • Frozen Food
-</p>
-
-<br>
-
-<p>
-WhatsApp : 0857-2378-5380
-</p>
-
-<p>
-Instagram : @chimchumofficial
-</p>
-
-<br>
-
-<p>
-© 2026 ChimChum Malang
-</p>
-
+  <h3>CHIMCHUM MALANG</h3>
+  <p>Dimsum Mentai • Ohiyong • Frozen Food</p><br>
+  <p>WhatsApp : 0857-2378-5380</p>
+  <p>Instagram : @chimchumofficial</p><br>
+  <p>© 2026 ChimChum Malang</p>
 </footer>
 
-<a
-class="whatsapp-float"
-href="https://wa.me/6285723785380"
-target="_blank">
-WhatsApp
-</a>
-<script type="module">
-  
-import { db, collection, getDocs } from './firebase.js';
+<a class="whatsapp-float" href="https://wa.me/6285723785380" target="_blank">💬 WhatsApp</a>
 
+<!-- ORDER MODAL -->
+<div id="orderModal" class="modal">
+  <div class="modal-content">
+    <h2>Order Produk</h2>
+
+    <div class="product-info">
+      <h3 id="productName">-</h3>
+      <div class="price" id="productPrice">-</div>
+    </div>
+
+    <input class="form-control" id="customerName" placeholder="Nama Pelanggan" />
+    <input class="form-control" id="customerPhone" placeholder="Nomor WhatsApp" />
+    <textarea class="form-control" id="customerAddress" rows="3" placeholder="Alamat Pengiriman"></textarea>
+
+    <div class="qty-box">
+      <button class="qty-btn" onclick="changeQty(-1)">−</button>
+      <span id="qtyText">1</span>
+      <button class="qty-btn" onclick="changeQty(1)">+</button>
+    </div>
+
+    <div class="total-box">Total: <span id="totalPrice">Rp 0</span></div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="submitOrder()">Kirim Order via WA</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ============================================================
+// PERBAIKAN UTAMA:
+// 1. Import addDoc & serverTimestamp yang sebelumnya hilang
+// 2. Card produk sekarang punya tombol "Pesan" yang memanggil openOrderModal()
+// 3. Nomor WA disamakan ke 6285723785380
+// 4. Modal dibuka/tutup dengan class .active (lebih reliable)
+// ============================================================
+
+import {
+  db,
+  collection,
+  getDocs,
+  addDoc,           // FIX: sebelumnya tidak diimport
+  serverTimestamp   // FIX: sebelumnya tidak diimport
+} from './firebase.js';
+
+const WA_NUMBER = '6285723785380'; // satu sumber kebenaran
+
+// ─── LOAD PRODUCTS ──────────────────────────────────────────
 const menuContainer = document.getElementById('menuContainer');
 
 async function loadProducts() {
-    console.log("Firebase connected");
-    try {
+  try {
+    const snapshot = await getDocs(collection(db, 'products'));
+    menuContainer.innerHTML = '';
 
-        const snapshot = await getDocs(
-            collection(db, 'products')
-        );
-
-        menuContainer.innerHTML = '';
-
-        if(snapshot.empty){
-            menuContainer.innerHTML =
-            '<p>Belum ada menu tersedia.</p>';
-            return;
-        }
-
-        snapshot.forEach((doc) => {
-
-            const product = doc.data();
-
-            menuContainer.innerHTML += `
-                <div class="card">
-                    <img
-                        src="${product.foto}"
-                        alt="${product.nama}"
-                    >
-
-                    <div class="card-content">
-
-                        <h3>
-                            ${product.nama}
-                        </h3>
-
-                        <p>
-                            ${product.deskripsi}
-                        </p>
-
-                        <p>
-                            Isi ${product.isi} pcs
-                        </p>
-
-                        <div class="price">
-                            Rp ${Number(product.harga)
-                                .toLocaleString('id-ID')}
-                        </div>
-
-                    </div>
-                </div>
-            `;
-        });
-
-    } catch(error) {
-
-        console.error(error);
-
-        menuContainer.innerHTML =
-        '<p>Gagal mengambil data menu dari Firebase.</p>';
+    if (snapshot.empty) {
+      menuContainer.innerHTML = '<p>Belum ada menu tersedia.</p>';
+      return;
     }
+
+    snapshot.forEach((doc) => {
+      const p = doc.data();
+      const harga = Number(p.harga);
+
+      menuContainer.innerHTML += `
+        <div class="card">
+          <img src="${p.foto}" alt="${p.nama}" onerror="this.src='https://via.placeholder.com/400x220?text=No+Image'">
+          <div class="card-content">
+            <h3>${p.nama}</h3>
+            <p>${p.deskripsi}</p>
+            <p>Isi ${p.isi} pcs</p>
+            <div class="price">Rp ${harga.toLocaleString('id-ID')}</div>
+            <!-- FIX: tombol order sekarang ada di setiap card -->
+            <button
+              class="btn-order"
+              onclick="openOrderModal('${doc.id}', '${p.nama.replace(/'/g,"\\'")}', ${harga})">
+              🛒 Pesan Sekarang
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+  } catch (error) {
+    console.error('loadProducts error:', error);
+    menuContainer.innerHTML = '<p>Gagal mengambil data menu dari Firebase.</p>';
+  }
 }
 
 loadProducts();
-  
+
+// ─── ORDER MODAL ────────────────────────────────────────────
 let selectedProduct = null;
 let qty = 1;
 
-window.openOrderModal =
-(id,nama,harga)=>{
+window.openOrderModal = (id, nama, harga) => {
+  selectedProduct = { id, nama, harga };
+  qty = 1;
 
-selectedProduct = {
-id,
-nama,
-harga
+  document.getElementById('productName').innerText = nama;
+  document.getElementById('productPrice').innerText =
+    'Rp ' + Number(harga).toLocaleString('id-ID');
+  document.getElementById('qtyText').innerText = qty;
+  updateTotal();
+
+  // FIX: gunakan class .active agar display:flex bekerja dengan benar
+  document.getElementById('orderModal').classList.add('active');
 };
 
-qty = 1;
-
-document.getElementById(
-"productName"
-).innerText = nama;
-
-document.getElementById(
-"productPrice"
-).innerText =
-"Rp " +
-Number(harga).toLocaleString("id-ID");
-
-document.getElementById(
-"qtyText"
-).innerText = qty;
-
-updateTotal();
-
-document.getElementById(
-"orderModal"
-).style.display = "flex";
+window.closeModal = () => {
+  document.getElementById('orderModal').classList.remove('active');
 };
 
-window.closeModal = ()=>{
+// Tutup modal jika klik backdrop
+document.getElementById('orderModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('orderModal')) closeModal();
+});
 
-document.getElementById(
-"orderModal"
-).style.display = "none";
+window.changeQty = (value) => {
+  qty = Math.max(1, qty + value);
+  document.getElementById('qtyText').innerText = qty;
+  updateTotal();
 };
 
-window.changeQty = (value)=>{
-
-qty += value;
-
-if(qty < 1){
-qty = 1;
+function updateTotal() {
+  if (!selectedProduct) return;
+  const total = qty * selectedProduct.harga;
+  document.getElementById('totalPrice').innerText =
+    'Rp ' + total.toLocaleString('id-ID');
 }
 
-document.getElementById(
-"qtyText"
-).innerText = qty;
+// ─── SUBMIT ORDER ────────────────────────────────────────────
+window.submitOrder = async () => {
+  const customerName    = document.getElementById('customerName').value.trim();
+  const customerPhone   = document.getElementById('customerPhone').value.trim();
+  const customerAddress = document.getElementById('customerAddress').value.trim();
 
-updateTotal();
-};
+  if (!customerName || !customerPhone) {
+    alert('Nama dan nomor WhatsApp wajib diisi.');
+    return;
+  }
 
-function updateTotal(){
+  const total = qty * selectedProduct.harga;
 
-if(!selectedProduct) return;
+  try {
+    // Simpan order ke Firestore
+    await addDoc(collection(db, 'orders'), {
+      customer_name : customerName,
+      phone         : customerPhone,
+      address       : customerAddress,
+      product_id    : selectedProduct.id,
+      product_name  : selectedProduct.nama,
+      qty           : qty,
+      price         : selectedProduct.harga,
+      total         : total,
+      status        : 'NEW',
+      created_at    : serverTimestamp()
+    });
 
-const total =
-qty *
-selectedProduct.harga;
-
-document.getElementById(
-"totalPrice"
-).innerText =
-"Rp " +
-total.toLocaleString("id-ID");
-}
-
-window.submitOrder =
-async()=>{
-
-const customerName =
-document.getElementById(
-"customerName"
-).value.trim();
-
-const customerPhone =
-document.getElementById(
-"customerPhone"
-).value.trim();
-
-const customerAddress =
-document.getElementById(
-"customerAddress"
-).value.trim();
-
-if(
-!customerName ||
-!customerPhone
-){
-
-alert(
-"Nama dan WhatsApp wajib diisi"
-);
-
-return;
-}
-
-try{
-
-const total =
-qty *
-selectedProduct.harga;
-
-await addDoc(
-collection(db,"orders"),
-{
-
-customer_name:
-customerName,
-
-phone:
-customerPhone,
-
-address:
-customerAddress,
-
-product_id:
-selectedProduct.id,
-
-product_name:
-selectedProduct.nama,
-
-qty:
-qty,
-
-price:
-selectedProduct.harga,
-
-total:
-total,
-
-status:
-"NEW",
-
-created_at:
-serverTimestamp()
-
-}
-);
-
-const waText =
-encodeURIComponent(
-
+    // Buka WhatsApp
+    const waText = encodeURIComponent(
 `Halo ChimChum Malang 👋
 
 Saya ingin memesan:
 
 🍜 Produk : ${selectedProduct.nama}
-📦 Jumlah : ${qty}
+📦 Jumlah : ${qty} pcs
 
-👤 Nama : ${customerName}
-📱 WA : ${customerPhone}
-📍 Alamat : ${customerAddress}
+👤 Nama    : ${customerName}
+📱 WA      : ${customerPhone}
+📍 Alamat  : ${customerAddress || '-'}
 
-💰 Total : Rp ${total.toLocaleString('id-ID')}
+💰 Total   : Rp ${total.toLocaleString('id-ID')}
 
-Terima kasih.`
-);
+Terima kasih! 🙏`
+    );
 
-window.open(
-`https://wa.me/6281234567890?text=${waText}`,
-"_blank"
-);
+    window.open(`https://wa.me/${WA_NUMBER}?text=${waText}`, '_blank');
 
-alert(
-"Pesanan berhasil dikirim"
-);
+    // Reset form
+    document.getElementById('customerName').value    = '';
+    document.getElementById('customerPhone').value   = '';
+    document.getElementById('customerAddress').value = '';
 
-closeModal();
+    closeModal();
+    alert('Pesanan berhasil dikirim! Lanjutkan chat di WhatsApp.');
 
-document.getElementById(
-"customerName"
-).value = "";
-
-document.getElementById(
-"customerPhone"
-).value = "";
-
-document.getElementById(
-"customerAddress"
-).value = "";
-
-}
-catch(error){
-
-console.error(error);
-
-alert(
-"Gagal menyimpan order"
-);
-}
+  } catch (error) {
+    console.error('submitOrder error:', error);
+    alert('Gagal menyimpan order. Coba lagi atau hubungi kami langsung via WA.');
+  }
 };
 </script>
-<div id="orderModal" class="modal">
 
-    <div class="modal-content">
-
-    <h2>Order Produk</h2>
-
-    <input
-    class="form-control"
-    id="customerName"
-    placeholder="Nama Pelanggan">
-
-    <input
-    class="form-control"
-    id="customerPhone"
-    placeholder="Nomor WhatsApp">
-
-    <textarea
-    class="form-control"
-    id="customerAddress"
-    placeholder="Alamat Pengiriman"></textarea>
-
-    <div class="qty-box">
-
-        <button onclick="changeQty(-1)">
-        −
-
-        </button>
-
-        <span id="qtyText">1</span>
-
-        <button onclick="changeQty(1)">
-        +
-        </button>
-
-    </div>
-
-    <button
-    class="btn"
-    onclick="submitOrder()">
-    Kirim Order
-    </button>
-
-    <button
-    class="btn"
-    style="background:#999;margin-left:10px;"
-    onclick="closeModal()">
-    Batal
-    </button>
-
-    </div>
-
-</div>
 </body>
 </html>
