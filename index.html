@@ -126,6 +126,30 @@ header{position:fixed;top:0;width:100%;background:white;box-shadow:0 2px 10px rg
 /* CTA */
 .cta{background:var(--primary);color:white;text-align:center;padding:90px 20px;}
 .cta h2{font-size:38px;margin-bottom:20px;}
+.btn-cta-cart{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 38px;
+  background:white;
+  color:var(--primary);
+  font-size:17px;font-weight:700;
+  border:3px solid white;
+  border-radius:50px;
+  cursor:pointer;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+  transition:all .25s ease;
+  animation:pulseCta 2s infinite;
+}
+.btn-cta-cart:hover{
+  background:transparent;
+  color:white;
+  transform:translateY(-4px);
+  box-shadow:0 14px 40px rgba(0,0,0,.35);
+  animation:none;
+}
+@keyframes pulseCta{
+  0%,100%{box-shadow:0 8px 30px rgba(0,0,0,.25),0 0 0 0 rgba(255,255,255,.5);}
+  50%{box-shadow:0 8px 30px rgba(0,0,0,.25),0 0 0 12px rgba(255,255,255,.0);}
+}
 
 /* FOOTER */
 footer{background:#111;color:white;padding:40px 20px;text-align:center;}
@@ -277,7 +301,7 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 <header>
   <div class="container navbar">
     <a class="logo" href="#">
-      <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo.jpg" alt="ChimChum Malang Logo"
+      <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg" alt="ChimChum Malang Logo"
            onerror="this.style.display='none'">
       <span>CHIMCHUM MALANG</span>
     </a>
@@ -355,7 +379,9 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 <section class="cta" id="order">
   <h2>Siap Mencoba Menu Favorit Kami?</h2>
   <p style="margin-bottom:25px;">Tambahkan menu ke keranjang lalu kirim order via WhatsApp.</p>
-  <button class="cart-nav-btn" onclick="openCart()">🛒 Buka Keranjang</button>
+  <button class="btn-cta-cart" onclick="openCart()">
+    🛒 Buka Keranjang
+  </button>
 </section>
 
 <!-- FOOTER -->
@@ -514,8 +540,8 @@ async function loadTestimoni() {
       const t = doc.data();
       container.innerHTML += `
         <div class="testimonial">
-          <div class="stars">${stars(t.bintang)}</div>
-          <p>${t.pesan}</p>
+          <div class="stars">${stars(t.rating)}</div>
+          <p>${t.komentar}</p>
           <h4>${t.nama} — ${t.kota}</h4>
         </div>`;
     });
