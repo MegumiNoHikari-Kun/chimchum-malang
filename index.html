@@ -544,6 +544,73 @@ target="_blank">
 WhatsApp
 </a>
 <script type="module">
+  
+import { db, collection, getDocs } from './firebase.js';
+
+const menuContainer = document.getElementById('menuContainer');
+
+async function loadProducts() {
+    console.log("Firebase connected");
+    try {
+
+        const snapshot = await getDocs(
+            collection(db, 'products')
+        );
+
+        menuContainer.innerHTML = '';
+
+        if(snapshot.empty){
+            menuContainer.innerHTML =
+            '<p>Belum ada menu tersedia.</p>';
+            return;
+        }
+
+        snapshot.forEach((doc) => {
+
+            const product = doc.data();
+
+            menuContainer.innerHTML += `
+                <div class="card">
+                    <img
+                        src="${product.foto}"
+                        alt="${product.nama}"
+                    >
+
+                    <div class="card-content">
+
+                        <h3>
+                            ${product.nama}
+                        </h3>
+
+                        <p>
+                            ${product.deskripsi}
+                        </p>
+
+                        <p>
+                            Isi ${product.isi} pcs
+                        </p>
+
+                        <div class="price">
+                            Rp ${Number(product.harga)
+                                .toLocaleString('id-ID')}
+                        </div>
+
+                    </div>
+                </div>
+            `;
+        });
+
+    } catch(error) {
+
+        console.error(error);
+
+        menuContainer.innerHTML =
+        '<p>Gagal mengambil data menu dari Firebase.</p>';
+    }
+}
+
+loadProducts();
+  
 let selectedProduct = null;
 let qty = 1;
 
