@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChimChum Malang</title>
+
+<style>
+:root{
+  --primary:#ff6b35;
+  --secondary:#fff5f0;
+  --dark:#222;
+  --gray:#666;
+  --white:#fff;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--secondary);
+  color:var(--dark);
+}
+
+/* HEADER */
+header{
+  background:var(--primary);
+  color:white;
+  padding:20px;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+
+/* CONTAINER */
+.container{
+  padding:20px;
+}
+
+/* FORM */
+.card{
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:20px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+input,textarea{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  margin-bottom:12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+/* BUTTON */
+button{
+  padding:10px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  opacity:0.8;
+}
+
+.btn-primary{
+  background:var(--primary);
+  color:white;
+}
+
+.btn-edit{
+  background:#ffa502;
+  color:white;
+  margin-right:5px;
+}
+
+.btn-delete{
+  background:#ff4757;
+  color:white;
+}
+
+/* GRID PRODUCT */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:15px;
+}
+
+.product{
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+
+.product img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+}
+
+.product .content{
+  padding:10px;
+}
+
+.price{
+  color:var(--primary);
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>ChimChum Malang</header>
+
+<div class="container">
+
+<!-- FORM CRUD -->
+<div class="card">
+<h3>Tambah Produk</h3>
+
+<input id="nama" placeholder="Nama Produk">
+<input id="harga" type="number" placeholder="Harga">
+<input id="stok" type="number" placeholder="Stok">
+<input id="foto" placeholder="URL Foto">
+
+<button class="btn-primary" onclick="addProduct()">
+Tambah
+</button>
+</div>
+
+<!-- LIST -->
+<div class="grid" id="list"></div>
+
+</div>
+
+<script type="module">
+import {
+db, collection, getDocs,
+addDoc, deleteDoc, updateDoc, doc
+} from './firebase.js';
+
+const list = document.getElementById("list");
+
+/* READ */
+window.load = async () => {
+  list.innerHTML = "";
+
+  const snap = await getDocs(collection(db,"products"));
+
+  snap.forEach(d=>{
+    const p = d.data();
+
+    list.innerHTML += `
+      <div class="product">
+        <img src="${p.foto}">
+        <div class="content">
+          <div><b>${p.nama}</b></div>
+          <div class="price">Rp ${Number(p.harga).toLocaleString('id-ID')}</div>
+          <small>Stok: ${p.stok}</small>
+          <br><br>
+
+          <button class="btn-edit" onclick="edit('${d.id}')">Edit</button>
+          <button class="btn-delete" onclick="hapus('${d.id}')">Hapus</button>
+        </div>
+      </div>
+    `;
+  });
+};
+
+/* CREATE */
+window.addProduct = async () => {
+  await addDoc(collection(db,"products"),{
+    nama: nama.value,
+    harga: Number(harga.value),
+    stok: Number(stok.value),
+    foto: foto.value,
+    aktif:true
+  });
+
+  load();
+};
+
+/* DELETE */
+window.hapus = async (id) => {
+  if(!confirm("Hapus produk?")) return;
+  await deleteDoc(doc(db,"products",id));
+  load();
+};
+
+/* UPDATE */
+window.edit = async (id) => {
+  const newPrice = prompt("Harga baru:");
+  if(!newPrice) return;
+
+  await updateDoc(doc(db,"products",id),{
+    harga:Number(newPrice)
+  });
+
+  load();
+};
+
+load();
+</script>
+
+</body>
+</html>
