@@ -573,6 +573,8 @@ import {
   collection,
   getDocs,
   addDoc,
+  updateDoc,
+  doc,
   serverTimestamp
 } from './firebase.js';
 
@@ -642,7 +644,7 @@ async function loadProducts() {
               <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
               <button class="btn-add-cart" id="addbtn-${id}"
                 ${habis ? 'disabled' : ''}
-                onclick="addToCart('${id}','${safeAttr(p.nama)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}')">
+                onclick="addToCart('${id}','${safeAttr(p.nama)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}',${stok})">
                 ${habis ? 'Stok Habis' : '+ Keranjang'}
               </button>
             </div>
@@ -732,10 +734,10 @@ window.cardDecQty = (id) => {
 };
 
 // ── KERANJANG ────────────────────────────────────────────────
-window.addToCart = (id, nama, harga, foto, isi) => {
+window.addToCart = (id, nama, harga, foto, isi, stokSaat = 999) => {
   const qty = getCardQty(id);
   if (cart[id]) { cart[id].qty += qty; }
-  else { cart[id] = { id, nama, harga, foto, isi, qty }; }
+  else { cart[id] = { id, nama, harga, foto, isi, qty, stokSaat }; }
 
   cardQtys[id] = 1;
   document.getElementById(`cardqty-${id}`).innerText = 1;
@@ -860,6 +862,7 @@ Terima kasih! 🙏`
   const waURL = `https://wa.me/${WA_NUMBER}?text=${waText}`;
 
   try {
+    // 1. Simpan order ke Firestore
     await addDoc(collection(db, 'orders'), {
       customer_name : customerName,
       phone         : customerPhone,
@@ -868,11 +871,30 @@ Terima kasih! 🙏`
       grand_total   : grandTotal,
       created_at    : serverTimestamp()
     });
-    window.open(waURL, '_blank');
+
+    // 2. Kurangi stok setiap produk yang dipesan
+    await Promise.all(
+      items.map(i =>
+        updateDoc(doc(db, 'products', i.id), {
+          stok: Math.max(0, (i.stokSaat ?? 999) - i.qty)
+        })
+      )
+    );
+
+    // 3. Reset cart & form
+    Object.keys(cart).forEach(k => delete cart[k]);
+    updateCartUI();
+    document.getElementById('customerName').value    = '';
+    document.getElementById('customerPhone').value   = '';
+    document.getElementById('customerAddress').value = '';
+    closeCheckout();
+
+    // 4. Redirect WA di tab yang sama (tidak new tab)
+    window.location.href = waURL;
+
   } catch (err) {
     console.error('submitOrder:', err);
-    alert('Gagal menyimpan pesanan ke database, mengalihkan ke WhatsApp...');
-    window.open(waURL, '_blank');
+    alert('Gagal menyimpan pesanan. Coba lagi.');
   }
 };
 
