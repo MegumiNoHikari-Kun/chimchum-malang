@@ -460,7 +460,7 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
     <div class="maps-info">
       <div class="maps-info-item">
         <div class="icon">📍</div>
-        <div><h4>Alamat</h4><p>Sawojajar Kec. Kedungkandang, Kota Malang, Jawa Timur</p></div>
+        <div><h4>Alamat</h4><p>Jl. Danau Laut Tawar 1 G2A 2 Sawojajar Kec. Kedungkandang, Kota Malang</p></div>
       </div>
       <div class="maps-info-item">
         <div class="icon">🕐</div>
@@ -776,6 +776,7 @@ window.openCheckout = () => {
         <span>${i.nama} × ${i.qty}</span>
         <span>${rupiah(i.qty * i.harga)}</span>
       </div>`).join('') +
+    `<div class="summary-total"><span>Ongkos Kirim</span><span>check by WA</span></div>`+
     `<div class="summary-total"><span>Grand Total</span><span>${rupiah(grandTotal)}</span></div>`;
 
   document.getElementById('checkoutModal').classList.add('active');
