@@ -286,45 +286,16 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
 
 <div class="container">
   <div id="tab-kasir" class="tab-content active">
-    <div class="kasir-controls" <div class="kasir-controls"
-     style="
-        display:grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap:15px;
-        margin-bottom:20px;
-        background:white;
-        padding:15px;
-        border-radius:12px;
-        box-shadow:0 2px 8px rgba(0,0,0,0.05);
-        align-items:start;
-     ">
-      <div>
-        <input type="text"
-              id="searchMenuKasir"
-              placeholder="🔍 Cari nama menu atau produk..."
-              style="
-                  width:100%;
-                  padding:12px 15px;
-                  border:1px solid #ddd;
-                  border-radius:8px;
-                  outline:none;
-              ">
+    <div id="tab-kasir" class="tab-content active">
+    <div class="kasir-controls" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <div style="flex: 1; min-width: 250px;">
+        <input type="text" id="searchMenuKasir" placeholder="🔍 Cari nama menu atau produk..." style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; margin: 0;">
       </div>
-      <div>
-        <select id="filterKategoriKasir"
-                style="
-                  width:100%;
-                  padding:12px 15px;
-                  border:1px solid #ddd;
-                  border-radius:8px;
-                  outline:none;
-                  background:white;
-                  cursor:pointer;
-                ">
+      <div style="width: 200px;">
+        <select id="filterKategoriKasir" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; background: white; cursor: pointer; margin: 0;">
           <option value="Semua">All Kategori</option>
         </select>
       </div>
-      
     </div>
 
     <div class="kasir-grid">
@@ -333,7 +304,9 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
           <p style="font-size:14px; font-weight:500;"><i class="fa-solid fa-store"></i> Klik menu untuk memasukkan ke dalam struk belanja meja:</p>
         </div>
         <div class="kasir-menu-list" id="kasirMenuList"></div>
-        <div class="kasir-receipt">
+      </div>
+      
+      <div class="kasir-receipt">
         <h3><i class="fa-solid fa-file-invoice-dollar"></i> Struk Kasir Dine-In</h3>
         <div class="receipt-items" id="kasirCartItems">
           <p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>
@@ -394,8 +367,6 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
           <i class="fa-solid fa-circle-check"></i> Proses & Simpan Transaksi
         </button>
       </div>
-      </div>
-    </div>
   </div>
 
   <div id="tab-pesanan" class="tab-content">
