@@ -138,7 +138,12 @@ header .status-badge {
 }
 
 /* CONTAINER & SECTIONS */
-.container { padding: 25px; }
+.container {
+  padding-top: 10px;
+  padding-left: 25px;
+  padding-right: 25px;
+  padding-bottom: 25px;
+}
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
@@ -230,8 +235,16 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
 .kasir-item-card p { font-size: 13px; color: var(--primary); font-weight: 700; }
 
 .kasir-receipt {
-  background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  height: fit-content; position: sticky; top: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+
+  position: fixed;
+  top: 20px;
+  right: 20px; /* sesuaikan */
+  width: 350px; /* sesuaikan */
+  z-index: 1000;
 }
 .receipt-items {
   max-height: 240px; overflow-y: auto; margin: 15px 0; border-top: 1px dashed #ddd; padding-top: 10px;
@@ -269,30 +282,6 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
 </div>
 
 <div class="container">
-
-  <div id="tab-pesanan" class="tab-content">
-    <div class="card" style="margin-bottom:15px;">
-      <h3><i class="fa-solid fa-bell"></i> Monitor Pesanan Masuk (WhatsApp & Dine-In)</h3>
-      <p style="font-size:13px; color:var(--gray);">Seluruh transaksi yang sukses terkirim dari web utama maupun kasir tercatat di bawah ini secara Real-time.</p>
-    </div>
-    <div style="overflow-x: auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>Waktu & Tanggal</th>
-            <th>Pelanggan</th>
-            <th>No. WA</th>
-            <th>Tipe / Metode Pengiriman</th>
-            <th>Item Pesanan</th>
-            <th>Total Pembayaran</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="orderTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-
   <div id="tab-kasir" class="tab-content active">
     <div class="kasir-controls" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
       <div style="flex: 1; min-width: 250px;">
@@ -374,6 +363,29 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
           <i class="fa-solid fa-circle-check"></i> Proses & Simpan Transaksi
         </button>
       </div>
+    </div>
+  </div>
+
+  <div id="tab-pesanan" class="tab-content">
+    <div class="card" style="margin-bottom:15px;">
+      <h3><i class="fa-solid fa-bell"></i> Monitor Pesanan Masuk (WhatsApp & Dine-In)</h3>
+      <p style="font-size:13px; color:var(--gray);">Seluruh transaksi yang sukses terkirim dari web utama maupun kasir tercatat di bawah ini secara Real-time.</p>
+    </div>
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu & Tanggal</th>
+            <th>Pelanggan</th>
+            <th>No. WA</th>
+            <th>Tipe / Metode Pengiriman</th>
+            <th>Item Pesanan</th>
+            <th>Total Pembayaran</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -668,10 +680,10 @@ function renderKasirMenu() {
       <div class="kasir-item-card"
            data-kategori="${p.kategori || 'Umum'}"
            style="${habis ? 'opacity:.45;pointer-events:none;' : ''}"
-           onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga}, ${stok})">
+           onclick="addToKasirCart('${p.id}', \`${p.nama}-${p.isi}\`, ${p.harga}, ${stok})">
         <img src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
         <h4>${p.nama}</h4>
-        <p style="margin-top:2px;font-size:10px;color:#999">Isi ${p.isi} pcs</p>
+        <p style="margin-top:2px;font-size:14px;color:#999">Isi ${p.isi} pcs</p>
         <p>${rupiah(p.harga)}</p>
         <span style="font-size:11px;font-weight:600;color:${stokClr};">${stokTxt}</span>
       </div>
