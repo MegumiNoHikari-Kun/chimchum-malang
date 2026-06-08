@@ -1086,7 +1086,19 @@ window.renderStokTable = () => {
           <td>
             <div style="display:flex;align-items:center;gap:6px;">
               <button onclick="stokDecrement('${p._id}')"
-                style="width:30px;height:30px;border:none;background:#f0f0f0;border-radius:6px;cursor:pointer;font-size:16px;font-weight:700;">−</button>
+                      style="
+                        width:30px;
+                        height:30px;
+                        border:none;
+                        background:#f0f0f0;
+                        border-radius:6px;
+                        cursor:pointer;
+                        font-size:16px;
+                        font-weight:700;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                ">−</button>
               <input type="number" value="${stok}" min="0"
                 style="width:60px;padding:5px;text-align:center;border:1px solid #ddd;border-radius:6px;font-weight:700;margin:0;"
                 id="stok-inp-${p._id}" onchange="stokManualUpdate('${p._id}', this.value)">
