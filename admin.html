@@ -753,7 +753,7 @@ renderKasirMenu();
 function renderKasirMenu() {
   kasirMenuList.innerHTML = "";
   if(cachedProducts.length === 0) {
-    kasirMenuList.innerHTML = "<p>Produk tidak ditemukan. Muat ulang Tab Kelola Produk.</p>";
+    kasirMenuList.innerHTML = "<p>Produk tidak ditemukan. Refresh Page / Klik Kelola Produk.</p>";
     return;
   }
   cachedProducts.forEach(p => {
