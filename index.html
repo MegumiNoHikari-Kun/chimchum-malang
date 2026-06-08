@@ -580,52 +580,98 @@ window.closeCart = () => {
 /* =========================
    LOAD PRODUCTS
 ========================= */
-window.loadProducts = async () => {
-  const container = document.getElementById("menuContainer");
-  if (!container) return;
 
-  container.innerHTML = `<p style="grid-column:1/-1;text-align:center;">Memuat menu...</p>`;
+const WA_NUMBER = '6285723785380';
+const cart = {};
 
+// ── HELPERS ──────────────────────────────────────────────────
+function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+function stars(n){ return '⭐'.repeat(Math.min(5, Math.max(1, Number(n)||5))); }
+function safeAttr(str){ return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ── LOAD PRODUCTS + FILTER ───────────────────────────────────
+const menuContainer    = document.getElementById('menuContainer');
+const galleryContainer = document.getElementById('galleryContainer');
+const filterTabs       = document.getElementById('filterTabs');
+let activeFilter = 'Semua';
+
+async function loadProducts() {
   try {
-    const snap = await getDocs(collection(db, "products"));
-    container.innerHTML = "";
-    productsCache = [];
+    const snapshot = await getDocs(collection(db, 'products'));
+    menuContainer.innerHTML = '';
+    galleryContainer.innerHTML = '';
 
-    snap.forEach(d => {
-      const p = d.data();
-      if (!p.aktif) return;
+    if (snapshot.empty) {
+      menuContainer.innerHTML = '<p>Belum ada menu tersedia.</p>';
+      galleryContainer.innerHTML = '<p>Belum ada foto.</p>';
+      return;
+    }
 
-      productsCache.push({ id: d.id, ...p });
+    const kategoriSet = new Set();
+    const fotoSet     = new Set();
 
-      const disabled = p.stok <= 0;
+    snapshot.forEach((doc) => {
+      const p     = doc.data();
+      const id    = doc.id;
+      const harga = Number(p.harga);
+      const kat   = p.kategori || 'Lainnya';
+      kategoriSet.add(kat);
 
-      container.innerHTML += `
-        <div class="card">
-          <img src="${p.foto || 'https://via.placeholder.com/300'}"
-               onerror="this.src='https://via.placeholder.com/300'">
-
+      menuContainer.innerHTML += `
+        <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
+          <img src="${p.foto}" alt="${p.nama}"
+               onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
           <div class="card-content">
             <h3>${p.nama}</h3>
-            <p>${p.deskripsi || ''}</p>
-
-            <div class="price">${rupiah(p.harga)}</div>
-
+            <p>${p.deskripsi}</p>
+            <p style="margin-top:4px;font-size:13px;color:#999">Isi ${p.isi} pcs</p>
+            <div class="price">${rupiah(harga)}</div>
             <div class="card-order-row">
-              <button class="btn-add-cart"
-                ${disabled ? "disabled style='background:#ccc;cursor:not-allowed'" : ""}
-                onclick="addToCart('${d.id}','${p.nama}',${p.harga},'${p.foto}',${p.stok})">
-                ${disabled ? "Stok Habis" : "Tambah"}
+              <button class="card-qty-btn" onclick="cardDecQty('${id}')">−</button>
+              <span class="card-qty-num" id="cardqty-${id}">1</span>
+              <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
+              <button class="btn-add-cart" id="addbtn-${id}"
+                onclick="addToCart('${id}','${safeAttr(p.nama)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}')">
+                + Keranjang
               </button>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
+
+      if (p.foto && !fotoSet.has(p.foto)) {
+        fotoSet.add(p.foto);
+        galleryContainer.innerHTML += `
+          <img src="${p.foto}" alt="${p.nama}"
+               onerror="this.parentNode.removeChild(this)">`;
+      }
     });
 
-  } catch (e) {
-    console.error(e);
-    container.innerHTML = `<p style="color:red;text-align:center;">Gagal load produk</p>`;
+    const semua = ['Semua', ...Array.from(kategoriSet).sort()];
+    filterTabs.innerHTML = semua.map(k => `
+      <button
+        class="filter-btn ${k === activeFilter ? 'active' : ''}"
+        onclick="applyFilter('${safeAttr(k)}')">
+        ${k}
+      </button>`).join('');
+
+    applyFilter(activeFilter);
+
+  } catch (err) {
+    console.error('loadProducts:', err);
+    menuContainer.innerHTML = '<p>Gagal memuat menu dari Firebase.</p>';
+    galleryContainer.innerHTML = '';
   }
+}
+
+window.applyFilter = (kategori) => {
+  activeFilter = kategori;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.innerText.trim() === kategori);
+  });
+  document.querySelectorAll('.card[data-kategori]').forEach(card => {
+    const match = kategori === 'Semua' || card.dataset.kategori === kategori;
+    card.classList.toggle('hidden-card', !match);
+  });
 };
 
 /* =========================
