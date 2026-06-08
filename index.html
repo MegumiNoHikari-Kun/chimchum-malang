@@ -108,6 +108,17 @@ header{position:fixed;top:0;width:100%;background:white;box-shadow:0 2px 10px rg
 }
 .btn-add-cart:hover{background:#e55a24;}
 .btn-add-cart.added{background:#2ecc71;}
+.btn-add-cart:disabled{background:#ccc;cursor:not-allowed;transform:none;}
+
+/* STOK BADGE */
+.stok-info{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;font-weight:600;padding:4px 10px;
+  border-radius:50px;margin-top:10px;
+}
+.stok-aman  {background:#e8faf0;color:#27ae60;}
+.stok-tipis {background:#fef9e7;color:#e67e22;}
+.stok-habis {background:#fdf0ef;color:#e74c3c;}
 
 /* FILTER TABS */
 .filter-tabs{
@@ -558,7 +569,7 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 <!-- SCRIPT -->
 <script type="module">
 import {
-  db,
+  db, authReady,
   collection,
   getDocs,
   addDoc,
@@ -600,7 +611,20 @@ async function loadProducts() {
       const id    = doc.id;
       const harga = Number(p.harga);
       const kat   = p.kategori || 'Lainnya';
+      const stok  = Number(p.stok ?? 999); // fallback jika field stok belum ada
       kategoriSet.add(kat);
+
+      // Tentukan status & label stok
+      let stokClass, stokIcon, stokLabel;
+      if (stok <= 0) {
+        stokClass = 'stok-habis'; stokIcon = '✕'; stokLabel = 'Stok Habis';
+      } else if (stok <= 5) {
+        stokClass = 'stok-tipis'; stokIcon = '⚠'; stokLabel = `Sisa ${stok} porsi`;
+      } else {
+        stokClass = 'stok-aman';  stokIcon = '✓'; stokLabel = `Stok: ${stok} porsi`;
+      }
+
+      const habis = stok <= 0;
 
       menuContainer.innerHTML += `
         <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
@@ -611,13 +635,15 @@ async function loadProducts() {
             <p>${p.deskripsi}</p>
             <p style="margin-top:4px;font-size:13px;color:#999">Isi ${p.isi} pcs</p>
             <div class="price">${rupiah(harga)}</div>
-            <div class="card-order-row">
+            <span class="stok-info ${stokClass}">${stokIcon} ${stokLabel}</span>
+            <div class="card-order-row" style="${habis ? 'opacity:.45;pointer-events:none;' : ''}">
               <button class="card-qty-btn" onclick="cardDecQty('${id}')">−</button>
               <span class="card-qty-num" id="cardqty-${id}">1</span>
               <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
               <button class="btn-add-cart" id="addbtn-${id}"
+                ${habis ? 'disabled' : ''}
                 onclick="addToCart('${id}','${safeAttr(p.nama)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}')">
-                + Keranjang
+                ${habis ? 'Stok Habis' : '+ Keranjang'}
               </button>
             </div>
           </div>
@@ -687,8 +713,11 @@ async function loadTestimoni() {
   }
 }
 
-loadProducts();
-loadTestimoni();
+// Tunggu auth siap sebelum query Firestore
+authReady.then(() => {
+  loadProducts();
+  loadTestimoni();
+});
 
 // ── CARD QTY ─────────────────────────────────────────────────
 const cardQtys = {};
