@@ -421,16 +421,16 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
 
     <!-- Filter + Search -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
-      <select id="stokFilterStatus" onchange="renderStokTable()"
+      <select id="stokFilterStatus" onchange="window.renderStokTable()"
         style="padding:9px 14px;border:1px solid #ddd;border-radius:8px;outline:none;font-family:'Poppins',sans-serif;background:white;cursor:pointer;">
         <option value="">Semua Status</option>
         <option value="aman">✓ Aman</option>
         <option value="tipis">⚠ Menipis</option>
         <option value="habis">✕ Habis</option>
       </select>
-      <input id="stokSearch" placeholder="🔍 Cari produk..." oninput="renderStokTable()"
+      <input id="stokSearch" placeholder="🔍 Cari produk..." oninput="window.renderStokTable()"
         style="padding:9px 14px;border:1px solid #ddd;border-radius:8px;outline:none;font-family:'Poppins',sans-serif;flex:1;min-width:180px;">
-      <button onclick="loadStokMonitor()"
+      <button onclick="window.loadStokMonitor()"
         style="padding:9px 18px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">
         <i class="fa-solid fa-rotate-right"></i> Refresh
       </button>
@@ -491,10 +491,10 @@ window.switchTab = (tabId, element) => {
   document.getElementById(tabId).classList.add('active');
   element.classList.add('active');
 
-  if(tabId === 'tab-pesanan') loadOrders();
-  if(tabId === 'tab-produk') loadProducts();
+  if(tabId === 'tab-pesanan') window.loadOrders();
+  if(tabId === 'tab-produk') window.loadProducts();
   if(tabId === 'tab-kasir') renderKasirMenu();
-  if(tabId === 'tab-stok')  loadStokMonitor();
+  if(tabId === 'tab-stok')  window.loadStokMonitor();
 };
 
 /* LOGOUT ADMIN */
@@ -985,6 +985,153 @@ window.submitKasirOrder = async () => {
   } catch(err) {
     console.error("Kasir Submit Error:", err);
     alert("Gagal memproses transaksi kasir.");
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+// MONITORING STOK
+// ══════════════════════════════════════════════════════════════
+let stokData = []; // cache untuk filter/search
+
+window.loadStokMonitor = async () => {
+  document.getElementById('stokTableBody').innerHTML =
+    '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:30px;">Memuat data...</td></tr>';
+  try {
+    const snap = await getDocs(collection(db, 'products'));
+    stokData = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+    renderStokSummary();
+    renderStokTable();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('stokTableBody').innerHTML =
+      '<tr><td colspan="6" style="text-align:center;color:red;">Gagal memuat stok.</td></tr>';
+  }
+};
+
+function stokStatus(stok) {
+  const s = Number(stok) || 0;
+  if (s <= 0)  return { key:'habis', label:'✕ Habis',    color:'#e74c3c', bg:'#fdf0ef' };
+  if (s <= 5)  return { key:'tipis', label:'⚠ Menipis',  color:'#e67e22', bg:'#fef9e7' };
+  return              { key:'aman',  label:'✓ Aman',     color:'#27ae60', bg:'#e8faf0' };
+}
+
+function renderStokSummary() {
+  const total  = stokData.length;
+  const habis  = stokData.filter(p => Number(p.stok) <= 0).length;
+  const tipis  = stokData.filter(p => Number(p.stok) > 0 && Number(p.stok) <= 5).length;
+  const aman   = total - habis - tipis;
+
+  document.getElementById('stokSummary').innerHTML = `
+    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
+      <div style="width:44px;height:44px;background:#e8f4fd;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">📦</div>
+      <div><div style="font-size:24px;font-weight:700;">${total}</div><div style="font-size:13px;color:#666;">Total Produk</div></div>
+    </div>
+    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
+      <div style="width:44px;height:44px;background:#e8faf0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">✅</div>
+      <div><div style="font-size:24px;font-weight:700;color:#27ae60;">${aman}</div><div style="font-size:13px;color:#666;">Stok Aman</div></div>
+    </div>
+    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
+      <div style="width:44px;height:44px;background:#fef9e7;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">⚠️</div>
+      <div><div style="font-size:24px;font-weight:700;color:#e67e22;">${tipis}</div><div style="font-size:13px;color:#666;">Stok Menipis</div></div>
+    </div>
+    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
+      <div style="width:44px;height:44px;background:#fdf0ef;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">❌</div>
+      <div><div style="font-size:24px;font-weight:700;color:#e74c3c;">${habis}</div><div style="font-size:13px;color:#666;">Stok Habis</div></div>
+    </div>`;
+}
+
+window.renderStokTable = () => {
+  const filterStatus = document.getElementById('stokFilterStatus')?.value || '';
+  const search       = (document.getElementById('stokSearch')?.value || '').toLowerCase();
+
+  const list = stokData.filter(p => {
+    const st = stokStatus(p.stok);
+    const matchStatus = !filterStatus || st.key === filterStatus;
+    const matchSearch = !search || (p.nama||'').toLowerCase().includes(search) || (p.kategori||'').toLowerCase().includes(search);
+    return matchStatus && matchSearch;
+  });
+
+  // Sort: habis dulu, lalu tipis, lalu aman
+  list.sort((a,b) => Number(a.stok||0) - Number(b.stok||0));
+
+  const tbody = document.getElementById('stokTableBody');
+  tbody.innerHTML = list.length === 0
+    ? '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:30px;">Tidak ada produk ditemukan.</td></tr>'
+    : list.map(p => {
+        const st   = stokStatus(p.stok);
+        const stok = Number(p.stok) || 0;
+        return `<tr>
+          <td><img class="prod-img" src="${p.foto||'https://via.placeholder.com/50'}"
+               onerror="this.src='https://via.placeholder.com/50'"></td>
+          <td><b>${p.nama||'—'}</b></td>
+          <td><span style="background:#fff1ea;padding:4px 8px;border-radius:6px;font-size:12px;">${p.kategori||'—'}</span></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <!-- progress bar -->
+              <div style="flex:1;max-width:100px;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;">
+                <div style="height:100%;width:${Math.min(100, stok * 2)}%;background:${st.color};border-radius:4px;transition:.3s;"></div>
+              </div>
+              <span style="font-weight:700;font-size:15px;">${stok}</span>
+              <span style="font-size:12px;color:#aaa;">porsi</span>
+            </div>
+          </td>
+          <td>
+            <span style="background:${st.bg};color:${st.color};padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">
+              ${st.label}
+            </span>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button onclick="stokDecrement('${p._id}')"
+                style="width:30px;height:30px;border:none;background:#f0f0f0;border-radius:6px;cursor:pointer;font-size:16px;font-weight:700;">−</button>
+              <input type="number" value="${stok}" min="0"
+                style="width:60px;padding:5px;text-align:center;border:1px solid #ddd;border-radius:6px;font-weight:700;margin:0;"
+                id="stok-inp-${p._id}" onchange="stokManualUpdate('${p._id}', this.value)">
+              <button onclick="stokIncrement('${p._id}')"
+                style="width:30px;height:30px;border:none;background:var(--primary);color:white;border-radius:6px;cursor:pointer;font-size:16px;font-weight:700;">+</button>
+              <button onclick="stokSave('${p._id}')"
+                style="padding:5px 12px;background:var(--success);color:white;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+                Simpan
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+};
+
+// Edit stok inline
+window.stokDecrement = (id) => {
+  const inp = document.getElementById(`stok-inp-${id}`);
+  inp.value = Math.max(0, Number(inp.value) - 1);
+};
+window.stokIncrement = (id) => {
+  const inp = document.getElementById(`stok-inp-${id}`);
+  inp.value = Number(inp.value) + 1;
+};
+window.stokManualUpdate = (id, val) => {
+  const inp = document.getElementById(`stok-inp-${id}`);
+  inp.value = Math.max(0, Number(val) || 0);
+};
+window.stokSave = async (id) => {
+  const newStok = Number(document.getElementById(`stok-inp-${id}`).value) || 0;
+  try {
+    await updateDoc(doc(db, 'products', id), { stok: newStok });
+    // Update local cache
+    const p = stokData.find(p => p._id === id);
+    if (p) p.stok = newStok;
+    renderStokSummary();
+    renderStokTable();
+    // feedback singkat
+    const btn = document.querySelector(`button[onclick="stokSave('${id}')"]`);
+    if (btn) {
+      const orig = btn.innerText;
+      btn.innerText = '✓ Tersimpan';
+      btn.style.background = '#27ae60';
+      setTimeout(() => { btn.innerText = orig; btn.style.background = ''; }, 1500);
+    }
+  } catch(e) {
+    alert('Gagal simpan stok.');
+    console.error(e);
   }
 };
 
