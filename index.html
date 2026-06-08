@@ -1002,13 +1002,20 @@ if (btnSubmitLogin) {
       // Simpan session token admin ke browser sebelum dialihkan
       sessionStorage.setItem('chimchum_admin', 'true');
       
-      alert("Login berhasil! Mengalihkan ke Dashboard...");
+      alert("Login berhasil! Mengalihkan ke Dashboard Admin...");
       window.location.href = "admin.html";
+    } else if (user === "kasir" && pass === "kasir123") {
+      // Simpan session token kasir ke browser sebelum dialihkan
+      sessionStorage.setItem('chimchum_kasir', 'true');
+      
+      alert("Login berhasil! Mengalihkan ke Dashboard Kasir...");
+      window.location.href = "kasir.html";
     } else {
       alert("Username atau Password salah!");
     }
   });
 }
+
 </script>
 </body>
 </html>
