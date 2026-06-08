@@ -563,7 +563,6 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const WA_NUMBER = '6285723785380';
 const cart = {};
 
 // ── ELEMENTS ─────────────────────────────
@@ -575,17 +574,15 @@ let activeFilter = 'Semua';
 let productsData = [];
 
 // ── HELPERS ─────────────────────────────
-function rupiah(n){
-  return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
-}
+const rupiah = (n) =>
+  'Rp ' + Number(n || 0).toLocaleString('id-ID');
 
-function safeAttr(str){
-  return String(str ?? '')
+const safeAttr = (str) =>
+  String(str ?? '')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#39;');
-}
 
-// ── CART QTY TEMP (UI ONLY) ─────────────
+// ── CART TEMP ───────────────────────────
 window.cardIncQty = (id) => {
   const el = document.getElementById(`cardqty-${id}`);
   el.innerText = Number(el.innerText) + 1;
@@ -597,7 +594,6 @@ window.cardDecQty = (id) => {
   if (v > 1) el.innerText = v - 1;
 };
 
-// ── CART ADD ────────────────────────────
 window.addToCart = (id, nama, harga, foto, isi) => {
   const qty = Number(document.getElementById(`cardqty-${id}`).innerText);
 
@@ -607,7 +603,7 @@ window.addToCart = (id, nama, harga, foto, isi) => {
     cart[id].qty += qty;
   }
 
-  alert(`${nama} ditambahkan ke keranjang (${qty})`);
+  alert(`${nama} (${qty}) masuk keranjang`);
   document.getElementById(`cardqty-${id}`).innerText = 1;
 };
 
@@ -620,14 +616,13 @@ async function loadProducts() {
     galleryContainer.innerHTML = '';
 
     if (snapshot.empty) {
-      menuContainer.innerHTML = '<p>Belum ada menu tersedia.</p>';
+      menuContainer.innerHTML = '<p>Belum ada menu.</p>';
       galleryContainer.innerHTML = '<p>Belum ada galeri.</p>';
       return;
     }
 
     const kategoriSet = new Set();
     const fotoSet = new Set();
-
     productsData = [];
 
     snapshot.forEach((doc) => {
@@ -636,18 +631,19 @@ async function loadProducts() {
 
       productsData.push({ id, ...p });
 
-      kategoriSet.add(p.kategori || 'Lainnya');
+      const kategori = p.kategori || 'Lainnya';
+      kategoriSet.add(kategori);
 
-      // ── MENU CARD ──
+      // ── CARD MENU ──
       menuContainer.innerHTML += `
-        <div class="card" data-kategori="${safeAttr(p.kategori || 'Lainnya')}">
+        <div class="card" data-kategori="${safeAttr(kategori)}">
 
-          <img src="${p.foto}" alt="${p.nama}"
-            onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
+          <img src="${p.foto}"
+               alt="${p.nama}"
+               onerror="this.src='https://via.placeholder.com/400x320'">
 
           <div class="card-content">
             <h3>${p.nama}</h3>
-
             <p>${p.deskripsi || ''}</p>
 
             <p style="margin-top:5px;font-size:13px;color:#777">
@@ -656,7 +652,7 @@ async function loadProducts() {
 
             <!-- STOK INFO -->
             <p style="
-              margin-top:2px;
+              margin-top:3px;
               font-size:13px;
               font-weight:700;
               color:${(p.stok ?? 0) <= 5 ? '#e74c3c' : '#2ecc71'}">
@@ -667,9 +663,7 @@ async function loadProducts() {
 
             <div class="card-order-row">
               <button class="card-qty-btn" onclick="cardDecQty('${id}')">−</button>
-
               <span class="card-qty-num" id="cardqty-${id}">1</span>
-
               <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
 
               <button class="btn-add-cart"
@@ -681,22 +675,21 @@ async function loadProducts() {
         </div>
       `;
 
-      // ── GALERI (ALL UNIQUE IMAGE) ──
       if (p.foto) fotoSet.add(p.foto);
     });
 
-    // ── FILTER RENDER ──
+    // ── FILTER RENDER (FIXED STABILITY) ──
     const kategoriList = ['Semua', ...Array.from(kategoriSet).sort()];
 
     filterTabs.innerHTML = kategoriList.map(k => `
       <button class="filter-btn ${k === activeFilter ? 'active' : ''}"
         data-kategori="${safeAttr(k)}"
-        onclick="applyFilter(this.dataset.kategori)">
+        onclick="applyFilter('${safeAttr(k)}')">
         ${k}
       </button>
     `).join('');
 
-    // ── GALERI RENDER ──
+    // ── GALERI RENDER (FIXED ALWAYS SHOW) ──
     galleryContainer.innerHTML = '';
 
     if (fotoSet.size === 0) {
@@ -707,8 +700,8 @@ async function loadProducts() {
 
         galleryContainer.innerHTML += `
           <img src="${foto}"
-            alt="${first?.nama || 'Menu'}"
-            onerror="this.style.display='none'">
+               alt="${first?.nama || 'Menu'}"
+               onerror="this.style.display='none'">
         `;
       });
     }
@@ -721,7 +714,7 @@ async function loadProducts() {
   }
 }
 
-// ── FILTER SYSTEM ───────────────────────
+// ── FILTER SYSTEM FIX ───────────────────
 window.applyFilter = (kategori) => {
   activeFilter = kategori;
 
