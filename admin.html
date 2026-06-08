@@ -837,6 +837,7 @@ function updateKasirCartUI() {
   document.getElementById("kasirGrandTotal").innerText = rupiah(grandTotal);
   currentKasirGrandTotal = grandTotal;
   window.hitungKembalian();
+  renderKasirMenu();
 }
 
 /* FUNGSI CETAK STRUK PRINTER THERMAL (58mm/80mm) */
@@ -917,6 +918,7 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, 
 
 /* SUBMIT TRANSAKSI KASIR */
 window.submitKasirOrder = async () => {
+  renderKasirMenu();
   const items = Object.values(kasirCart);
   if(items.length === 0) { alert("Struk kasir kosong! Pilih menu terlebih dahulu."); return; }
   
@@ -1139,6 +1141,7 @@ window.stokSave = async (id) => {
 // Tunggu auth siap sebelum query Firestore
 authReady.then(() => {
   loadProducts();
+  renderKasirMenu();
 });
 </script>
 
