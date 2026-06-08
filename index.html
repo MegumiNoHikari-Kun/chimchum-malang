@@ -20,81 +20,6 @@
 body{background:#fafafa;color:var(--dark);}
 .container{width:90%;max-width:1200px;margin:auto;}
 
-
-/* CATALOG GRID */
-.catalog{padding:60px 0;}
-.section-title{text-align:center;margin-bottom:40px;}
-.section-title h2{font-size:28px;font-weight:700;position:relative;display:inline-block;padding-bottom:10px;}
-.section-title h2::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:50px;height:3px;background:var(--primary);}
-.menu-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:25px;}
-.menu-card{background:white;border-radius:15px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,0.03);transition:0.3s;border:1px solid #f0f0f0;}
-.menu-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,0.08);}
-.menu-card img{width:100%;height:200px;object-fit:cover;}
-.menu-info{padding:20px;}
-.menu-info h3{font-size:18px;margin-bottom:8px;font-weight:600;}
-.menu-info .desc{font-size:13px;color:var(--gray);margin-bottom:15px;height:38px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-.menu-footer{display:flex;justify-content:space-between;align-items:center;}
-.price{font-size:18px;font-weight:700;color:var(--primary);}
-.btn-pesan{background:var(--dark);color:white;border:none;padding:8px 15px;border-radius:8px;cursor:pointer;font-weight:500;transition:0.3s;}
-.btn-pesan:hover{background:var(--primary);}
-
-/* CART SLIDE PANEL */
-.cart-panel{position:fixed;top:0;right:-400px;width:400px;height:100%;background:white;box-shadow:-5px 0 25px rgba(0,0,0,0.1);z-index:2000;transition:0.4s;display:flex;flex-direction:column;}
-.cart-panel.active{right:0;}
-.cart-header{padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;}
-.cart-header h3{font-size:18px;font-weight:600;}
-.close-cart{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);}
-.cart-body{flex:1;overflow-y:auto;padding:20px;}
-.cart-item{display:flex;gap:15px;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid #f9f9f9;align-items:center;}
-.cart-item img{width:60px;height:60px;border-radius:8px;object-fit:cover;}
-.cart-item-info{flex:1;}
-.cart-item-info h4{font-size:14px;font-weight:600;margin-bottom:4px;}
-.cart-item-info p{font-size:13px;color:var(--primary);font-weight:600;}
-.qty-control{display:flex;align-items:center;gap:10px;margin-top:5px;}
-.qty-btn{background:#f1f1f1;border:none;width:24px;height:24px;border-radius:4px;cursor:pointer;font-weight:600;}
-.cart-footer{padding:20px;border-top:1px solid #eee;background:#fafafa;}
-.total-box{display:flex;justify-content:space-between;font-weight:700;font-size:16px;margin-bottom:15px;}
-.btn-checkout{background:var(--primary);color:white;border:none;width:100%;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;font-size:15px;}
-
-/* OVERLAY */
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1500;display:none;}
-.overlay.active{display:block;}
-
-/* TESTIMONI FORM & VIEW */
-.testi-section{background:var(--secondary);padding:60px 0;}
-.testi-grid{display:grid;grid-template-columns:1.2fr 1.8fr;gap:40px;align-items:start;}
-@media(max-width:768px){ .testi-grid{grid-template-columns:1fr;} .cart-panel{width:100%;right:-100%;} .nav-container{padding:15px;} nav{display:none;} }
-
-.testi-card-view{background:white;padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.02);margin-bottom:15px;}
-.testi-meta{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--gray);}
-.stars{color:#ffc107;font-size:12px;margin-bottom:5px;}
-
-/* MODAL FOR FORM CHECKOUT */
-.modal-checkout {
-  position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9);
-  background:white; padding:25px; border-radius:15px; z-index:2500;
-  width:90%; max-width:500px; box-shadow:0 10px 30px rgba(0,0,0,0.15);
-  display:none; transition:0.3s; max-height: 90vh; overflow-y: auto;
-}
-.modal-checkout.active { display:block; transform:translate(-50%, -50%) scale(1); }
-.form-group { margin-bottom: 12px; }
-.form-group label { display:block; font-size:13px; font-weight:500; margin-bottom:4px; }
-.form-group input, .form-group textarea, .form-group select {
-  width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; outline:none; font-family:inherit;
-}
-</style>
-<style>
-:root{
-  --primary:#ff6b35;
-  --secondary:#fff5f0;
-  --dark:#222;
-  --gray:#666;
-  --white:#fff;
-}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;scroll-behavior:smooth;}
-body{background:#fafafa;color:var(--dark);}
-.container{width:90%;max-width:1200px;margin:auto;}
-
 /* NAV */
 header{position:fixed;top:0;width:100%;background:white;box-shadow:0 2px 10px rgba(0,0,0,.08);z-index:999;}
 .navbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;}
@@ -415,386 +340,593 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
-  <div class="container nav-container">
+  <div class="container navbar">
     <a class="logo" href="#">
-      <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg" alt="Logo">
-      ChimChum<span>Malang</span>
+      <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg"
+           alt="ChimChum Malang Logo" onerror="this.style.display='none'">
+      <span>CHIMCHUM MALANG</span>
     </a>
-    <nav>
-      <ul>
-        <li><a href="#" class="active">Katalog</a></li>
-        <li><a href="#testi">Testimoni</a></li>
-        <li><a href="#" id="btnOpenLogin"><i class="fa-solid fa-user-lock"></i> Admin</a></li>
-      </ul>
-    </nav>
-    <button class="cart-icon-btn" onclick="toggleCart(true)">
-      <i class="fa-solid fa-basket-shopping"></i> Keranjang
-      <span class="cart-badge" id="cartBadgeCount">0</span>
-    </button>
+    <div class="nav-links">
+      <a href="#menu" class="hide-mobile">Menu</a>
+      <a href="#gallery" class="hide-mobile">Galeri</a>
+      <a href="#testimoni" class="hide-mobile">Testimoni</a>
+      <a href="#lokasi" class="hide-mobile">Lokasi</a>
+      
+      <a href="#" id="btnOpenLogin" style="color: var(--primary); font-size: 18px;" title="Login Admin">
+        <i class="fa-solid fa-circle-user"></i>
+      </a>
+      <button class="cart-nav-btn" onclick="openCart()">
+        🛒 Keranjang
+        <span class="cart-badge hidden" id="cartBadge">0</span>
+      </button>
+    </div>
   </div>
 </header>
 
+<!-- HERO -->
 <section class="hero">
-  <div class="container">
-    <h1>Dimsum Mentai <span>Premium</span> Malang</h1>
-    <p>Nikmati kelezatan dimsum premium berpadu saus mentai gurih yang dibakar sempurna, serta kelezatan ohiyong khas buatan dapur dapur utama ChimChum Malang.</p>
-    <a href="#katalog" class="btn-primary"><i class="fa-solid fa-fire"></i> Pesan Sekarang</a>
+  <div class="hero-content">
+    <h1>Dimsum Mentai & Ohiyong Favorit Kota Malang</h1>
+    <p>Melengkapi momen sukacita bersama teman dan keluarga | Dengan cita rasa premium yang dibuat penuh cinta.</p>
+    <a href="#menu" class="btn">Lihat Menu</a>
   </div>
 </section>
 
-<section class="catalog" id="katalog">
+<!-- MENU -->
+<section class="section" id="menu">
   <div class="container">
-    <div class="section-title">
-      <h2>Menu Andalan Kami</h2>
+    <h2 class="section-title">Menu Favorit</h2>
+    <p class="section-subtitle">Pilihan rasa untuk melengkapi cerita — dari tawa kecil sampai momen bahagia bersama</p>
+
+    <!-- FILTER TABS — dirender dinamis dari Firebase -->
+    <div class="filter-tabs" id="filterTabs"></div>
+
+    <div class="menu-grid" id="menuContainer">
+      <div style="border-radius:15px;overflow:hidden;background:white;box-shadow:0 4px 15px rgba(0,0,0,.08)">
+        <div class="skeleton" style="height:320px"></div>
+        <div style="padding:20px"><div class="skeleton" style="height:18px;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:60%"></div></div>
+      </div>
+      <div style="border-radius:15px;overflow:hidden;background:white;box-shadow:0 4px 15px rgba(0,0,0,.08)">
+        <div class="skeleton" style="height:320px"></div>
+        <div style="padding:20px"><div class="skeleton" style="height:18px;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:60%"></div></div>
+      </div>
+      <div style="border-radius:15px;overflow:hidden;background:white;box-shadow:0 4px 15px rgba(0,0,0,.08)">
+        <div class="skeleton" style="height:320px"></div>
+        <div style="padding:20px"><div class="skeleton" style="height:18px;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:60%"></div></div>
+      </div>
     </div>
-    <div class="menu-grid" id="menuGrid"></div>
   </div>
 </section>
 
-<div class="modal-checkout" id="checkoutModal">
-  <h3 style="margin-bottom:15px; font-weight:600;"><i class="fa-solid fa-paper-plane"></i> Form Data Pemesanan</h3>
-  <div class="form-group">
-    <label>Nama Pemesan *</label>
-    <input type="text" id="namaPemesan" placeholder="Contoh: Andi Wijaya">
+<!-- GALERI -->
+<section class="section" id="gallery" style="background:#fff5f0;">
+  <div class="container">
+    <h2 class="section-title">Galeri Menu</h2>
+    <p class="section-subtitle">Bukan sekadar makanan, tapi bagian dari teman — inilah sajian yang menemani hangatnya kebersamaan.</p>
+    <div class="gallery" id="galleryContainer">
+      <div class="skeleton" style="height:320px;border-radius:15px;"></div>
+      <div class="skeleton" style="height:320px;border-radius:15px;"></div>
+      <div class="skeleton" style="height:320px;border-radius:15px;"></div>
+    </div>
   </div>
-  <div class="form-group">
-    <label>No. WhatsApp Aktif *</label>
-    <input type="number" id="waPemesan" placeholder="Contoh: 08123456789">
+</section>
+
+<!-- TESTIMONI -->
+<section class="section" id="testimoni">
+  <div class="container">
+    <h2 class="section-title">Testimoni Pelanggan</h2>
+    <p class="section-subtitle">Apa kata mereka tentang ChimChum Malang</p>
+    <div class="testimonials" id="testimoniContainer">
+      <div class="skeleton" style="flex:0 0 280px;height:130px;border-radius:15px;"></div>
+      <div class="skeleton" style="flex:0 0 280px;height:130px;border-radius:15px;"></div>
+      <div class="skeleton" style="flex:0 0 280px;height:130px;border-radius:15px;"></div>
+    </div>
+
+    <!-- FORM TULIS TESTIMONI -->
+    <div class="testi-form-wrap">
+      <h3>✍️ Tulis Testimonimu</h3>
+      <p>Sudah pernah order? Bagikan pengalamanmu!</p>
+      <div class="star-picker" id="starPicker">
+        <input type="radio" name="rating" id="s5" value="5"><label for="s5">★</label>
+        <input type="radio" name="rating" id="s4" value="4"><label for="s4">★</label>
+        <input type="radio" name="rating" id="s3" value="3"><label for="s3">★</label>
+        <input type="radio" name="rating" id="s2" value="2"><label for="s2">★</label>
+        <input type="radio" name="rating" id="s1" value="1"><label for="s1">★</label>
+      </div>
+      <input  class="form-control" id="testiNama"     placeholder="Nama kamu *" />
+      <input  class="form-control" id="testiKota"     placeholder="Kota / Kecamatan *" />
+      <textarea class="form-control" id="testiKomentar" rows="3"
+                placeholder="Ceritakan pengalamanmu... *"></textarea>
+      <button class="testi-submit" id="testiSubmitBtn" onclick="submitTestimoni()">
+        Kirim Testimoni 🙌
+      </button>
+      <div class="testi-success" id="testiSuccess">
+        🎉 Terima kasih! Testimonimu sudah terkirim.
+      </div>
+    </div>
   </div>
-  <div class="form-group">
-    <label>Tipe Pengiriman *</label>
-    <select id="tipePengiriman" onchange="toggleAlamat()">
-      <option value="Ambil Sendiri">Ambil Sendiri ke Rumah (Sawojajar)</option>
-      <option value="Delivery">Kirim via Kurir / Ojol</option>
-    </select>
+</section>
+
+<!-- LOKASI / MAPS -->
+<section class="maps-section" id="lokasi">
+  <div class="container">
+    <h2 class="section-title">Lokasi Kami</h2>
+    <p class="section-subtitle" style="margin-bottom:30px;">Kunjungi atau gunakan sebagai patokan pemesanan</p>
+    <div class="maps-wrap">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m10!1m8!1m3!1d289.0002078459604!2d112.65705440561071!3d-7.978562261335391!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sid!2sid!4v1780862080907!5m2!1sid!2sid"
+        allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+    <div class="maps-info">
+      <div class="maps-info-item">
+        <div class="icon">📍</div>
+        <div><h4>Alamat</h4><p>Jl. Danau Laut Tawar 1 G2A 2 Sawojajar Kec. Kedungkandang, Kota Malang</p></div>
+      </div>
+      <div class="maps-info-item">
+        <div class="icon">🕐</div>
+        <div><h4>Jam Operasional</h4><p>Setiap hari 08.00 – 20.00</p></div>
+      </div>
+      <div class="maps-info-item">
+        <div class="icon"><i class="fa-brands fa-whatsapp"></i></div>
+        <div><h4>WhatsApp</h4><p>0857-2378-5380</p></div>
+      </div>
+      <div class="maps-info-item">
+        <div class="icon">📦</div>
+        <div><h4>Layanan</h4><p>Take Away & Delivery</p></div>
+      </div>
+    </div>
   </div>
-  <div class="form-group" id="groupAlamat" style="display:none;">
-    <label>Alamat Lengkap Pengiriman *</label>
-    <textarea id="alamatLengkap" rows="2" placeholder="Tuliskan alamat detail pengantaran..."></textarea>
-  </div>
-  <div class="form-group">
-    <label>Metode Pembayaran *</label>
-    <select id="metodeBayar">
-      <option value="Cash">Tunai / Cash</option>
-      <option value="QRIS">QRIS Digital</option>
-      <option value="Transfer">Transfer Bank</option>
-    </select>
-  </div>
-  <div class="form-group">
-    <label>Catatan Tambahan (Opsional)</label>
-    <input type="text" id="catatanTambahan" placeholder="Contoh: Mentai agak pedas, ya.">
-  </div>
-  <button class="btn-primary" style="width:100%; border:none; border-radius:8px; margin-top:10px;" onclick="kirimOrder()">
-    <i class="fa-brands fa-whatsapp"></i> Konfirmasi & Pesan via WA
+</section>
+
+<!-- CTA -->
+<section class="cta" id="order">
+  <h2>Siap Mencoba Menu Favorit Kami?</h2>
+  <p style="margin-bottom:25px;">Tambahkan menu ke keranjang lalu kirim order via WhatsApp.</p>
+  <button class="btn-cta-cart" onclick="openCart()">
+    🛒 Buka Keranjang
   </button>
-  <button style="width:100%; background:#aaa; border:none; padding:10px; border-radius:8px; margin-top:5px; color:white; font-weight:600; cursor:pointer;" onclick="toggleCheckoutModal(false)">Batal</button>
-</div>
-
-<div class="overlay" id="cartOverlay" onclick="toggleCart(false)"></div>
-<div class="cart-panel" id="cartPanel">
-  <div class="cart-header">
-    <h3>Keranjang Belanja</h3>
-    <button class="close-cart" onclick="toggleCart(false)">&times;</button>
-  </div>
-  <div class="cart-body" id="cartItemsContainer"></div>
-  <div class="cart-footer">
-    <div class="total-box">
-      <span>Total:</span>
-      <span id="cartTotalPrice" style="color:var(--primary);">Rp 0</span>
-    </div>
-    <button class="btn-checkout" onclick="toggleCheckoutModal(true)">Lanjutkan ke Pemesanan</button>
-  </div>
-</div>
-
-<section class="testi-section" id="testi">
-  <div class="container">
-    <div class="section-title">
-      <h2>Ulasan Pelanggan</h2>
-    </div>
-    <div class="testi-grid">
-      <div style="background:white; padding:25px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.02)">
-        <h3 style="margin-bottom:15px; font-weight:600;">Beri Kami Ulasan</h3>
-        <div class="form-group"><label>Nama Anda</label><input id="testiNama" placeholder="Rian"></div>
-        <div class="form-group"><label>Asal Kota</label><input id="testiKota" placeholder="Malang"></div>
-        <div class="form-group"><label>Komentar Rasa</label><textarea id="testiKomentar" rows="3" placeholder="Dimsum mentainya juara banget rasanya..."></textarea></div>
-        <div class="form-group">
-          <label>Rating Kepuasan</label>
-          <div style="display:flex; gap:10px; font-size:18px; margin-top:5px;">
-            <label><input type="radio" name="rating" value="5" checked> ⭐5</label>
-            <label><input type="radio" name="rating" value="4"> ⭐4</label>
-            <label><input type="radio" name="rating" value="3"> ⭐3</label>
-          </div>
-        </div>
-        <button class="btn-primary" style="width:100%; border:none; border-radius:8px; margin-top:5px;" id="testiSubmitBtn" onclick="submitTestimoni()">Kirim Testimoni 🙌</button>
-        <p id="testiSuccess" style="color:green; font-weight:600; text-align:center; margin-top:10px; display:none;">Terima kasih atas ulasan terbaik Anda!</p>
-      </div>
-
-      <div id="testiContainer" style="max-height:450px; overflow-y:auto; padding-right:5px;">
-        <p style="color:#aaa;">Sedang memuat ulasan...</p>
-      </div>
-    </div>
-  </div>
 </section>
 
-<div class="overlay" id="loginOverlay"></div>
-<div class="modal-checkout" id="loginModal" style="z-index:2600;">
-  <h3 style="margin-bottom:15px; font-weight:600;"><i class="fa-solid fa-lock"></i> Keamanan Login Admin</h3>
-  <div class="form-group"><label>Username</label><input type="text" id="adminUsername" placeholder="Masukkan username"></div>
-  <div class="form-group"><label>Password</label><input type="password" id="adminPassword" placeholder="Masukkan password"></div>
-  <button class="btn-primary" style="width:100%; border:none; border-radius:8px; margin-top:5px;" id="btnSubmitLogin">Masuk Sistem Dashboard</button>
-  <button style="width:100%; background:#aaa; border:none; padding:10px; border-radius:8px; margin-top:5px; color:white; font-weight:600; cursor:pointer;" id="btnCloseLogin">Batal</button>
+<!-- FOOTER -->
+<footer>
+  <h3>CHIMCHUM MALANG</h3>
+  <p>Dimsum Mentai • Ohiyong • Frozen Food</p><br>
+  <p>WhatsApp : 0857-2378-5380</p>
+  <p>Instagram : @chimchumofficial</p><br>
+  <p>© 2026 ChimChum Malang</p>
+</footer>
+
+<a class="whatsapp-float" href="https://wa.me/6285723785380" target="_blank">
+  <i class="fa-brands fa-whatsapp"></i> WhatsApp
+</a>
+
+<!-- KERANJANG SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h2>🛒 Keranjang Belanja</h2>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">Keranjang masih kosong.<br>Tambahkan menu favoritmu! 🍜</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-grand-total">
+      <span>Total</span>
+      <span id="cartGrandTotal">Rp 0</span>
+    </div>
+    <button class="btn" style="width:100%" onclick="openCheckout()">Checkout via WhatsApp →</button>
+  </div>
 </div>
 
+<!-- CHECKOUT MODAL -->
+<div id="checkoutModal" class="modal">
+  <div class="modal-content">
+    <h2>Konfirmasi Order</h2>
+    <p class="modal-subtitle">Isi data pengirimanmu dulu ya 😊</p>
+    <div class="checkout-summary" id="checkoutSummary"></div>
+    <input class="form-control" id="customerName"    placeholder="Nama Lengkap *" />
+    <input class="form-control" id="customerPhone"   placeholder="Nomor WhatsApp *" />
+    <textarea class="form-control" id="customerAddress" rows="3" placeholder="Alamat Pengiriman"></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="submitOrder()">
+        <i class="fa-brands fa-whatsapp"></i> Order Sekarang
+      </button>
+      <button class="btn btn-secondary" onclick="closeCheckout()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div id="loginModal" class="modal">
+  <div class="modal-content" style="max-width: 400px; text-align: center;">
+    <h2>Login Admin</h2>
+    <p class="modal-subtitle">Masuk untuk manajemen sistem</p>
+    <input type="text" class="form-control" id="adminUsername" placeholder="Username" />
+    <input type="password" class="form-control" id="adminPassword" placeholder="Password" />
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="btn" id="btnSubmitLogin">Masuk</button>
+      <button class="btn btn-secondary" id="btnCloseLogin">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT -->
 <script type="module">
-import { db, collection, getDocs, addDoc, serverTimestamp, doc, updateDoc } from './firebase.js';
+import {
+  db,
+  collection,
+  getDocs,
+  addDoc,
+  serverTimestamp
+} from './firebase.js';
 
-let cart = {};
+const WA_NUMBER = '6285723785380';
+const cart = {};
+
+// ── HELPERS ──────────────────────────────────────────────────
 function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+function stars(n){ return '⭐'.repeat(Math.min(5, Math.max(1, Number(n)||5))); }
+function safeAttr(str){ return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-/* ── LOAD KATALOG PRODUK REAL-TIME ── */
-window.loadProducts = async () => {
-  const menuGrid = document.getElementById("menuGrid");
-  if(!menuGrid) return;
-  menuGrid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:var(--gray);'>Memuat menu...</p>";
-  
+// ── LOAD PRODUCTS + FILTER ───────────────────────────────────
+const menuContainer    = document.getElementById('menuContainer');
+const galleryContainer = document.getElementById('galleryContainer');
+const filterTabs       = document.getElementById('filterTabs');
+let activeFilter = 'Semua';
+
+async function loadProducts() {
   try {
-    const snap = await getDocs(collection(db, "products"));
-    menuGrid.innerHTML = "";
-    
-    // Inisialisasi cache global untuk tracking stok saat order
-    window.productsCache = [];
-    
-    snap.forEach(d => {
-      const p = d.data();
-      if(!p.aktif) return;
-      
-      window.productsCache.push({ id: d.id, ...p });
-      
-      // Cek status stok untuk tampilan tombol boking/beli
-      const tombolHtml = p.stok <= 0 
-        ? `<button class="btn-pesan" style="background:#ccc; cursor:not-allowed;" disabled>Stok Habis</button>`
-        : `<button class="btn-pesan" onclick="addToCart('${d.id}', \`${p.nama}\`, ${p.harga}, \`${p.foto}\`, ${p.stok})"><i class="fa-solid fa-cart-plus"></i> Tambah</button>`;
-      
-      menuGrid.innerHTML += `
-        <div class="menu-card">
-          <img src="${p.foto || 'https://via.placeholder.com/300x200'}" alt="${p.nama}" onerror="this.src='https://via.placeholder.com/300x200'">
-          <div class="menu-info">
-            <h3>${p.nama}</h3>
-            <p class="desc">${p.deskripsi || ''}</p>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; font-size:12px; color:var(--gray);">
-              <span>Isi: ${p.isi || 0} pcs</span>
-              <span style="font-weight:600; color:${p.stok < 10 ? '#ff4757' : 'var(--dark)'}">Stok: ${p.stok || 0} porsi</span>
-            </div>
-            <div class="menu-footer">
-              <span class="price">${rupiah(p.harga)}</span>
-              ${tombolHtml}
-            </div>
-          </div>
-        </div>
-      `;
-    });
-  } catch(err) {
-    console.error(err);
-    menuGrid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:red;'>Gagal memuat produk.</p>";
-  }
-};
+    const snapshot = await getDocs(collection(db, 'products'));
+    menuContainer.innerHTML = '';
+    galleryContainer.innerHTML = '';
 
-/* ── LOGIKA MANAGEMENT KERANJANG ── */
-window.toggleCart = (show) => {
-  document.getElementById("cartPanel").classList.toggle("active", show);
-  document.getElementById("cartOverlay").classList.toggle("active", show);
-};
-
-window.addToCart = (id, nama, harga, foto, maxStok) => {
-  if(cart[id]) {
-    if(cart[id].qty >= maxStok) {
-      alert(`Maaf, Anda tidak dapat memesan lebih dari stok yang tersedia (${maxStok} porsi).`);
+    if (snapshot.empty) {
+      menuContainer.innerHTML = '<p>Belum ada menu tersedia.</p>';
+      galleryContainer.innerHTML = '<p>Belum ada foto.</p>';
       return;
     }
-    cart[id].qty++;
-  } else {
-    cart[id] = { id, nama, harga, foto, qty: 1, maxStok };
+
+    const kategoriSet = new Set();
+    const fotoSet     = new Set();
+
+    snapshot.forEach((doc) => {
+      const p     = doc.data();
+      const id    = doc.id;
+      const harga = Number(p.harga);
+      const kat   = p.kategori || 'Lainnya';
+      kategoriSet.add(kat);
+
+      menuContainer.innerHTML += `
+        <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
+          <img src="${p.foto}" alt="${p.nama}"
+               onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
+          <div class="card-content">
+            <h3>${p.nama}</h3>
+            <p>${p.deskripsi}</p>
+            <p style="margin-top:4px;font-size:13px;color:#999">Isi ${p.isi} pcs</p>
+            <div class="price">${rupiah(harga)}</div>
+            <div class="card-order-row">
+              <button class="card-qty-btn" onclick="cardDecQty('${id}')">−</button>
+              <span class="card-qty-num" id="cardqty-${id}">1</span>
+              <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
+              <button class="btn-add-cart" id="addbtn-${id}"
+                onclick="addToCart('${id}','${safeAttr(p.nama)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}')">
+                + Keranjang
+              </button>
+            </div>
+          </div>
+        </div>`;
+
+      if (p.foto && !fotoSet.has(p.foto)) {
+        fotoSet.add(p.foto);
+        galleryContainer.innerHTML += `
+          <img src="${p.foto}" alt="${p.nama}"
+               onerror="this.parentNode.removeChild(this)">`;
+      }
+    });
+
+    const semua = ['Semua', ...Array.from(kategoriSet).sort()];
+    filterTabs.innerHTML = semua.map(k => `
+      <button
+        class="filter-btn ${k === activeFilter ? 'active' : ''}"
+        onclick="applyFilter('${safeAttr(k)}')">
+        ${k}
+      </button>`).join('');
+
+    applyFilter(activeFilter);
+
+  } catch (err) {
+    console.error('loadProducts:', err);
+    menuContainer.innerHTML = '<p>Gagal memuat menu dari Firebase.</p>';
+    galleryContainer.innerHTML = '';
   }
-  updateCartUI();
+}
+
+window.applyFilter = (kategori) => {
+  activeFilter = kategori;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.innerText.trim() === kategori);
+  });
+  document.querySelectorAll('.card[data-kategori]').forEach(card => {
+    const match = kategori === 'Semua' || card.dataset.kategori === kategori;
+    card.classList.toggle('hidden-card', !match);
+  });
 };
 
-window.ubahQty = (id, delta) => {
-  if(!cart[id]) return;
-  cart[id].qty += delta;
-  if(cart[id].qty > cart[id].maxStok) {
-    alert(`Maaf, stok hanya tersedia ${cart[id].maxStok} porsi.`);
-    cart[id].qty = cart[id].maxStok;
+// ── LOAD TESTIMONI ───────────────────────────────────────────
+async function loadTestimoni() {
+  const container = document.getElementById('testimoniContainer');
+  try {
+    const snapshot = await getDocs(collection(db, 'testimonials'));
+    container.innerHTML = '';
+
+    if (snapshot.empty) {
+      container.innerHTML = '<p style="text-align:center;color:#aaa;padding:40px 0">Belum ada testimoni.</p>';
+      return;
+    }
+
+    snapshot.forEach((doc) => {
+      const t = doc.data();
+      container.innerHTML += `
+        <div class="testimonial">
+          <div class="stars">${stars(t.rating)}</div>
+          <p>${t.komentar}</p>
+          <h4>${t.nama} — ${t.kota}</h4>
+        </div>`;
+    });
+
+  } catch (err) {
+    console.error('loadTestimoni:', err);
+    container.innerHTML = '<p style="text-align:center;color:#aaa">Gagal memuat testimoni.</p>';
   }
-  if(cart[id].qty <= 0) delete cart[id];
+}
+
+loadProducts();
+loadTestimoni();
+
+// ── CARD QTY ─────────────────────────────────────────────────
+const cardQtys = {};
+function getCardQty(id){ return cardQtys[id] || 1; }
+window.cardIncQty = (id) => {
+  cardQtys[id] = getCardQty(id) + 1;
+  document.getElementById(`cardqty-${id}`).innerText = cardQtys[id];
+};
+window.cardDecQty = (id) => {
+  cardQtys[id] = Math.max(1, getCardQty(id) - 1);
+  document.getElementById(`cardqty-${id}`).innerText = cardQtys[id];
+};
+
+// ── KERANJANG ────────────────────────────────────────────────
+window.addToCart = (id, nama, harga, foto, isi) => {
+  const qty = getCardQty(id);
+  if (cart[id]) { cart[id].qty += qty; }
+  else { cart[id] = { id, nama, harga, foto, isi, qty }; }
+
+  cardQtys[id] = 1;
+  document.getElementById(`cardqty-${id}`).innerText = 1;
+
+  const btn = document.getElementById(`addbtn-${id}`);
+  btn.classList.add('added');
+  btn.innerText = '✓ Ditambahkan';
+  setTimeout(() => { btn.classList.remove('added'); btn.innerText = '+ Keranjang'; }, 1500);
+
   updateCartUI();
 };
 
 function updateCartUI() {
-  const container = document.getElementById("cartItemsContainer");
-  const items = Object.values(cart);
-  
-  let totalCount = 0;
-  let totalPrice = 0;
-  container.innerHTML = "";
+  const items      = Object.values(cart);
+  const totalQty   = items.reduce((a,i) => a + i.qty, 0);
+  const grandTotal = items.reduce((a,i) => a + i.qty * i.harga, 0);
 
-  items.forEach(item => {
-    totalCount += item.qty;
-    totalPrice += (item.qty * item.harga);
-    container.innerHTML += `
-      <div class="cart-item">
-        <img src="${item.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://via.placeholder.com/60'">
-        <div class="cart-item-info">
-          <h4>${item.nama}</h4>
-          <p>${rupiah(item.harga)}</p>
-          <div class="qty-control">
-            <button class="qty-btn" onclick="ubahQty('${item.id}', -1)">-</button>
-            <span style="font-weight:600; font-size:13px;">${item.qty}</span>
-            <button class="qty-btn" onclick="ubahQty('${item.id}', 1)">+</button>
-          </div>
+  const badge = document.getElementById('cartBadge');
+  if (totalQty > 0) { badge.classList.remove('hidden'); badge.innerText = totalQty; }
+  else { badge.classList.add('hidden'); }
+
+  document.getElementById('cartGrandTotal').innerText = rupiah(grandTotal);
+
+  const cartItemsEl = document.getElementById('cartItems');
+  if (items.length === 0) {
+    cartItemsEl.innerHTML = `<div class="cart-empty">Keranjang masih kosong.<br>Tambahkan menu favoritmu! 🍜</div>`;
+    return;
+  }
+  cartItemsEl.innerHTML = items.map(item => `
+    <div class="cart-item">
+      <img src="${item.foto}" alt="${item.nama}"
+           onerror="this.src='https://via.placeholder.com/65x65?text=+'">
+      <div class="cart-item-info">
+        <h4>${item.nama}</h4>
+        <div class="item-price">${rupiah(item.harga)} / porsi</div>
+        <div class="cart-item-qty">
+          <button class="cqty-btn" onclick="cartChangeQty('${item.id}',-1)">−</button>
+          <span class="cqty-num">${item.qty}</span>
+          <button class="cqty-btn" onclick="cartChangeQty('${item.id}',1)">+</button>
         </div>
       </div>
-    `;
-  });
-
-  document.getElementById("cartBadgeCount").innerText = totalCount;
-  document.getElementById("cartTotalPrice").innerText = rupiah(totalPrice);
-  if(items.length === 0) container.innerHTML = "<p style='text-align:center; color:#aaa; margin-top:30px;'>Keranjang Anda kosong.</p>";
+      <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">🗑</button>
+    </div>`).join('');
 }
 
-/* ── FORM CONTROL & MODAL UTILS ── */
-window.toggleCheckoutModal = (show) => {
-  if(show && Object.keys(cart).length === 0) { alert("Keranjang belanja Anda kosong!"); return; }
-  document.getElementById("checkoutModal").classList.toggle("active", show);
-  if(!show) document.getElementById("cartOverlay").classList.remove("active");
+window.cartChangeQty = (id, delta) => {
+  if (!cart[id]) return;
+  cart[id].qty = Math.max(1, cart[id].qty + delta);
+  updateCartUI();
+};
+window.removeFromCart = (id) => { delete cart[id]; updateCartUI(); };
+
+// ── CART SIDEBAR ─────────────────────────────────────────────
+window.openCart = () => {
+  document.getElementById('cartSidebar').classList.add('active');
+  document.getElementById('cartOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+};
+window.closeCart = () => {
+  document.getElementById('cartSidebar').classList.remove('active');
+  document.getElementById('cartOverlay').classList.remove('active');
+  document.body.style.overflow = '';
 };
 
-window.toggleAlamat = () => {
-  const tipe = document.getElementById("tipePengiriman").value;
-  document.getElementById("groupAlamat").style.display = (tipe === 'Delivery') ? 'block' : 'none';
-};
-
-/* ── KIRIM ORDER DATABASE & WA (SINKRONISASI STOK) ── */
-window.kirimOrder = async () => {
-  const nama = document.getElementById("namaPemesan").value.trim();
-  const wa = document.getElementById("waPemesan").value.trim();
-  const tipe = document.getElementById("tipePengiriman").value;
-  const alamat = document.getElementById("alamatLengkap").value.trim();
-  const metode = document.getElementById("metodeBayar").value;
-  const catatan = document.getElementById("catatanTambahan").value.trim();
-
-  if(!nama || !wa) { alert("Nama dan Nomor WhatsApp wajib diisi!"); return; }
-  if(tipe === "Delivery" && !alamat) { alert("Alamat pengiriman wajib diisi untuk Delivery!"); return; }
-
+// ── CHECKOUT MODAL ───────────────────────────────────────────
+window.openCheckout = () => {
   const items = Object.values(cart);
-  const totalHarga = items.reduce((sum, item) => sum + (item.qty * item.harga), 0);
+  if (items.length === 0) { alert('Keranjang masih kosong!'); return; }
+  closeCart();
+
+  const grandTotal = items.reduce((a,i) => a + i.qty * i.harga, 0);
+  document.getElementById('checkoutSummary').innerHTML =
+    items.map(i => `
+      <div class="summary-item">
+        <span>${i.nama} × ${i.qty}</span>
+        <span>${rupiah(i.qty * i.harga)}</span>
+      </div>`).join('') +
+    `<div class="summary-item" style="color:var(--primary); font-style:italic;">
+      <span>Ongkos Kirim</span>
+      <span>oncheck</span>
+    </div>` +
+    `<div class="summary-total"><span>Grand Total</span><span>${rupiah(grandTotal)}</span></div>`;
+
+  document.getElementById('checkoutModal').classList.add('active');
+};
+window.closeCheckout = () => {
+  document.getElementById('checkoutModal').classList.remove('active');
+};
+document.getElementById('checkoutModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('checkoutModal')) closeCheckout();
+});
+  
+// ── SUBMIT ORDER ─────────────────────────────────────────────
+window.submitOrder = async () => {
+  const customerName    = document.getElementById('customerName').value.trim();
+  const customerPhone   = document.getElementById('customerPhone').value.trim();
+  const customerAddress = document.getElementById('customerAddress').value.trim();
+
+  if (!customerName || !customerPhone) { alert('Nama dan nomor WhatsApp wajib diisi.'); return; }
+
+  const items      = Object.values(cart);
+  const grandTotal = items.reduce((a,i) => a + i.qty * i.harga, 0);
+
+  const itemLines = items.map(i => `🍜 ${i.nama} × ${i.qty} = ${rupiah(i.qty * i.harga)}`).join('\n');
+  const waText = encodeURIComponent(
+`Halo ChimChum Malang 👋
+
+Saya ingin memesan:
+
+${itemLines}
+━━━━━━━━━━━━━━
+TOTAL : ${rupiah(grandTotal)}
++ Ongkos Kirim
+━━━━━━━━━━━━━━
+
+Nama    : ${customerName}
+WA      : ${customerPhone}
+Alamat  : ${customerAddress || '-'}
+
+Terima kasih! 🙏`
+  );
+  const waURL = `https://wa.me/${WA_NUMBER}?text=${waText}`;
 
   try {
-    // 1. PROSES POTONG STOK DI FIRESTORE
-    for (const item of items) {
-      const productRef = doc(db, "products", item.id);
-      const prodInCache = window.productsCache ? window.productsCache.find(p => p.id === item.id) : null;
-      const currentStok = prodInCache ? prodInCache.stok : (item.maxStok || 0);
-      const newStok = Math.max(0, currentStok - item.qty);
-      await updateDoc(productRef, { stok: newStok });
-    }
-
-    // 2. SIMPAN LOG PESANAN BARU
-    await addDoc(collection(db, "orders"), {
-      customer_name: nama,
-      phone: wa,
-      address: tipe === "Delivery" ? alamat : `Dine-In / Ambil Sendiri (${tipe})`,
-      items: items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
-      grand_total: totalHarga,
-      payment_method: metode,
-      created_at: serverTimestamp()
+    await addDoc(collection(db, 'orders'), {
+      customer_name : customerName,
+      phone         : customerPhone,
+      address       : customerAddress,
+      items         : items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
+      grand_total   : grandTotal,
+      created_at    : serverTimestamp()
     });
-
-    // 3. BANGUN TEXT WHATSAPP UNTUK NOTIFIKASI
-    let waText = `*NOTIFIKASI ORDER CHIMCHUM MALANG*\n`;
-    waText += `=========================\n`;
-    waText += `👤 Nama: ${nama}\n`;
-    waText += `📱 No. WA: ${wa}\n`;
-    waText += `🛵 Pengiriman: ${tipe}\n`;
-    if(tipe === "Delivery") waText += `📍 Alamat: ${alamat}\n`;
-    waText += `💳 Pembayaran: ${metode}\n`;
-    if(catatan) waText += `📝 Catatan: ${catatan}\n`;
-    waText += `=========================\n\n*DAFTAR MENU:*\n`;
-    
-    items.forEach(i => { waText += `- ${i.nama} (${i.qty}x) = ${rupiah(i.qty * i.harga)}\n`; });
-    waText += `\n*TOTAL TAGIHAN:* ${rupiah(totalHarga)}\n`;
-    waText += `=========================\n`;
-    waText += `Halo Admin, saya telah melakukan pemesanan via web. Harap segera diproses ya! 🙌`;
-
-    alert("Pesanan berhasil disimpan! Mengalihkan ke WhatsApp Admin...");
-    cart = {};
-    updateCartUI();
-    toggleCheckoutModal(false);
-    loadProducts(); // Reload katalog agar stok berkurang secara visual di layar browser
-
-    window.open(`https://wa.me/628123456789?text=${encodeURIComponent(waText)}`, '_blank');
-  } catch(err) {
-    console.error(err);
-    alert("Gagal memproses pengiriman pesanan Anda.");
+    window.open(waURL, '_blank');
+  } catch (err) {
+    console.error('submitOrder:', err);
+    alert('Gagal menyimpan pesanan ke database, mengalihkan ke WhatsApp...');
+    window.open(waURL, '_blank');
   }
 };
 
-/* ── MANAJEMEN TESTIMONI ── */
-window.loadTestimoni = async () => {
-  const container = document.getElementById("testiContainer");
-  try {
-    const snap = await getDocs(collection(db, "testimonials"));
-    container.innerHTML = "";
-    let lists = [];
-    snap.forEach(d => { lists.push(d.data()); });
-    if(lists.length === 0){ container.innerHTML = "<p style='color:#aaa;'>Belum ada ulasan.</p>"; return; }
-    
-    lists.forEach(t => {
-      let btg = "⭐".repeat(t.rating || 5);
-      container.innerHTML += `
-        <div class="testi-card-view">
-          <div class="stars">${btg}</div>
-          <p style="font-size:14px; margin-bottom:8px; line-height:1.4;">"${t.komentar}"</p>
-          <div class="testi-meta">
-            <b>${t.nama}</b><span>📍 ${t.kota}</span>
-          </div>
-        </div>
-      `;
-    });
-  } catch(e){ container.innerHTML = "<p>Gagal memuat testimoni.</p>"; }
-};
-
+// ── SUBMIT TESTIMONI ─────────────────────────────────────────
 window.submitTestimoni = async () => {
-  const nama = document.getElementById("testiNama").value.trim();
-  const kota = document.getElementById("testiKota").value.trim();
-  const komentar = document.getElementById("testiKomentar").value.trim();
-  const rating = Number(document.querySelector('input[name="rating"]:checked').value);
+  const nama     = document.getElementById('testiNama').value.trim();
+  const kota     = document.getElementById('testiKota').value.trim();
+  const komentar = document.getElementById('testiKomentar').value.trim();
+  const ratingEl = document.querySelector('input[name="rating"]:checked');
+  const rating   = ratingEl ? Number(ratingEl.value) : 0;
 
-  if(!nama || !kota || !komentar) { alert("Semua kolom formulir ulasan wajib diisi!"); return; }
+  if (!nama || !kota || !komentar) { alert('Nama, kota, dan komentar wajib diisi.'); return; }
+  if (!rating) { alert('Pilih dulu rating bintangnya ⭐'); return; }
+
+  const btn = document.getElementById('testiSubmitBtn');
+  btn.disabled = true;
+  btn.innerText = 'Mengirim...';
+
   try {
-    await addDoc(collection(db, "testimonials"), { nama, kota, komentar, rating, created_at: serverTimestamp() });
-    document.getElementById("testiSuccess").style.display = "block";
-    document.getElementById("testiNama").value = "";
-    document.getElementById("testiKota").value = "";
-    document.getElementById("testiKomentar").value = "";
-    loadTestimoni();
-    setTimeout(() => { document.getElementById("testiSuccess").style.display = "none"; }, 3000);
-  } catch(e) { alert("Gagal."); }
+    await addDoc(collection(db, 'testimonials'), {
+      nama, kota, komentar, rating,
+      created_at: serverTimestamp()
+    });
+
+    btn.style.display = 'none';
+    document.getElementById('testiSuccess').style.display = 'block';
+
+    document.getElementById('testiNama').value     = '';
+    document.getElementById('testiKota').value     = '';
+    document.getElementById('testiKomentar').value = '';
+    if (ratingEl) ratingEl.checked = false;
+
+    await loadTestimoni();
+
+    setTimeout(() => {
+      btn.style.display = 'block';
+      btn.disabled      = false;
+      btn.innerText     = 'Kirim Testimoni 🙌';
+      document.getElementById('testiSuccess').style.display = 'none';
+    }, 3000);
+
+  } catch (err) {
+    console.error('submitTestimoni Error:', err);
+    alert('Gagal mengirim testimoni.');
+    btn.disabled = false;
+    btn.innerText = 'Kirim Testimoni 🙌';
+  }
 };
 
-// ── INIT TRIGGER RUN ──
-loadProducts();
-loadTestimoni();
+// ── LOGIKA LOGIN MODAL ────────────────────────────────────────
+const loginModal     = document.getElementById('loginModal');
+const btnOpenLogin   = document.getElementById('btnOpenLogin');
+const btnCloseLogin  = document.getElementById('btnCloseLogin');
+const btnSubmitLogin = document.getElementById('btnSubmitLogin');
 
-// Login handling modal 
-document.getElementById('btnOpenLogin').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginModal').classList.add('active'); document.getElementById('loginOverlay').classList.add('active'); });
-document.getElementById('btnCloseLogin').addEventListener('click', () => { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginOverlay').classList.remove('active'); });
-document.getElementById('btnSubmitLogin').addEventListener('click', () => {
-  if(document.getElementById('adminUsername').value === 'admin' && document.getElementById('adminPassword').value === 'chimchum123'){
-    sessionStorage.setItem('chimchum_admin', 'true');
-    window.location.href = "admin.html";
-  } else { alert("Akses ditolak! Kredensial salah."); }
-});
+if (btnOpenLogin) {
+  btnOpenLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginModal.classList.add('active');
+  });
+}
+
+if (btnCloseLogin) {
+  btnCloseLogin.addEventListener('click', () => {
+    loginModal.classList.remove('active');
+  });
+}
+
+if (btnSubmitLogin) {
+  btnSubmitLogin.addEventListener('click', () => {
+    const user = document.getElementById('adminUsername').value;
+    const pass = document.getElementById('adminPassword').value;
+    
+    if (user === "admin" && pass === "chimchum123") {
+      // Simpan session token admin ke browser sebelum dialihkan
+      sessionStorage.setItem('chimchum_admin', 'true');
+      
+      alert("Login berhasil! Mengalihkan ke Dashboard...");
+      window.location.href = "admin.html";
+    } else {
+      alert("Username atau Password salah!");
+    }
+  });
+}
 </script>
 </body>
 </html>
