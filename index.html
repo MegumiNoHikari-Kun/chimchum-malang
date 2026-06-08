@@ -353,6 +353,10 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
       <a href="#gallery" class="hide-mobile">Galeri</a>
       <a href="#testimoni" class="hide-mobile">Testimoni</a>
       <a href="#lokasi" class="hide-mobile">Lokasi</a>
+      
+      <a href="#" onclick="openLoginModal()" style="color: var(--primary); font-size: 18px;" title="Login Admin">
+        <i class="fa-solid fa-circle-user"></i>
+      </a>
       <button class="cart-nav-btn" onclick="openCart()">
         🛒 Keranjang
         <span class="cart-badge hidden" id="cartBadge">0</span>
@@ -533,6 +537,20 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
         <i class="fa-brands fa-whatsapp"></i> Order Sekarang
       </button>
       <button class="btn btn-secondary" onclick="closeCheckout()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div id="loginModal" class="modal">
+  <div class="modal-content" style="max-width: 400px; text-align: center;">
+    <h2>Login Admin</h2>
+    <p class="modal-subtitle">Masuk untuk manajemen sistem</p>
+    <input type="text" class="form-control" id="adminUsername" placeholder="Username" />
+    <input type="password" class="form-control" id="adminPassword" placeholder="Password" />
+    <div class="modal-actions" style="margin-top: 20px;">
+      <button class="btn" onclick="loginAdmin()">Masuk</button>
+      <button class="btn btn-secondary" onclick="closeLoginModal()">Batal</button>
     </div>
   </div>
 </div>
@@ -776,7 +794,8 @@ window.openCheckout = () => {
         <span>${i.nama} × ${i.qty}</span>
         <span>${rupiah(i.qty * i.harga)}</span>
       </div>`).join('') +
-    `<div class="summary-total"><span>Ongkos Kirim</span><span>check by WA</span></div>`+
+    `<span>Ongkos Kirim</span>
+      <span>oncheck</span>`+
     `<div class="summary-total"><span>Grand Total</span><span>${rupiah(grandTotal)}</span></div>`;
 
   document.getElementById('checkoutModal').classList.add('active');
@@ -787,8 +806,7 @@ window.closeCheckout = () => {
 document.getElementById('checkoutModal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('checkoutModal')) closeCheckout();
 });
-
-// ── SUBMIT ORDER ─────────────────────────────────────────────
+  
 // ── SUBMIT ORDER ─────────────────────────────────────────────
 window.submitOrder = async () => {
   const customerName    = document.getElementById('customerName').value.trim();
@@ -807,9 +825,9 @@ window.submitOrder = async () => {
 Saya ingin memesan:
 
 ${itemLines}
-
+Ongkos Kirim : oncheck
 ━━━━━━━━━━━━━━
-💰 TOTAL : ${rupiah(grandTotal)}
+💰 TOTAL : ${rupiah(grandTotal)} + Ongkos Kirim
 ━━━━━━━━━━━━━━
 
 👤 Nama    : ${customerName}
@@ -899,6 +917,26 @@ window.submitTestimoni = async () => {
     btn.disabled  = false;
     btn.innerText = 'Kirim Testimoni 🙌';
   }
+
+  // ── LOGIN MODAL ──────────────────────────────────────────────
+  window.openLoginModal = () => {
+    document.getElementById('loginModal').classList.add('active');
+  };
+  window.closeLoginModal = () => {
+    document.getElementById('loginModal').classList.remove('active');
+  };
+  window.loginAdmin = () => {
+    // Disini nanti kamu bisa mengkoneksikan ke Firebase Auth
+    const user = document.getElementById('adminUsername').value;
+    const pass = document.getElementById('adminPassword').value;
+    
+    if(user === "admin" && pass === "chimchum123") {
+        alert("Login berhasil! Mengalihkan ke Dashboard...");
+        window.location.href = "admin.html"; // Redirect ke file terpisah
+    } else {
+        alert("Username atau Password salah!");
+    }
+  };
 };
 </script>
 
