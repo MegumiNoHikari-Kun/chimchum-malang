@@ -577,7 +577,7 @@ function safeAttr(str){ return String(str).replace(/"/g,'&quot;').replace(/'/g,'
 const menuContainer    = document.getElementById('menuContainer');
 const galleryContainer = document.getElementById('galleryContainer');
 const filterTabs       = document.getElementById('filterTabs');
-let activeFilter = 'Semua'; // filter aktif saat ini
+let activeFilter = 'Semua';
 
 async function loadProducts() {
   try {
@@ -591,18 +591,16 @@ async function loadProducts() {
       return;
     }
 
-    // Kumpulkan semua kategori unik
     const kategoriSet = new Set();
-    const fotoSet     = new Set(); // untuk distinct galeri
+    const fotoSet     = new Set();
 
     snapshot.forEach((doc) => {
       const p     = doc.data();
       const id    = doc.id;
       const harga = Number(p.harga);
-      const kat   = p.kategori || 'Lainnya'; // fallback jika field kosong
+      const kat   = p.kategori || 'Lainnya';
       kategoriSet.add(kat);
 
-      // MENU CARD — tambah data-kategori untuk filter
       menuContainer.innerHTML += `
         <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
           <img src="${p.foto}" alt="${p.nama}"
@@ -624,7 +622,6 @@ async function loadProducts() {
           </div>
         </div>`;
 
-      // GALERI — hanya tampilkan foto yang belum ada (distinct)
       if (p.foto && !fotoSet.has(p.foto)) {
         fotoSet.add(p.foto);
         galleryContainer.innerHTML += `
@@ -633,7 +630,6 @@ async function loadProducts() {
       }
     });
 
-    // Render filter tabs: "Semua" + semua kategori unik
     const semua = ['Semua', ...Array.from(kategoriSet).sort()];
     filterTabs.innerHTML = semua.map(k => `
       <button
@@ -642,7 +638,6 @@ async function loadProducts() {
         ${k}
       </button>`).join('');
 
-    // Terapkan filter aktif setelah render
     applyFilter(activeFilter);
 
   } catch (err) {
@@ -652,16 +647,11 @@ async function loadProducts() {
   }
 }
 
-// Fungsi filter — tampilkan/sembunyikan card sesuai kategori
 window.applyFilter = (kategori) => {
   activeFilter = kategori;
-
-  // Update tombol aktif
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.classList.toggle('active', btn.innerText.trim() === kategori);
   });
-
-  // Tampilkan/sembunyikan card
   document.querySelectorAll('.card[data-kategori]').forEach(card => {
     const match = kategori === 'Semua' || card.dataset.kategori === kategori;
     card.classList.toggle('hidden-card', !match);
@@ -669,7 +659,6 @@ window.applyFilter = (kategori) => {
 };
 
 // ── LOAD TESTIMONI ───────────────────────────────────────────
-// Firestore fields: nama, kota, komentar, rating (1-5)
 async function loadTestimoni() {
   const container = document.getElementById('testimoniContainer');
   try {
@@ -794,8 +783,10 @@ window.openCheckout = () => {
         <span>${i.nama} × ${i.qty}</span>
         <span>${rupiah(i.qty * i.harga)}</span>
       </div>`).join('') +
-    `<span>Ongkos Kirim</span>
-      <span>oncheck</span>`+
+    `<div class="summary-item" style="color:var(--primary); font-style:italic;">
+      <span>Ongkos Kirim</span>
+      <span>oncheck</span>
+    </div>` +
     `<div class="summary-total"><span>Grand Total</span><span>${rupiah(grandTotal)}</span></div>`;
 
   document.getElementById('checkoutModal').classList.add('active');
@@ -825,14 +816,14 @@ window.submitOrder = async () => {
 Saya ingin memesan:
 
 ${itemLines}
-Ongkos Kirim : oncheck
 ━━━━━━━━━━━━━━
-💰 TOTAL : ${rupiah(grandTotal)} + Ongkos Kirim
+TOTAL : ${rupiah(grandTotal)}
++ Ongkos Kirim
 ━━━━━━━━━━━━━━
 
-👤 Nama    : ${customerName}
-📱 WA      : ${customerPhone}
-📍 Alamat  : ${customerAddress || '-'}
+Nama    : ${customerName}
+WA      : ${customerPhone}
+Alamat  : ${customerAddress || '-'}
 
 Terima kasih! 🙏`
   );
@@ -843,37 +834,19 @@ Terima kasih! 🙏`
       customer_name : customerName,
       phone         : customerPhone,
       address       : customerAddress,
-      items         : items.map(i => ({
-        product_id   : i.id,
-        product_name : i.nama,
-        qty          : i.qty,
-        price        : i.harga,
-        subtotal     : i.qty * i.harga
-      })),
-      grand_total : grandTotal,
-      status      : 'NEW',
-      created_at  : serverTimestamp()
+      items         : items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
+      grand_total   : grandTotal,
+      created_at    : serverTimestamp()
     });
-
-    // Reset form & cart sebelum redirect
-    Object.keys(cart).forEach(k => delete cart[k]);
-    updateCartUI();
-    document.getElementById('customerName').value    = '';
-    document.getElementById('customerPhone').value   = '';
-    document.getElementById('customerAddress').value = '';
-    closeCheckout();
-
-    // Buka WA di tab yang sama
-    window.location.href = waURL;
-
+    window.open(waURL, '_blank');
   } catch (err) {
     console.error('submitOrder:', err);
-    alert('Gagal menyimpan order. Hubungi kami langsung via WA.');
+    alert('Gagal menyimpan pesanan ke database, mengalihkan ke WhatsApp...');
+    window.open(waURL, '_blank');
   }
 };
 
 // ── SUBMIT TESTIMONI ─────────────────────────────────────────
-// Firestore fields: nama, kota, komentar, rating, created_at
 window.submitTestimoni = async () => {
   const nama     = document.getElementById('testiNama').value.trim();
   const kota     = document.getElementById('testiKota').value.trim();
@@ -912,54 +885,32 @@ window.submitTestimoni = async () => {
     }, 3000);
 
   } catch (err) {
-    console.error('submitTestimoni:', err);
-    alert('Gagal mengirim testimoni. Coba lagi.');
-    btn.disabled  = false;
+    console.error('submitTestimoni Error:', err);
+    alert('Gagal mengirim testimoni.');
+    btn.disabled = false;
     btn.innerText = 'Kirim Testimoni 🙌';
   }
+};
 
-  // ── LOGIN MODAL ──────────────────────────────────────────────
-  window.openLoginModal = () => {
-    document.getElementById('loginModal').classList.add('active');
-  };
-  window.closeLoginModal = () => {
-    document.getElementById('loginModal').classList.remove('active');
-  };
-  window.loginAdmin = () => {
-    // Disini nanti kamu bisa mengkoneksikan ke Firebase Auth
-    const user = document.getElementById('adminUsername').value;
-    const pass = document.getElementById('adminPassword').value;
-    
-    if(user === "admin" && pass === "chimchum123") {
-        alert("Login berhasil! Mengalihkan ke Dashboard...");
-        window.location.href = "admin.html"; // Redirect ke file terpisah
-    } else {
-        alert("Username atau Password salah!");
-    }
-  };
-
-  // ── LOGIKAL LOGIN MODAL (Paling Bawah Di Dalam Script Module) ──
+// ── LOGIKA LOGIN MODAL ────────────────────────────────────────
 const loginModal     = document.getElementById('loginModal');
 const btnOpenLogin   = document.getElementById('btnOpenLogin');
 const btnCloseLogin  = document.getElementById('btnCloseLogin');
 const btnSubmitLogin = document.getElementById('btnSubmitLogin');
 
-// Event untuk membuka modal
 if (btnOpenLogin) {
   btnOpenLogin.addEventListener('click', (e) => {
-    e.preventDefault(); // Mencegah halaman lompat ke atas karena href="#"
+    e.preventDefault();
     loginModal.classList.add('active');
   });
 }
 
-// Event untuk menutup modal
 if (btnCloseLogin) {
   btnCloseLogin.addEventListener('click', () => {
     loginModal.classList.remove('active');
   });
 }
 
-// Event untuk proses login
 if (btnSubmitLogin) {
   btnSubmitLogin.addEventListener('click', () => {
     const user = document.getElementById('adminUsername').value;
@@ -967,14 +918,12 @@ if (btnSubmitLogin) {
     
     if (user === "admin" && pass === "chimchum123") {
       alert("Login berhasil! Mengalihkan ke Dashboard...");
-      window.location.href = "admin.html"; // Dialihkan ke halaman admin terpisah
+      window.location.href = "admin.html";
     } else {
       alert("Username atau Password salah!");
     }
   });
 }
-};
 </script>
-
 </body>
 </html>
