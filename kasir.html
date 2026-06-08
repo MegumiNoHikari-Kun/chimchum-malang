@@ -104,9 +104,6 @@ header .status-badge {
     font-size: 11px;
     padding: 4px 10px;
   }
-  .kasir-controls{
-    grid-template-columns:1fr;
-  }
 }
 
 /* TABS NAVIGATION */
@@ -141,12 +138,7 @@ header .status-badge {
 }
 
 /* CONTAINER & SECTIONS */
-.container {
-  padding-top: 10px;
-  padding-left: 25px;
-  padding-right: 25px;
-  padding-bottom: 25px;
-}
+.container { padding: 25px; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
@@ -238,16 +230,8 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
 .kasir-item-card p { font-size: 13px; color: var(--primary); font-weight: 700; }
 
 .kasir-receipt {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-
-  position: sticky;
-  top: 20px;
-  right: 20px; /* sesuaikan */
-  width: 350px; /* sesuaikan */
-  z-index: 1000;
+  background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  height: fit-content; position: sticky; top: 20px;
 }
 .receipt-items {
   max-height: 240px; overflow-y: auto; margin: 15px 0; border-top: 1px dashed #ddd; padding-top: 10px;
