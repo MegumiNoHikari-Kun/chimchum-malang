@@ -52,15 +52,6 @@ header .logo {
   color: inherit;
 }
 
-/* Pengaturan Foto Logo Bulat & Halus */
-header .logo img {
-  width: 60px;
-  height: 00px;
-  object-fit: cover;
-  border-radius: 90%;      /* Membuat logo bulat sempurna */
-  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.15); /* Efek shadow tipis oranye */
-  border: 1px solid #eee;
-}
 
 /* Pengaturan Judul Dashboard */
 header h2 {
@@ -73,7 +64,7 @@ header h2 {
 
 /* Efek interaktif saat logo di-hover mouse */
 header .logo:hover h2 {
-  color: var(--dark);   /* Berubah oranye saat diarahkan */
+  color: var(--gray);   /* Berubah oranye saat diarahkan */
 }
 
 /* Mengubah status teks biasa menjadi Badge/Pill Modern */
@@ -794,7 +785,7 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, 
         .text-center { text-align: center; }
         .line { border-top: 1px dashed #000; margin: 8px 0; }
         .bold { font-weight: bold; }
-        .logo-container img { width: 65px; height: 65px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; }
+        .logo-container img { width: 65px; height: 65px; margin-bottom: 5px; }
       </style>
     </head>
     <body>
@@ -808,7 +799,7 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, 
       <div style="font-size:11px; line-height:1.4;">
         Waktu  : ${tgl}<br>
         Meja   : ${noMeja}<br>
-        WA Pllg: ${waPelanggan || '-'}
+        No HP  : ${waPelanggan || '-'}
       </div>
       <div class="line"></div>
       
