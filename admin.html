@@ -416,7 +416,7 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
 
 <script type="module">
 import {
-  db, collection, getDocs,
+  db, authReady, collection, getDocs,
   addDoc, deleteDoc, updateDoc, doc, serverTimestamp
 } from './firebase.js';
 
@@ -711,27 +711,50 @@ function renderKasirMenu() {
     return;
   }
   cachedProducts.forEach(p => {
+    const stok    = Number(p.stok) || 0;
+    const habis   = stok <= 0;
+    const stokTxt = habis ? '❌ Habis' : stok <= 5 ? `⚠ Sisa ${stok}` : `✓ ${stok} porsi`;
+    const stokClr = habis ? '#e74c3c' : stok <= 5 ? '#e67e22' : '#27ae60';
+
     kasirMenuList.innerHTML += `
-      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga})">
+      <div class="kasir-item-card"
+           data-kategori="${p.kategori || 'Umum'}"
+           style="${habis ? 'opacity:.45;pointer-events:none;' : ''}"
+           onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga}, ${stok})">
         <img src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
         <h4>${p.nama}</h4>
         <p>${rupiah(p.harga)}</p>
-        <span style="font-size:11px; color:#aaa;">Stok: ${p.stok}</span>
+        <span style="font-size:11px;font-weight:600;color:${stokClr};">${stokTxt}</span>
       </div>
     `;
   });
 }
 
-window.addToKasirCart = (id, nama, harga) => {
-  if (kasirCart[id]) { kasirCart[id].qty++; } 
-  else { kasirCart[id] = { id, nama, harga, qty: 1 }; }
+window.addToKasirCart = (id, nama, harga, stok) => {
+  const inCart  = kasirCart[id]?.qty || 0;
+  const stokMax = Number(stok) || 0;
+
+  if (inCart >= stokMax) {
+    alert(`Stok ${nama} hanya ${stokMax} porsi, sudah penuh di struk.`);
+    return;
+  }
+
+  if (kasirCart[id]) { kasirCart[id].qty++; }
+  else { kasirCart[id] = { id, nama, harga, qty: 1, stok: stokMax }; }
   updateKasirCartUI();
 };
 
 window.changeKasirQty = (id, delta) => {
   if (!kasirCart[id]) return;
-  kasirCart[id].qty += delta;
-  if (kasirCart[id].qty <= 0) delete kasirCart[id];
+  const next    = kasirCart[id].qty + delta;
+  const stokMax = kasirCart[id].stok ?? 999;
+
+  if (next > stokMax) {
+    alert(`Stok tersisa hanya ${stokMax} porsi.`);
+    return;
+  }
+  if (next <= 0) { delete kasirCart[id]; }
+  else { kasirCart[id].qty = next; }
   updateKasirCartUI();
 };
 
@@ -873,7 +896,7 @@ window.submitKasirOrder = async () => {
   }
 
   try {
-    // Simpan data order kasir ke collection 'orders'
+    // 1. Simpan order ke Firestore
     await addDoc(collection(db, "orders"), {
       customer_name: "Dine-In (" + noMeja + ")",
       phone: waPelanggan || "-", 
@@ -885,6 +908,15 @@ window.submitKasirOrder = async () => {
       cash_change: kembalian,
       created_at: serverTimestamp()
     });
+
+    // 2. Kurangi stok setiap produk yang dipesan
+    await Promise.all(
+      items.map(i =>
+        updateDoc(doc(db, "products", i.id), {
+          stok: Math.max(0, (i.stok ?? 0) - i.qty)
+        })
+      )
+    );
 
     alert("🎉 Transaksi Kasir Berhasil Disimpan!");
 
@@ -908,8 +940,10 @@ window.submitKasirOrder = async () => {
   }
 };
 
-// Jalankan load data produk di awal saat web terbuka
-loadProducts();
+// Tunggu auth siap sebelum query Firestore
+authReady.then(() => {
+  loadProducts();
+});
 </script>
 
 </body>
