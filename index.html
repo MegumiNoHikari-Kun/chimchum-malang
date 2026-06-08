@@ -109,7 +109,27 @@ header{position:fixed;top:0;width:100%;background:white;box-shadow:0 2px 10px rg
 .btn-add-cart:hover{background:#e55a24;}
 .btn-add-cart.added{background:#2ecc71;}
 
-/* GALLERY */
+/* FILTER TABS */
+.filter-tabs{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:10px;margin-bottom:35px;
+}
+.filter-btn{
+  padding:9px 22px;border-radius:50px;border:2px solid #e0e0e0;
+  background:white;color:#555;font-weight:600;font-size:14px;
+  cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif;
+}
+.filter-btn:hover{border-color:var(--primary);color:var(--primary);}
+.filter-btn.active{
+  background:var(--primary);color:white;
+  border-color:var(--primary);
+  box-shadow:0 4px 12px rgba(255,107,53,.35);
+}
+
+/* card hide/show animasi */
+.card.hidden-card{display:none;}
+
+
 .gallery{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
@@ -355,6 +375,10 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
   <div class="container">
     <h2 class="section-title">Menu Favorit</h2>
     <p class="section-subtitle">Pilihan rasa untuk melengkapi cerita — dari tawa kecil sampai momen bahagia bersama</p>
+
+    <!-- FILTER TABS — dirender dinamis dari Firebase -->
+    <div class="filter-tabs" id="filterTabs"></div>
+
     <div class="menu-grid" id="menuContainer">
       <div style="border-radius:15px;overflow:hidden;background:white;box-shadow:0 4px 15px rgba(0,0,0,.08)">
         <div class="skeleton" style="height:320px"></div>
@@ -531,9 +555,11 @@ function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
 function stars(n){ return '⭐'.repeat(Math.min(5, Math.max(1, Number(n)||5))); }
 function safeAttr(str){ return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
-// ── LOAD PRODUCTS ────────────────────────────────────────────
+// ── LOAD PRODUCTS + FILTER ───────────────────────────────────
 const menuContainer    = document.getElementById('menuContainer');
 const galleryContainer = document.getElementById('galleryContainer');
+const filterTabs       = document.getElementById('filterTabs');
+let activeFilter = 'Semua'; // filter aktif saat ini
 
 async function loadProducts() {
   try {
@@ -547,14 +573,19 @@ async function loadProducts() {
       return;
     }
 
+    // Kumpulkan semua kategori unik
+    const kategoriSet = new Set();
+
     snapshot.forEach((doc) => {
       const p     = doc.data();
       const id    = doc.id;
       const harga = Number(p.harga);
+      const kat   = p.kategori || 'Lainnya'; // fallback jika field kosong
+      kategoriSet.add(kat);
 
-      // MENU CARD
+      // MENU CARD — tambah data-kategori untuk filter
       menuContainer.innerHTML += `
-        <div class="card" id="card-${id}">
+        <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
           <img src="${p.foto}" alt="${p.nama}"
                onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
           <div class="card-content">
@@ -582,12 +613,40 @@ async function loadProducts() {
       }
     });
 
+    // Render filter tabs: "Semua" + semua kategori unik
+    const semua = ['Semua', ...Array.from(kategoriSet).sort()];
+    filterTabs.innerHTML = semua.map(k => `
+      <button
+        class="filter-btn ${k === activeFilter ? 'active' : ''}"
+        onclick="applyFilter('${safeAttr(k)}')">
+        ${k}
+      </button>`).join('');
+
+    // Terapkan filter aktif setelah render
+    applyFilter(activeFilter);
+
   } catch (err) {
     console.error('loadProducts:', err);
     menuContainer.innerHTML = '<p>Gagal memuat menu dari Firebase.</p>';
     galleryContainer.innerHTML = '';
   }
 }
+
+// Fungsi filter — tampilkan/sembunyikan card sesuai kategori
+window.applyFilter = (kategori) => {
+  activeFilter = kategori;
+
+  // Update tombol aktif
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.innerText.trim() === kategori);
+  });
+
+  // Tampilkan/sembunyikan card
+  document.querySelectorAll('.card[data-kategori]').forEach(card => {
+    const match = kategori === 'Semua' || card.dataset.kategori === kategori;
+    card.classList.toggle('hidden-card', !match);
+  });
+};
 
 // ── LOAD TESTIMONI ───────────────────────────────────────────
 // Firestore fields: nama, kota, komentar, rating (1-5)
