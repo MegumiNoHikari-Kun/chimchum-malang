@@ -17,12 +17,12 @@ import {
 
 // ── GANTI DENGAN CONFIG FIREBASE PROJECT KAMU ───────────────
 const firebaseConfig = {
-  apiKey            : 'GANTI_API_KEY',
-  authDomain        : 'GANTI_PROJECT_ID.firebaseapp.com',
-  projectId         : 'GANTI_PROJECT_ID',
-  storageBucket     : 'GANTI_PROJECT_ID.appspot.com',
-  messagingSenderId : 'GANTI_MESSAGING_SENDER_ID',
-  appId             : 'GANTI_APP_ID',
+  apiKey: "AIzaSyAGnCd4162tVEu_ADZBXN5CNE_7C_muCXA",
+  authDomain: "chimchum-malang.firebaseapp.com",
+  projectId: "chimchum-malang",
+  storageBucket: "chimchum-malang.firebasestorage.app",
+  messagingSenderId: "224277456881",
+  appId: "1:224277456881:web:4583b5897ba1c23df68650"
 };
 // ────────────────────────────────────────────────────────────
 
