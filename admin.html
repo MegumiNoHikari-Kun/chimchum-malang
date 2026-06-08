@@ -413,11 +413,10 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
   </div>
 
 </div>
-
-<script type="module">
-import {
+<script>
+  import {
   db, collection, getDocs,
-  addDoc, deleteDoc, updateDoc, doc, serverTimestamp
+  addDoc, deleteDoc, updateDoc, doc
 } from './firebase.js';
 
 if (sessionStorage.getItem('chimchum_admin') !== 'true') {
@@ -431,433 +430,243 @@ const kasirMenuList = document.getElementById("kasirMenuList");
 const kasirCartItems = document.getElementById("kasirCartItems");
 
 let editId = null;
-let cachedProducts = []; 
-let kasirCart = {};      
-let currentKasirGrandTotal = 0; 
+let cachedProducts = [];
+let kasirCart = {};
+let currentKasirGrandTotal = 0;
 
-function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+function rupiah(n) {
+  return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+}
 
-/* TAB CONTROLLER SWITCHER */
+function safe(v) {
+  return (v ?? "").toString().replace(/`/g, "\\`");
+}
+
+/* ================= TAB ================= */
 window.switchTab = (tabId, element) => {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  
+
   document.getElementById(tabId).classList.add('active');
   element.classList.add('active');
 
-  if(tabId === 'tab-pesanan') loadOrders();
-  if(tabId === 'tab-produk') loadProducts();
-  if(tabId === 'tab-kasir') renderKasirMenu();
-  if(tabId === 'tab-stok') renderStockMonitor();
+  if (tabId === 'tab-pesanan') loadOrders();
+  if (tabId === 'tab-produk') loadProducts();
+  if (tabId === 'tab-kasir') renderKasirMenu();
+  if (tabId === 'tab-stok') renderStockMonitor();
 };
 
 window.logoutAdmin = () => {
-  if(confirm("Apakah anda yakin ingin keluar dari panel admin?")) {
+  if (confirm("Keluar dari admin?")) {
     sessionStorage.removeItem('chimchum_admin');
     window.location.href = "index.html";
   }
 };
 
-/* LOAD PRODUCTS & SINKRONKAN KE CACHE INTERNAL */
+/* ================= PRODUCTS ================= */
 window.loadProducts = async () => {
-  tableBody.innerHTML = "<tr><td colspan='7'>Memuat produk...</td></tr>";
+  tableBody.innerHTML = "<tr><td colspan='7'>Memuat...</td></tr>";
+
   try {
     const snap = await getDocs(collection(db, "products"));
     tableBody.innerHTML = "";
     cachedProducts = [];
+
     const kategoriSet = new Set();
 
     snap.forEach(d => {
       const p = d.data();
       cachedProducts.push({ id: d.id, ...p });
-      if(p.kategori) kategoriSet.add(p.kategori.trim());
+
+      if (p.kategori) kategoriSet.add(p.kategori);
 
       tableBody.innerHTML += `
         <tr>
-          <td><img class="prod-img" src="${p.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://via.placeholder.com/60'"></td>
+          <td><img class="prod-img" src="${p.foto || ''}" onerror="this.src='https://via.placeholder.com/60'"></td>
           <td><b>${p.nama}</b></td>
-          <td><span style="background:#fff1ea; padding:4px 8px; border-radius:6px; font-size:12px;">${p.kategori}</span></td>
-          <td>${p.isi} pcs</td>
-          <td style="color:var(--primary); font-weight:600">${rupiah(p.harga)}</td>
-          <td style="font-weight:700; color:${p.stok < 10 ? 'red' : 'inherit'}">${p.stok} porsi</td>
+          <td>${p.kategori || '-'}</td>
+          <td>${p.isi || 0} pcs</td>
+          <td>${rupiah(p.harga)}</td>
+          <td style="color:${p.stok < 10 ? 'red' : ''}">${p.stok}</td>
           <td>
-            <div class="action-btns">
-              <button class="btn-edit" onclick="editProduct('${d.id}', \`${p.nama}\`, \`${p.kategori}\`, ${p.isi}, ${p.harga}, ${p.stok}, \`${p.foto}\`, \`${p.deskripsi || ''}\`)">
-                <i class="fa-solid fa-pen-to-square"></i>
-              </button>
-              <button class="btn-delete" onclick="deleteProduct('${d.id}')">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
+            <button onclick="editProduct('${d.id}', \`${safe(p.nama)}\`, \`${safe(p.kategori)}\`, ${p.isi}, ${p.harga}, ${p.stok}, \`${safe(p.foto)}\`, \`${safe(p.deskripsi)}\`)">Edit</button>
+            <button onclick="deleteProduct('${d.id}')">Hapus</button>
           </td>
         </tr>
       `;
     });
-    
+
     updateKasirKategoriDropdown(kategoriSet);
     renderKasirMenu();
-    renderStockMonitor(); // Sinkronkan data ke tab monitoring stok
-  } catch(err) {
-    console.error("Error load products:", err);
-    tableBody.innerHTML = "<tr><td colspan='7'>Gagal memuat data produk.</td></tr>";
+    renderStockMonitor();
+
+  } catch (err) {
+    console.error(err);
+    tableBody.innerHTML = "<tr><td colspan='7'>Error load data</td></tr>";
   }
 };
 
-/* ── TAB BARU: RENDER MONITORING STOK REALTIME ── */
+/* ================= STOCK ================= */
 window.renderStockMonitor = () => {
-  const stockBody = document.getElementById("stockMonitorBody");
-  if(!stockBody) return;
-  stockBody.innerHTML = "";
-  
-  if(cachedProducts.length === 0) {
-    stockBody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Tidak ada data produk ditemukan.</td></tr>";
-    return;
-  }
-  
+  const el = document.getElementById("stockMonitorBody");
+  if (!el) return;
+
+  el.innerHTML = "";
+
   cachedProducts.forEach(p => {
-    let statusBadge = "";
-    let rowBg = "";
-    
-    if(p.stok <= 0) {
-      statusBadge = `<span style="background:#ff4757; color:white; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> Habis (Restock!)</span>`;
-      rowBg = "background: #fff5f5;";
+    let status = "";
+    let bg = "";
+
+    if (p.stok <= 0) {
+      status = "HABIS";
+      bg = "background:#ffecec";
     } else if (p.stok < 10) {
-      statusBadge = `<span style="background:#ffa502; color:white; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700;"><i class="fa-solid fa-circle-exclamation"></i> Kritis (Menipis)</span>`;
-      rowBg = "background: #fffdf0;";
+      status = "KRITIS";
+      bg = "background:#fff7e6";
     } else {
-      statusBadge = `<span style="background:#2ecc71; color:white; padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700;"><i class="fa-solid fa-circle-check"></i> Aman (Tersedia)</span>`;
+      status = "AMAN";
     }
-    
-    stockBody.innerHTML += `
-      <tr style="${rowBg}">
-        <td><b>${p.nama}</b></td>
-        <td><span style="background:#f1f2f6; padding:4px 8px; border-radius:6px; font-size:12px;">${p.kategori || 'Umum'}</span></td>
-        <td style="font-weight:700; font-size:15px; color:${p.stok < 10 ? '#ff4757' : 'var(--dark)'}">${p.stok} Porsi</td>
-        <td>${statusBadge}</td>
+
+    el.innerHTML += `
+      <tr style="${bg}">
+        <td>${p.nama}</td>
+        <td>${p.kategori || '-'}</td>
+        <td>${p.stok}</td>
+        <td>${status}</td>
       </tr>
     `;
   });
 };
 
-function updateKasirKategoriDropdown(kategoriSet) {
-  const kategoriSelect = document.getElementById('filterKategoriKasir');
-  if(!kategoriSelect) return;
-  const daftarKategori = ['Semua', ...Array.from(kategoriSet).sort()];
-  kategoriSelect.innerHTML = daftarKategori.map(k => `<option value="${k}">${k}</option>`).join('');
-}
-
-function jalankanFilterKasir() {
-  const kataKunci = document.getElementById('searchMenuKasir').value.toLowerCase();
-  const kategoriTerpilih = document.getElementById('filterKategoriKasir').value;
-  const semuaProduk = document.querySelectorAll('.kasir-item-card');
-  
-  semuaProduk.forEach(card => {
-    const namaProduk = card.querySelector('h4').innerText.toLowerCase();
-    const kategoriProduk = card.dataset.kategori || 'Umum';
-    const cocokSearch = namaProduk.includes(kataKunci);
-    const cocokKategori = (kategoriTerpilih === 'Semua') || (kategoriProduk === kategoriTerpilih);
-    card.style.display = (cocokSearch && cocokKategori) ? 'block' : 'none';
-  });
-}
-
-if(document.getElementById('searchMenuKasir')) {
-  document.getElementById('searchMenuKasir').addEventListener('input', jalankanFilterKasir);
-  document.getElementById('filterKategoriKasir').addEventListener('change', jalankanFilterKasir);
-}
-
-window.toggleCashSection = () => {
-  const metode = document.getElementById("kasirMetodeBayar").value;
-  document.getElementById("sectionKalkulatorCash").style.display = (metode === "Cash") ? "block" : "none";
-  window.hitungKembalian();
-};
-
-window.hitungKembalian = () => {
-  const metode = document.getElementById("kasirMetodeBayar").value;
-  if(metode !== "Cash") return;
-  const uangBayar = Number(document.getElementById("kasirUangBayar").value) || 0;
-  const kembalian = uangBayar - currentKasirGrandTotal;
-  const elKembalian = document.getElementById("kasirKembalian");
-
-  if(uangBayar === 0) { elKembalian.innerText = "Rp 0"; elKembalian.style.color = "var(--dark)"; }
-  else if (kembalian < 0) { elKembalian.innerText = "Uang Kurang!"; elKembalian.style.color = "red"; }
-  else { elKembalian.innerText = rupiah(kembalian); elKembalian.style.color = "var(--success)"; }
-};
-
-window.setUangCepat = (nominal) => { document.getElementById("kasirUangBayar").value = nominal; window.hitungKembalian(); };
-window.setUangPas = () => { document.getElementById("kasirUangBayar").value = currentKasirGrandTotal; window.hitungKembalian(); };
-
-const inpNama = document.getElementById("nama");
-const inpKategori = document.getElementById("kategori");
-const inpIsi = document.getElementById("isi");
-const inpHarga = document.getElementById("harga");
-const inpStok = document.getElementById("stok");
-const inpFoto = document.getElementById("foto");
-const inpDeskripsi = document.getElementById("deskripsi");
-
-window.saveProduct = async () => {
-  if(!inpNama.value || !inpHarga.value) { alert("Nama dan Harga produk wajib diisi!"); return; }
-  const data = {
-    nama: inpNama.value.trim(),
-    kategori: inpKategori.value.trim() || 'Umum',
-    isi: Number(inpIsi.value) || 0,
-    harga: Number(inpHarga.value) || 0,
-    stok: Number(inpStok.value) || 0,
-    deskripsi: inpDeskripsi.value.trim(),
-    foto: inpFoto.value.trim(),
-    aktif: true
-  };
-
-  try {
-    if(editId){
-      await updateDoc(doc(db, "products", editId), data);
-      alert("Produk berhasil diupdate!");
-      editId = null;
-    } else {
-      await addDoc(collection(db, "products"), data);
-      alert("Produk baru berhasil ditambahkan!");
-    }
-    clearForm();
-    loadProducts();
-  } catch(err) { alert("Gagal menyimpan produk."); }
-};
-
-window.deleteProduct = async (id) => {
-  if(!confirm("Apakah Anda yakin ingin menghapus produk ini?")) return;
-  try { await deleteDoc(doc(db, "products", id)); loadProducts(); } catch(err) { alert("Gagal menghapus."); }
-};
-
-window.editProduct = (id, n, k, i, h, s, f, d) => {
-  editId = id; inpNama.value = n; inpKategori.value = k; inpIsi.value = i; inpHarga.value = h; inpStok.value = s; inpFoto.value = f; inpDeskripsi.value = d;
-  document.getElementById("nama").scrollIntoView({ behavior: 'smooth' });
-};
-
-function clearForm(){ inpNama.value = ""; inpKategori.value = ""; inpIsi.value = ""; inpHarga.value = ""; inpStok.value = ""; inpFoto.value = ""; inpDeskripsi.value = ""; }
-
-window.loadOrders = async () => {
-  orderTableBody.innerHTML = "<tr><td colspan='7'>Sedang menarik data riwayat transaksi...</td></tr>";
-  try {
-    const snap = await getDocs(collection(db, "orders"));
-    orderTableBody.innerHTML = "";
-    let ordersList = [];
-    snap.forEach(d => { ordersList.push({ id: d.id, ...d.data() }); });
-    ordersList.sort((a, b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
-
-    if(ordersList.length === 0) {
-      orderTableBody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Belum ada data pesanan terekam.</td></tr>";
-      return;
-    }
-
-    ordersList.forEach(o => {
-      const tgl = o.created_at ? new Date(o.created_at.seconds * 1000).toLocaleString('id-ID') : '-';
-      let itemStr = o.items ? o.items.map(i => `<span style="display:block; font-size:13px;">📌 ${i.nama} <b>(${i.qty}x)</b></span>`).join("") : "<span style='color:red;'>Format pesanan lama</span>";
-      const labelTipe = o.payment_method ? `${o.address || '-'} <br><b style="color:var(--primary)">[${o.payment_method}]</b>` : (o.address || '-');
-
-      orderTableBody.innerHTML += `
-        <tr>
-          <td style="font-size:13px; color:var(--gray);">${tgl}</td>
-          <td><b>${o.customer_name || '-'}</b></td>
-          <td>${o.phone && o.phone !== '-' ? `<a href="https://wa.me/${o.phone}" target="_blank" style="color:var(--primary); font-weight:600;"><i class="fa-brands fa-whatsapp"></i> ${o.phone}</a>` : '-'}</td>
-          <td><span style="font-size:13px;">${labelTipe}</span></td>
-          <td>${itemStr}</td>
-          <td style="color:var(--success); font-weight:700;">${rupiah(o.grand_total || 0)}</td>
-          <td><button class="btn-delete" style="padding: 6px 10px;" onclick="deleteOrder('${o.id}')"><i class="fa-solid fa-trash-can"></i></button></td>
-        </tr>
-      `;
-    });
-  } catch(err) { orderTableBody.innerHTML = "<tr><td colspan='7'>Gagal memuat log pesanan.</td></tr>"; }
-};
-
-window.deleteOrder = async (id) => {
-  if(!confirm("Hapus permanen arsip pesanan ini?")) return;
-  try { await deleteDoc(doc(db, "orders", id)); loadOrders(); } catch (err) { alert("Gagal menghapus."); }
-};
-
+/* ================= KASIR MENU (FIX BUG UTAMA) ================= */
 function renderKasirMenu() {
   kasirMenuList.innerHTML = "";
-  if(cachedProducts.length === 0) { kasirMenuList.innerHTML = "<p>Produk tidak ditemukan.</p>"; return; }
+
   cachedProducts.forEach(p => {
-    // Tombol dinonaktifkan jika stok habis di kasir
-    const isHabis = p.stok <= 0;
+    const habis = p.stok <= 0;
+
     kasirMenuList.innerHTML += `
-      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" style="${isHabis ? 'opacity:0.6; cursor:not-allowed;' : ''}" onclick="${isHabis ? "alert('Stok menu ini habis!')" : `addToKasirCart('${p.id}', \\\`${p.nama}\\\`, ${p.harga}, ${p.stok})`}">
-        <img src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
+      <div class="kasir-item-card"
+        data-kategori="${p.kategori || 'Umum'}"
+        style="${habis ? 'opacity:0.5; pointer-events:none;' : ''}"
+        onclick="${habis
+          ? "alert('Stok habis')"
+          : `addToKasirCart('${p.id}', \`${safe(p.nama)}\`, ${p.harga}, ${p.stok})`
+        }">
+
         <h4>${p.nama}</h4>
         <p>${rupiah(p.harga)}</p>
-        <span style="font-size:11px; font-weight:600; color:${p.stok < 10 ? 'red' : '#aaa'};">${isHabis ? 'HABIS' : 'Stok: '+p.stok}</span>
+        <small>${habis ? 'HABIS' : 'Stok: ' + p.stok}</small>
       </div>
     `;
   });
 }
 
+/* ================= KASIR CART ================= */
 window.addToKasirCart = (id, nama, harga, maxStok) => {
-  if (kasirCart[id]) { 
-    if(kasirCart[id].qty >= maxStok) { alert("Tidak bisa melebihi sisa stok produk!"); return; }
-    kasirCart[id].qty++; 
-  } else { 
-    kasirCart[id] = { id, nama, harga, qty: 1, maxStok }; 
+  if (kasirCart[id]) {
+    if (kasirCart[id].qty >= maxStok) return alert("Stok habis");
+    kasirCart[id].qty++;
+  } else {
+    kasirCart[id] = { id, nama, harga, qty: 1, maxStok };
   }
   updateKasirCartUI();
 };
 
 window.changeKasirQty = (id, delta) => {
   if (!kasirCart[id]) return;
+
   kasirCart[id].qty += delta;
-  if(kasirCart[id].qty > kasirCart[id].maxStok) { alert("Batas maksimal stok tercapai!"); kasirCart[id].qty = kasirCart[id].maxStok; }
+
   if (kasirCart[id].qty <= 0) delete kasirCart[id];
+  if (kasirCart[id]?.qty > kasirCart[id].maxStok) {
+    kasirCart[id].qty = kasirCart[id].maxStok;
+  }
+
   updateKasirCartUI();
 };
 
 function updateKasirCartUI() {
   const items = Object.values(kasirCart);
-  if (items.length === 0) {
-    kasirCartItems.innerHTML = `<p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>`;
-    document.getElementById("kasirGrandTotal").innerText = rupiah(0);
-    currentKasirGrandTotal = 0; window.hitungKembalian(); return;
+
+  if (!items.length) {
+    kasirCartItems.innerHTML = "Kosong";
+    currentKasirGrandTotal = 0;
+    return;
   }
-  let grandTotal = 0;
-  kasirCartItems.innerHTML = items.map(item => {
-    const totalItemHarga = item.qty * item.harga; grandTotal += totalItemHarga;
+
+  let total = 0;
+
+  kasirCartItems.innerHTML = items.map(i => {
+    const sub = i.qty * i.harga;
+    total += sub;
+
     return `
-      <div class="receipt-item">
-        <div style="max-width: 60%;">
-          <div style="font-weight:600; font-size:13px;">${item.nama}</div>
-          <div style="font-size:11px; color:var(--gray);">${rupiah(item.harga)}</div>
-        </div>
-        <div class="receipt-qty-control" style="display:flex; align-items:center; gap:6px;">
-          <button onclick="changeKasirQty('${item.id}', -1)">-</button>
-          <span style="font-weight:700; font-size:14px; min-width:15px; text-align:center;">${item.qty}</span>
-          <button onclick="changeKasirQty('${item.id}', 1)">+</button>
-        </div>
-        <div style="font-weight:600; font-size:13px; min-width:70px; text-align:right;">${rupiah(totalItemHarga)}</div>
+      <div>
+        ${i.nama} x${i.qty}
+        <button onclick="changeKasirQty('${i.id}',-1)">-</button>
+        <button onclick="changeKasirQty('${i.id}',1)">+</button>
+        = ${rupiah(sub)}
       </div>
     `;
-  }).join('');
-  document.getElementById("kasirGrandTotal").innerText = rupiah(grandTotal);
-  currentKasirGrandTotal = grandTotal; window.hitungKembalian();
+  }).join("");
+
+  currentKasirGrandTotal = total;
 }
 
-// 1. Ubah fungsi cetak agar menerima object window yang sudah dibuka
-function cetakStrukThermal(printWindow, noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian) {
-  if (!printWindow) return; // Proteksi jika window gagal terbuka
-  
+/* ================= PRINT STRUK (FIX FULL) ================= */
+function cetakStrukThermal(win, meja, wa, items, total, metode, bayar, kembalian) {
+  if (!win) return;
+
   const tgl = new Date().toLocaleString('id-ID');
-  let itemsHtml = items.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px;"><span>${i.nama} x${i.qty}</span><span>${rupiah(i.qty * i.harga)}</span></div>`).join('');
-  
-  printWindow.document.write(`
+
+  const itemHTML = items.map(i =>
+    `<div>${i.nama} x${i.qty} = ${rupiah(i.qty * i.harga)}</div>`
+  ).join("");
+
+  win.document.write(`
     <html>
-    <head>
-      <title>Struk Belanja</title>
-      <style>
-        @page { margin: 0; } 
-        body { font-family: 'Courier New', monospace; width: 280px; padding: 10px; } 
-        .text-center { text-align: center; } 
-        .line { border-top: 1px dashed #000; margin: 8px 0; } 
-        .bold { font-weight: bold; } 
-        .logo-container img { width: 65px; height: 65px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; }
-      </style>
-    </head>
-    <body>
-      <div class="text-center logo-container"><img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg"></div>
-      <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div>
-      <div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div>
-      <div class="line"></div>
-      <div style="font-size:11px;">Waktu: ${tgl}<br>Meja: ${noMeja}<br>WA: ${waPelanggan || '-'}</div>
-      <div class="line"></div>
-      ${itemsHtml}
-      <div class="line"></div>
-      <div style="display:flex; justify-content:space-between; font-size:13px;" class="bold"><span>TOTAL TAGIHAN:</span><span>${rupiah(grandTotal)}</span></div>
-      <div class="line"></div>
-      <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Metode Bayar:</span><span class="bold">${metodeBayar}</span></div>
-      <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Uang Diterima:</span><span>${rupiah(uangBayar)}</span></div>
-      <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Kembalian:</span><span class="bold">${rupiah(kembalian)}</span></div>
-      <div class="line"></div>
-      <div class="text-center" style="font-size:11px; margin-top:12px;">Terima Kasih Atas Kunjungan Anda!</div>
+    <body style="font-family:monospace;width:280px">
+      <h3 style="text-align:center">CHIMCHUM</h3>
+      <hr>
+      Meja: ${meja}<br>
+      WA: ${wa || '-'}<br>
+      ${tgl}
+      <hr>
+      ${itemHTML}
+      <hr>
+      TOTAL: ${rupiah(total)}<br>
+      Bayar: ${rupiah(bayar)}<br>
+      Kembali: ${rupiah(kembalian)}
       <script>
-        window.onload = function() { 
-          window.print(); 
-          setTimeout(function() { window.close(); }, 300); 
-        }
+        window.onload = () => { window.print(); window.close(); }
       </script>
     </body>
     </html>
   `);
-  printWindow.document.close();
+
+  win.document.close();
 }
 
-/* SUBMIT TRANSAKSI KASIR (SINKRONISASI STOK DINE-IN) */
-window.submitKasirOrder = async () => {
-  const items = Object.values(kasirCart);
-  if(items.length === 0) { alert("Struk kasir kosong!"); return; }
-  const noMeja = document.getElementById("kasirNomorMeja").value.trim();
-  if(!noMeja) { alert("Harap isi Nomor Meja!"); return; }
+/* ================= LOAD ORDERS ================= */
+window.loadOrders = async () => {
+  orderTableBody.innerHTML = "Loading...";
 
-  const waPelanggan = document.getElementById("kasirWaPelanggan").value.trim();
-  const metodeBayar = document.getElementById("kasirMetodeBayar").value;
-  const statusPrint = document.getElementById("printStrukCheck").checked;
-  const grandTotal = items.reduce((total, item) => total + (item.qty * item.harga), 0);
+  const snap = await getDocs(collection(db, "orders"));
+  const data = [];
 
-  let uangBayar = grandTotal; let kembalian = 0;
-  if (metodeBayar === "Cash") {
-    uangBayar = Number(document.getElementById("kasirUangBayar").value) || 0;
-    if (uangBayar < grandTotal) { alert("Uang tunai kurang!"); return; }
-    kembalian = uangBayar - grandTotal;
-  }
+  snap.forEach(d => data.push({ id: d.id, ...d.data() }));
 
-  // --- PERBAIKAN POPUP BLOCKER ---
-  // Buka window baru di sini (saat user baru saja klik tombol submit)
-  let printWindow = null;
-  if (statusPrint) {
-    printWindow = window.open('', '_blank', 'width=350,height=600');
-  }
+  data.sort((a,b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
 
-  try {
-    // 1. POTONG STOK DI FIRESTORE UNTUK TRANSAKSI KASIR
-    for (const item of items) {
-      const prod = cachedProducts.find(p => p.id === item.id);
-      if (prod) {
-        const newStok = Math.max(0, prod.stok - item.qty);
-        await updateDoc(doc(db, "products", item.id), { stok: newStok });
-      }
-    }
-
-    // 2. SIMPAN LOG DATA ORDER
-    await addDoc(collection(db, "orders"), {
-      customer_name: "Dine-In (" + noMeja + ")",
-      phone: waPelanggan || "-", 
-      address: "Makan di Tempat",
-      items: items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
-      grand_total: grandTotal,
-      payment_method: metodeBayar,
-      cash_received: uangBayar,
-      cash_change: kembalian,
-      created_at: serverTimestamp()
-    });
-
-    alert("🎉 Transaksi Kasir Berhasil Disimpan & Stok Diperbarui!");
-    
-    // Kirim objek printWindow yang sudah dibuat di awal ke fungsi cetak
-    if (statusPrint && printWindow) { 
-      cetakStrukThermal(printWindow, noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian); 
-    }
-
-    // Reset Form POS
-    kasirCart = {};
-    document.getElementById("kasirNomorMeja").value = "";
-    document.getElementById("kasirWaPelanggan").value = "";
-    document.getElementById("kasirUangBayar").value = "";
-    document.getElementById("kasirMetodeBayar").value = "Cash";
-    window.toggleCashSection();
-    updateKasirCartUI();
-    
-    await loadProducts(); // Reload data produk
-  } catch(err) { 
-    // Jika proses database gagal, tutup kembali window kosong yang telanjur dibuka
-    if (printWindow) printWindow.close();
-    alert("Gagal memproses transaksi kasir."); 
-  }
+  orderTableBody.innerHTML = data.map(o => `
+    <tr>
+      <td>${o.customer_name || '-'}</td>
+      <td>${rupiah(o.grand_total)}</td>
+      <td>${o.payment_method || '-'}</td>
+    </tr>
+  `).join("");
 };
-
-loadProducts();
 </script>
 </body>
 </html>
