@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChimChum Malang | Dimsum Mentai & Ohiyong</title>
+<link rel="icon" type="image/jpeg" href="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+:root{
+  --primary:#ff6b35;
+  --secondary:#fff5f0;
+  --dark:#222;
+  --gray:#666;
+  --white:#fff;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;scroll-behavior:smooth;}
+body{background:#fafafa;color:var(--dark);}
+.container{width:90%;max-width:1200px;margin:auto;}
+
+/* NAV */
+header{position:fixed;top:0;width:100%;background:white;box-shadow:0 2px 10px rgba(0,0,0,0.05);z-index:1000;}
+.nav-container{display:flex;justify-content:between;align-items:center;padding:15px 0;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--dark);font-weight:700;font-size:20px;}
+.logo img{width:40px;height:40px;border-radius:50%;object-fit:cover;}
+.logo span{color:var(--primary);}
+nav ul{display:flex;list-style:none;gap:20px;}
+nav ul li a{text-decoration:none;color:var(--gray);font-weight:500;transition:0.3s;}
+nav ul li a:hover, nav ul li a.active{color:var(--primary);}
+.cart-icon-btn{background:var(--primary);color:white;border:none;padding:8px 15px;border-radius:20px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;position:relative;}
+.cart-badge{position:absolute;top:-5px;right:-5px;background:#222;color:white;font-size:11px;padding:2px 6px;border-radius:50%;}
+
+/* HERO */
+.hero{background:linear-gradient(rgba(255,245,240,0.9), rgba(255,245,240,0.6)), url('https://images.unsplash.com/photo-1563245372-f21724e3856d?q=80&w=1200') no-repeat center/cover;padding:120px 0 80px 0;text-align:center;}
+.hero h1{font-size:42px;font-weight:700;margin-bottom:15px;color:var(--dark);}
+.hero h1 span{color:var(--primary);}
+.hero p{font-size:16px;color:var(--gray);max-width:600px;margin:0 auto 25px auto;line-height:1.6;}
+.btn-primary{background:var(--primary);color:white;padding:12px 30px;border-radius:25px;text-decoration:none;font-weight:600;box-shadow:0 4px 15px rgba(255,107,53,0.3);transition:0.3s;display:inline-block;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.4);}
+
+/* CATALOG GRID */
+.catalog{padding:60px 0;}
+.section-title{text-align:center;margin-bottom:40px;}
+.section-title h2{font-size:28px;font-weight:700;position:relative;display:inline-block;padding-bottom:10px;}
+.section-title h2::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:50px;height:3px;background:var(--primary);}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:25px;}
+.menu-card{background:white;border-radius:15px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,0.03);transition:0.3s;border:1px solid #f0f0f0;}
+.menu-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,0.08);}
+.menu-card img{width:100%;height:200px;object-fit:cover;}
+.menu-info{padding:20px;}
+.menu-info h3{font-size:18px;margin-bottom:8px;font-weight:600;}
+.menu-info .desc{font-size:13px;color:var(--gray);margin-bottom:15px;height:38px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.menu-footer{display:flex;justify-content:space-between;align-items:center;}
+.price{font-size:18px;font-weight:700;color:var(--primary);}
+.btn-pesan{background:var(--dark);color:white;border:none;padding:8px 15px;border-radius:8px;cursor:pointer;font-weight:500;transition:0.3s;}
+.btn-pesan:hover{background:var(--primary);}
+
+/* CART SLIDE PANEL */
+.cart-panel{position:fixed;top:0;right:-400px;width:400px;height:100%;background:white;box-shadow:-5px 0 25px rgba(0,0,0,0.1);z-index:2000;transition:0.4s;display:flex;flex-direction:column;}
+.cart-panel.active{right:0;}
+.cart-header{padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;}
+.cart-header h3{font-size:18px;font-weight:600;}
+.close-cart{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);}
+.cart-body{flex:1;overflow-y:auto;padding:20px;}
+.cart-item{display:flex;gap:15px;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid #f9f9f9;align-items:center;}
+.cart-item img{width:60px;height:60px;border-radius:8px;object-fit:cover;}
+.cart-item-info{flex:1;}
+.cart-item-info h4{font-size:14px;font-weight:600;margin-bottom:4px;}
+.cart-item-info p{font-size:13px;color:var(--primary);font-weight:600;}
+.qty-control{display:flex;align-items:center;gap:10px;margin-top:5px;}
+.qty-btn{background:#f1f1f1;border:none;width:24px;height:24px;border-radius:4px;cursor:pointer;font-weight:600;}
+.cart-footer{padding:20px;border-top:1px solid #eee;background:#fafafa;}
+.total-box{display:flex;justify-content:space-between;font-weight:700;font-size:16px;margin-bottom:15px;}
+.btn-checkout{background:var(--primary);color:white;border:none;width:100%;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;font-size:15px;}
+
+/* OVERLAY */
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:1500;display:none;}
+.overlay.active{display:block;}
+
+/* TESTIMONI FORM & VIEW */
+.testi-section{background:var(--secondary);padding:60px 0;}
+.testi-grid{display:grid;grid-template-columns:1.2fr 1.8fr;gap:40px;align-items:start;}
+@media(max-width:768px){ .testi-grid{grid-template-columns:1fr;} .cart-panel{width:100%;right:-100%;} .nav-container{padding:15px;} nav{display:none;} }
+
+.testi-card-view{background:white;padding:20px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.02);margin-bottom:15px;}
+.testi-meta{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--gray);}
+.stars{color:#ffc107;font-size:12px;margin-bottom:5px;}
+
+/* MODAL FOR FORM CHECKOUT */
+.modal-checkout {
+  position:fixed; top:50%; left:50%; transform:translate(-50%, -50%) scale(0.9);
+  background:white; padding:25px; border-radius:15px; z-index:2500;
+  width:90%; max-width:500px; box-shadow:0 10px 30px rgba(0,0,0,0.15);
+  display:none; transition:0.3s; max-height: 90vh; overflow-y: auto;
+}
+.modal-checkout.active { display:block; transform:translate(-50%, -50%) scale(1); }
+.form-group { margin-bottom: 12px; }
+.form-group label { display:block; font-size:13px; font-weight:500; margin-bottom:4px; }
+.form-group input, .form-group textarea, .form-group select {
+  width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; outline:none; font-family:inherit;
+}
+</style>
+<style>
+:root{
+  --primary:#ff6b35;
+  --secondary:#fff5f0;
+  --dark:#222;
+  --gray:#666;
+  --white:#fff;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;scroll-behavior:smooth;}
+body{background:#fafafa;color:var(--dark);}
+.container{width:90%;max-width:1200px;margin:auto;}
+
+/* NAV */
+header{position:fixed;top:0;width:100%;background:white;box-shadow:0 2px 10px rgba(0,0,0,.08);z-index:999;}
+.navbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo img{height:42px;width:auto;object-fit:contain;}
+.logo span{font-size:22px;font-weight:700;color:var(--primary);}
+.nav-links{display:flex;gap:20px;align-items:center;}
+.nav-links a{
+  position:relative;padding-bottom:4px;transition:color .2s;
+  color:#333;text-decoration:none;font-weight:500;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;
+  width:0;height:2px;background:var(--primary);
+  border-radius:2px;transition:width .25s ease;
+}
+.nav-links a:hover{color:var(--primary);}
+.nav-links a:hover::after{width:100%;}
+
+/* KERANJANG BADGE */
+.cart-nav-btn{
+  position:relative;background:var(--primary);color:white;
+  border:none;padding:10px 18px;border-radius:50px;
+  font-weight:600;cursor:pointer;font-size:14px;
+  display:flex;align-items:center;gap:6px;transition:.2s;
+}
+.cart-nav-btn:hover{background:#e55a24;}
+.cart-badge{
+  background:white;color:var(--primary);
+  border-radius:50%;width:20px;height:20px;
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.cart-badge.hidden{display:none;}
+
+/* HERO */
+.hero{
+  min-height:80vh;display:flex;align-items:center;
+  background:linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+  url('https://meguminohikari-kun.github.io/chimchum-malang/assets/shumai-original.jpg');
+  background-size:cover;background-position:center;
+  color:white;text-align:center;padding:100px 20px;
+}
+.hero-content{max-width:800px;margin:auto;}
+.hero h1{font-size:55px;margin-bottom:20px;}
+.hero p{font-size:20px;margin-bottom:35px;}
+.btn{
+  display:inline-block;padding:14px 28px;background:var(--primary);
+  color:white;text-decoration:none;border-radius:10px;font-weight:600;
+  transition:.3s;border:none;cursor:pointer;font-size:15px;
+}
+.btn:hover{transform:translateY(-3px);background:#e55a24;}
+
+/* SECTION */
+.section{padding:90px 0;}
+.section-title{text-align:center;font-size:36px;margin-bottom:15px;}
+.section-subtitle{text-align:center;color:var(--gray);margin-bottom:50px;}
+
+/* MENU CARD */
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;}
+.card{
+  position:relative;transition:.3s;background:white;
+  border-radius:15px;overflow:hidden;
+  box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+.card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.12);}
+.card img{width:100%;height:320px;object-fit:cover;}
+.card-content{padding:20px;}
+.card h3{margin-bottom:8px;}
+.card p{color:var(--gray);font-size:14px;line-height:1.5;}
+.price{color:var(--primary);font-weight:700;font-size:20px;margin-top:10px;}
+.card-order-row{display:flex;align-items:center;gap:10px;margin-top:14px;}
+.card-qty-btn{
+  width:34px;height:34px;border:none;
+  background:var(--primary);color:white;
+  font-size:20px;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.15s;flex-shrink:0;
+}
+.card-qty-btn:hover{background:#e55a24;}
+.card-qty-num{font-size:16px;font-weight:700;min-width:24px;text-align:center;}
+.btn-add-cart{
+  flex:1;padding:10px 0;background:var(--primary);
+  color:white;border:none;border-radius:10px;
+  font-weight:600;cursor:pointer;font-size:14px;transition:.2s;
+}
+.btn-add-cart:hover{background:#e55a24;}
+.btn-add-cart.added{background:#2ecc71;}
+
+/* FILTER TABS */
+.filter-tabs{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:10px;margin-bottom:35px;
+}
+.filter-btn{
+  padding:9px 22px;border-radius:50px;border:2px solid #e0e0e0;
+  background:white;color:#555;font-weight:600;font-size:14px;
+  cursor:pointer;transition:all .2s;font-family:'Poppins',sans-serif;
+}
+.filter-btn:hover{border-color:var(--primary);color:var(--primary);}
+.filter-btn.active{
+  background:var(--primary);color:white;
+  border-color:var(--primary);
+  box-shadow:0 4px 12px rgba(255,107,53,.35);
+}
+
+/* card hide/show animasi */
+.card.hidden-card{display:none;}
+
+
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:15px;
+}
+.gallery img{
+  width:100%;height:320px;object-fit:cover;
+  border-radius:15px;transition:.3s;
+}
+.gallery img:hover{transform:scale(1.03);box-shadow:0 10px 30px rgba(0,0,0,.15);}
+
+/* TESTIMONIAL — horizontal scroll */
+.testimonials{
+  display:flex;
+  gap:20px;
+  overflow-x:auto;
+  padding:10px 5px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+.testimonials::-webkit-scrollbar{display:none;}
+.testimonial{
+  flex:0 0 280px;
+  background:white;padding:25px;
+  border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,.08);
+  scroll-snap-align:start;
+}
+.testimonial .stars{font-size:18px;margin-bottom:10px;}
+.testimonial p{color:#444;line-height:1.6;}
+.testimonial h4{margin-top:12px;color:var(--primary);font-size:14px;}
+
+/* FORM TESTIMONI */
+.testi-form-wrap{
+  background:white;border-radius:20px;
+  padding:32px;margin-top:50px;
+  box-shadow:0 5px 25px rgba(0,0,0,.08);
+  max-width:600px;margin-left:auto;margin-right:auto;
+}
+.testi-form-wrap h3{font-size:20px;margin-bottom:6px;}
+.testi-form-wrap p{color:var(--gray);font-size:14px;margin-bottom:22px;}
+.star-picker{display:flex;gap:8px;margin-bottom:18px;flex-direction:row-reverse;justify-content:flex-end;}
+.star-picker input{display:none;}
+.star-picker label{font-size:32px;cursor:pointer;color:#ddd;transition:color .15s;}
+.star-picker input:checked ~ label,
+.star-picker label:hover,
+.star-picker label:hover ~ label{color:#f5a623;}
+.testi-submit{
+  width:100%;padding:14px;background:var(--primary);
+  color:white;border:none;border-radius:12px;
+  font-weight:700;font-size:15px;cursor:pointer;transition:.2s;
+}
+.testi-submit:hover{background:#e55a24;}
+.testi-submit:disabled{background:#ccc;cursor:not-allowed;}
+.testi-success{
+  display:none;text-align:center;padding:20px;
+  color:#2ecc71;font-weight:600;font-size:16px;
+}
+
+/* MAPS */
+.maps-section{padding:0 0 90px;}
+.maps-wrap{
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,.12);
+  height:420px;
+}
+.maps-wrap iframe{width:100%;height:100%;border:0;display:block;}
+.maps-info{display:flex;flex-wrap:wrap;gap:20px;margin-top:24px;}
+.maps-info-item{
+  display:flex;align-items:flex-start;gap:12px;
+  background:white;padding:18px 22px;
+  border-radius:14px;flex:1;min-width:200px;
+  box-shadow:0 3px 15px rgba(0,0,0,.07);
+}
+.maps-info-item .icon{font-size:24px;flex-shrink:0;}
+.maps-info-item h4{font-size:14px;color:var(--gray);margin-bottom:4px;}
+.maps-info-item p{font-size:15px;font-weight:600;}
+
+/* CTA */
+.cta{background:var(--primary);color:white;text-align:center;padding:90px 20px;}
+.cta h2{font-size:38px;margin-bottom:20px;}
+.btn-cta-cart{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:18px 38px;background:white;color:var(--primary);
+  font-size:17px;font-weight:700;border:3px solid white;
+  border-radius:50px;cursor:pointer;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+  transition:all .25s ease;animation:pulseCta 2s infinite;
+}
+.btn-cta-cart:hover{
+  background:transparent;color:white;
+  transform:translateY(-4px);
+  box-shadow:0 14px 40px rgba(0,0,0,.35);
+  animation:none;
+}
+@keyframes pulseCta{
+  0%,100%{box-shadow:0 8px 30px rgba(0,0,0,.25),0 0 0 0 rgba(255,255,255,.5);}
+  50%{box-shadow:0 8px 30px rgba(0,0,0,.25),0 0 0 12px rgba(255,255,255,.0);}
+}
+
+/* FOOTER */
+footer{background:#111;color:white;padding:40px 20px;text-align:center;}
+
+/* WA FLOAT */
+.whatsapp-float{
+  position:fixed;bottom:20px;right:20px;
+  background:#25D366;color:white;
+  padding:16px 20px;border-radius:50px;
+  text-decoration:none;font-weight:600;
+  box-shadow:0 5px 15px rgba(0,0,0,.2);z-index:998;
+}
+
+/* KERANJANG SIDEBAR */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:none;}
+.cart-overlay.active{display:block;}
+.cart-sidebar{
+  position:fixed;top:0;right:-420px;width:420px;max-width:100vw;
+  height:100%;background:white;z-index:9001;
+  display:flex;flex-direction:column;
+  box-shadow:-10px 0 40px rgba(0,0,0,.15);
+  transition:right .3s ease;
+}
+.cart-sidebar.active{right:0;}
+.cart-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:22px 24px;border-bottom:1px solid #eee;
+}
+.cart-header h2{font-size:20px;}
+.cart-close{background:none;border:none;font-size:24px;cursor:pointer;color:#666;line-height:1;}
+.cart-items{flex:1;overflow-y:auto;padding:16px 24px;}
+.cart-empty{text-align:center;padding:60px 0;color:#aaa;font-size:16px;}
+.cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #f0f0f0;align-items:center;}
+.cart-item img{width:65px;height:65px;object-fit:cover;border-radius:10px;flex-shrink:0;}
+.cart-item-info{flex:1;}
+.cart-item-info h4{font-size:14px;margin-bottom:4px;}
+.cart-item-info .item-price{color:var(--primary);font-weight:700;font-size:13px;}
+.cart-item-qty{display:flex;align-items:center;gap:8px;margin-top:8px;}
+.cqty-btn{
+  width:28px;height:28px;border:none;background:#f0f0f0;
+  border-radius:6px;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.cqty-num{font-size:14px;font-weight:700;min-width:20px;text-align:center;}
+.cart-item-remove{background:none;border:none;color:#ccc;font-size:20px;cursor:pointer;flex-shrink:0;}
+.cart-item-remove:hover{color:#e74c3c;}
+.cart-footer{padding:20px 24px;border-top:1px solid #eee;}
+.cart-grand-total{display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin-bottom:16px;}
+.cart-grand-total span:last-child{color:var(--primary);}
+
+/* CHECKOUT MODAL */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);
+  display:none;justify-content:center;align-items:center;
+  z-index:99999;padding:20px;backdrop-filter:blur(4px);
+}
+.modal.active{display:flex;}
+.modal-content{
+  background:white;width:100%;max-width:520px;
+  padding:30px;border-radius:24px;
+  box-shadow:0 20px 50px rgba(0,0,0,.2);
+  animation:popup .25s ease;max-height:90vh;overflow-y:auto;
+}
+@keyframes popup{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.modal-content h2{margin-bottom:6px;}
+.modal-subtitle{color:var(--gray);font-size:14px;margin-bottom:20px;}
+.checkout-summary{
+  background:#fff5f0;border-radius:14px;
+  padding:14px;margin-bottom:20px;
+  max-height:180px;overflow-y:auto;
+}
+.summary-item{
+  display:flex;justify-content:space-between;
+  font-size:14px;padding:5px 0;border-bottom:1px solid #ffe0d0;
+}
+.summary-item:last-child{border:none;}
+.summary-total{
+  display:flex;justify-content:space-between;
+  font-weight:700;font-size:16px;
+  padding-top:10px;margin-top:8px;border-top:2px solid #ff6b35;
+}
+.form-control{
+  width:100%;padding:14px;border:1px solid #ddd;
+  border-radius:12px;margin-bottom:14px;font-size:15px;
+  outline:none;font-family:'Poppins',sans-serif;
+}
+.form-control:focus{border-color:#ff6b35;}
+.modal-actions{display:flex;gap:10px;margin-top:6px;}
+.modal-actions .btn{flex:1;text-align:center;}
+.btn-secondary{background:#999;}
+
+/* SKELETON */
+.skeleton{
+  background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+  background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:10px;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+@media(max-width:768px){
+  .hero h1{font-size:34px;}
+  .hero p{font-size:16px;}
+  .nav-links .hide-mobile{display:none;}
+  .section-title{font-size:28px;}
+  .cart-sidebar{width:100vw;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav-container">
+    <a class="logo" href="#">
+      <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg" alt="Logo">
+      ChimChum<span>Malang</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="#" class="active">Katalog</a></li>
+        <li><a href="#testi">Testimoni</a></li>
+        <li><a href="#" id="btnOpenLogin"><i class="fa-solid fa-user-lock"></i> Admin</a></li>
+      </ul>
+    </nav>
+    <button class="cart-icon-btn" onclick="toggleCart(true)">
+      <i class="fa-solid fa-basket-shopping"></i> Keranjang
+      <span class="cart-badge" id="cartBadgeCount">0</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>Dimsum Mentai <span>Premium</span> Malang</h1>
+    <p>Nikmati kelezatan dimsum premium berpadu saus mentai gurih yang dibakar sempurna, serta kelezatan ohiyong khas buatan dapur dapur utama ChimChum Malang.</p>
+    <a href="#katalog" class="btn-primary"><i class="fa-solid fa-fire"></i> Pesan Sekarang</a>
+  </div>
+</section>
+
+<section class="catalog" id="katalog">
+  <div class="container">
+    <div class="section-title">
+      <h2>Menu Andalan Kami</h2>
+    </div>
+    <div class="menu-grid" id="menuGrid"></div>
+  </div>
+</section>
+
+<div class="modal-checkout" id="checkoutModal">
+  <h3 style="margin-bottom:15px; font-weight:600;"><i class="fa-solid fa-paper-plane"></i> Form Data Pemesanan</h3>
+  <div class="form-group">
+    <label>Nama Pemesan *</label>
+    <input type="text" id="namaPemesan" placeholder="Contoh: Andi Wijaya">
+  </div>
+  <div class="form-group">
+    <label>No. WhatsApp Aktif *</label>
+    <input type="number" id="waPemesan" placeholder="Contoh: 08123456789">
+  </div>
+  <div class="form-group">
+    <label>Tipe Pengiriman *</label>
+    <select id="tipePengiriman" onchange="toggleAlamat()">
+      <option value="Ambil Sendiri">Ambil Sendiri ke Rumah (Sawojajar)</option>
+      <option value="Delivery">Kirim via Kurir / Ojol</option>
+    </select>
+  </div>
+  <div class="form-group" id="groupAlamat" style="display:none;">
+    <label>Alamat Lengkap Pengiriman *</label>
+    <textarea id="alamatLengkap" rows="2" placeholder="Tuliskan alamat detail pengantaran..."></textarea>
+  </div>
+  <div class="form-group">
+    <label>Metode Pembayaran *</label>
+    <select id="metodeBayar">
+      <option value="Cash">Tunai / Cash</option>
+      <option value="QRIS">QRIS Digital</option>
+      <option value="Transfer">Transfer Bank</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Catatan Tambahan (Opsional)</label>
+    <input type="text" id="catatanTambahan" placeholder="Contoh: Mentai agak pedas, ya.">
+  </div>
+  <button class="btn-primary" style="width:100%; border:none; border-radius:8px; margin-top:10px;" onclick="kirimOrder()">
+    <i class="fa-brands fa-whatsapp"></i> Konfirmasi & Pesan via WA
+  </button>
+  <button style="width:100%; background:#aaa; border:none; padding:10px; border-radius:8px; margin-top:5px; color:white; font-weight:600; cursor:pointer;" onclick="toggleCheckoutModal(false)">Batal</button>
+</div>
+
+<div class="overlay" id="cartOverlay" onclick="toggleCart(false)"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h3>Keranjang Belanja</h3>
+    <button class="close-cart" onclick="toggleCart(false)">&times;</button>
+  </div>
+  <div class="cart-body" id="cartItemsContainer"></div>
+  <div class="cart-footer">
+    <div class="total-box">
+      <span>Total:</span>
+      <span id="cartTotalPrice" style="color:var(--primary);">Rp 0</span>
+    </div>
+    <button class="btn-checkout" onclick="toggleCheckoutModal(true)">Lanjutkan ke Pemesanan</button>
+  </div>
+</div>
+
+<section class="testi-section" id="testi">
+  <div class="container">
+    <div class="section-title">
+      <h2>Ulasan Pelanggan</h2>
+    </div>
+    <div class="testi-grid">
+      <div style="background:white; padding:25px; border-radius:15px; box-shadow:0 4px 15px rgba(0,0,0,0.02)">
+        <h3 style="margin-bottom:15px; font-weight:600;">Beri Kami Ulasan</h3>
+        <div class="form-group"><label>Nama Anda</label><input id="testiNama" placeholder="Rian"></div>
+        <div class="form-group"><label>Asal Kota</label><input id="testiKota" placeholder="Malang"></div>
+        <div class="form-group"><label>Komentar Rasa</label><textarea id="testiKomentar" rows="3" placeholder="Dimsum mentainya juara banget rasanya..."></textarea></div>
+        <div class="form-group">
+          <label>Rating Kepuasan</label>
+          <div style="display:flex; gap:10px; font-size:18px; margin-top:5px;">
+            <label><input type="radio" name="rating" value="5" checked> ⭐5</label>
+            <label><input type="radio" name="rating" value="4"> ⭐4</label>
+            <label><input type="radio" name="rating" value="3"> ⭐3</label>
+          </div>
+        </div>
+        <button class="btn-primary" style="width:100%; border:none; border-radius:8px; margin-top:5px;" id="testiSubmitBtn" onclick="submitTestimoni()">Kirim Testimoni 🙌</button>
+        <p id="testiSuccess" style="color:green; font-weight:600; text-align:center; margin-top:10px; display:none;">Terima kasih atas ulasan terbaik Anda!</p>
+      </div>
+
+      <div id="testiContainer" style="max-height:450px; overflow-y:auto; padding-right:5px;">
+        <p style="color:#aaa;">Sedang memuat ulasan...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="overlay" id="loginOverlay"></div>
+<div class="modal-checkout" id="loginModal" style="z-index:2600;">
+  <h3 style="margin-bottom:15px; font-weight:600;"><i class="fa-solid fa-lock"></i> Keamanan Login Admin</h3>
+  <div class="form-group"><label>Username</label><input type="text" id="adminUsername" placeholder="Masukkan username"></div>
+  <div class="form-group"><label>Password</label><input type="password" id="adminPassword" placeholder="Masukkan password"></div>
+  <button class="btn-primary" style="width:100%; border:none; border-radius:8px; margin-top:5px;" id="btnSubmitLogin">Masuk Sistem Dashboard</button>
+  <button style="width:100%; background:#aaa; border:none; padding:10px; border-radius:8px; margin-top:5px; color:white; font-weight:600; cursor:pointer;" id="btnCloseLogin">Batal</button>
+</div>
+
+<script type="module">
+import { db, collection, getDocs, addDoc, serverTimestamp, doc, updateDoc } from './firebase.js';
+
+let cart = {};
+function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+
+/* ── LOAD KATALOG PRODUK REAL-TIME ── */
+window.loadProducts = async () => {
+  const menuGrid = document.getElementById("menuGrid");
+  if(!menuGrid) return;
+  menuGrid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:var(--gray);'>Memuat menu...</p>";
+  
+  try {
+    const snap = await getDocs(collection(db, "products"));
+    menuGrid.innerHTML = "";
+    
+    // Inisialisasi cache global untuk tracking stok saat order
+    window.productsCache = [];
+    
+    snap.forEach(d => {
+      const p = d.data();
+      if(!p.aktif) return;
+      
+      window.productsCache.push({ id: d.id, ...p });
+      
+      // Cek status stok untuk tampilan tombol boking/beli
+      const tombolHtml = p.stok <= 0 
+        ? `<button class="btn-pesan" style="background:#ccc; cursor:not-allowed;" disabled>Stok Habis</button>`
+        : `<button class="btn-pesan" onclick="addToCart('${d.id}', \`${p.nama}\`, ${p.harga}, \`${p.foto}\`, ${p.stok})"><i class="fa-solid fa-cart-plus"></i> Tambah</button>`;
+      
+      menuGrid.innerHTML += `
+        <div class="menu-card">
+          <img src="${p.foto || 'https://via.placeholder.com/300x200'}" alt="${p.nama}" onerror="this.src='https://via.placeholder.com/300x200'">
+          <div class="menu-info">
+            <h3>${p.nama}</h3>
+            <p class="desc">${p.deskripsi || ''}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px; font-size:12px; color:var(--gray);">
+              <span>Isi: ${p.isi || 0} pcs</span>
+              <span style="font-weight:600; color:${p.stok < 10 ? '#ff4757' : 'var(--dark)'}">Stok: ${p.stok || 0} porsi</span>
+            </div>
+            <div class="menu-footer">
+              <span class="price">${rupiah(p.harga)}</span>
+              ${tombolHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  } catch(err) {
+    console.error(err);
+    menuGrid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:red;'>Gagal memuat produk.</p>";
+  }
+};
+
+/* ── LOGIKA MANAGEMENT KERANJANG ── */
+window.toggleCart = (show) => {
+  document.getElementById("cartPanel").classList.toggle("active", show);
+  document.getElementById("cartOverlay").classList.toggle("active", show);
+};
+
+window.addToCart = (id, nama, harga, foto, maxStok) => {
+  if(cart[id]) {
+    if(cart[id].qty >= maxStok) {
+      alert(`Maaf, Anda tidak dapat memesan lebih dari stok yang tersedia (${maxStok} porsi).`);
+      return;
+    }
+    cart[id].qty++;
+  } else {
+    cart[id] = { id, nama, harga, foto, qty: 1, maxStok };
+  }
+  updateCartUI();
+};
+
+window.ubahQty = (id, delta) => {
+  if(!cart[id]) return;
+  cart[id].qty += delta;
+  if(cart[id].qty > cart[id].maxStok) {
+    alert(`Maaf, stok hanya tersedia ${cart[id].maxStok} porsi.`);
+    cart[id].qty = cart[id].maxStok;
+  }
+  if(cart[id].qty <= 0) delete cart[id];
+  updateCartUI();
+};
+
+function updateCartUI() {
+  const container = document.getElementById("cartItemsContainer");
+  const items = Object.values(cart);
+  
+  let totalCount = 0;
+  let totalPrice = 0;
+  container.innerHTML = "";
+
+  items.forEach(item => {
+    totalCount += item.qty;
+    totalPrice += (item.qty * item.harga);
+    container.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://via.placeholder.com/60'">
+        <div class="cart-item-info">
+          <h4>${item.nama}</h4>
+          <p>${rupiah(item.harga)}</p>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="ubahQty('${item.id}', -1)">-</button>
+            <span style="font-weight:600; font-size:13px;">${item.qty}</span>
+            <button class="qty-btn" onclick="ubahQty('${item.id}', 1)">+</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("cartBadgeCount").innerText = totalCount;
+  document.getElementById("cartTotalPrice").innerText = rupiah(totalPrice);
+  if(items.length === 0) container.innerHTML = "<p style='text-align:center; color:#aaa; margin-top:30px;'>Keranjang Anda kosong.</p>";
+}
+
+/* ── FORM CONTROL & MODAL UTILS ── */
+window.toggleCheckoutModal = (show) => {
+  if(show && Object.keys(cart).length === 0) { alert("Keranjang belanja Anda kosong!"); return; }
+  document.getElementById("checkoutModal").classList.toggle("active", show);
+  if(!show) document.getElementById("cartOverlay").classList.remove("active");
+};
+
+window.toggleAlamat = () => {
+  const tipe = document.getElementById("tipePengiriman").value;
+  document.getElementById("groupAlamat").style.display = (tipe === 'Delivery') ? 'block' : 'none';
+};
+
+/* ── KIRIM ORDER DATABASE & WA (SINKRONISASI STOK) ── */
+window.kirimOrder = async () => {
+  const nama = document.getElementById("namaPemesan").value.trim();
+  const wa = document.getElementById("waPemesan").value.trim();
+  const tipe = document.getElementById("tipePengiriman").value;
+  const alamat = document.getElementById("alamatLengkap").value.trim();
+  const metode = document.getElementById("metodeBayar").value;
+  const catatan = document.getElementById("catatanTambahan").value.trim();
+
+  if(!nama || !wa) { alert("Nama dan Nomor WhatsApp wajib diisi!"); return; }
+  if(tipe === "Delivery" && !alamat) { alert("Alamat pengiriman wajib diisi untuk Delivery!"); return; }
+
+  const items = Object.values(cart);
+  const totalHarga = items.reduce((sum, item) => sum + (item.qty * item.harga), 0);
+
+  try {
+    // 1. PROSES POTONG STOK DI FIRESTORE
+    for (const item of items) {
+      const productRef = doc(db, "products", item.id);
+      const prodInCache = window.productsCache ? window.productsCache.find(p => p.id === item.id) : null;
+      const currentStok = prodInCache ? prodInCache.stok : (item.maxStok || 0);
+      const newStok = Math.max(0, currentStok - item.qty);
+      await updateDoc(productRef, { stok: newStok });
+    }
+
+    // 2. SIMPAN LOG PESANAN BARU
+    await addDoc(collection(db, "orders"), {
+      customer_name: nama,
+      phone: wa,
+      address: tipe === "Delivery" ? alamat : `Dine-In / Ambil Sendiri (${tipe})`,
+      items: items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
+      grand_total: totalHarga,
+      payment_method: metode,
+      created_at: serverTimestamp()
+    });
+
+    // 3. BANGUN TEXT WHATSAPP UNTUK NOTIFIKASI
+    let waText = `*NOTIFIKASI ORDER CHIMCHUM MALANG*\n`;
+    waText += `=========================\n`;
+    waText += `👤 Nama: ${nama}\n`;
+    waText += `📱 No. WA: ${wa}\n`;
+    waText += `🛵 Pengiriman: ${tipe}\n`;
+    if(tipe === "Delivery") waText += `📍 Alamat: ${alamat}\n`;
+    waText += `💳 Pembayaran: ${metode}\n`;
+    if(catatan) waText += `📝 Catatan: ${catatan}\n`;
+    waText += `=========================\n\n*DAFTAR MENU:*\n`;
+    
+    items.forEach(i => { waText += `- ${i.nama} (${i.qty}x) = ${rupiah(i.qty * i.harga)}\n`; });
+    waText += `\n*TOTAL TAGIHAN:* ${rupiah(totalHarga)}\n`;
+    waText += `=========================\n`;
+    waText += `Halo Admin, saya telah melakukan pemesanan via web. Harap segera diproses ya! 🙌`;
+
+    alert("Pesanan berhasil disimpan! Mengalihkan ke WhatsApp Admin...");
+    cart = {};
+    updateCartUI();
+    toggleCheckoutModal(false);
+    loadProducts(); // Reload katalog agar stok berkurang secara visual di layar browser
+
+    window.open(`https://wa.me/628123456789?text=${encodeURIComponent(waText)}`, '_blank');
+  } catch(err) {
+    console.error(err);
+    alert("Gagal memproses pengiriman pesanan Anda.");
+  }
+};
+
+/* ── MANAJEMEN TESTIMONI ── */
+window.loadTestimoni = async () => {
+  const container = document.getElementById("testiContainer");
+  try {
+    const snap = await getDocs(collection(db, "testimonials"));
+    container.innerHTML = "";
+    let lists = [];
+    snap.forEach(d => { lists.push(d.data()); });
+    if(lists.length === 0){ container.innerHTML = "<p style='color:#aaa;'>Belum ada ulasan.</p>"; return; }
+    
+    lists.forEach(t => {
+      let btg = "⭐".repeat(t.rating || 5);
+      container.innerHTML += `
+        <div class="testi-card-view">
+          <div class="stars">${btg}</div>
+          <p style="font-size:14px; margin-bottom:8px; line-height:1.4;">"${t.komentar}"</p>
+          <div class="testi-meta">
+            <b>${t.nama}</b><span>📍 ${t.kota}</span>
+          </div>
+        </div>
+      `;
+    });
+  } catch(e){ container.innerHTML = "<p>Gagal memuat testimoni.</p>"; }
+};
+
+window.submitTestimoni = async () => {
+  const nama = document.getElementById("testiNama").value.trim();
+  const kota = document.getElementById("testiKota").value.trim();
+  const komentar = document.getElementById("testiKomentar").value.trim();
+  const rating = Number(document.querySelector('input[name="rating"]:checked').value);
+
+  if(!nama || !kota || !komentar) { alert("Semua kolom formulir ulasan wajib diisi!"); return; }
+  try {
+    await addDoc(collection(db, "testimonials"), { nama, kota, komentar, rating, created_at: serverTimestamp() });
+    document.getElementById("testiSuccess").style.display = "block";
+    document.getElementById("testiNama").value = "";
+    document.getElementById("testiKota").value = "";
+    document.getElementById("testiKomentar").value = "";
+    loadTestimoni();
+    setTimeout(() => { document.getElementById("testiSuccess").style.display = "none"; }, 3000);
+  } catch(e) { alert("Gagal."); }
+};
+
+// ── INIT TRIGGER RUN ──
+loadProducts();
+loadTestimoni();
+
+// Login handling modal 
+document.getElementById('btnOpenLogin').addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginModal').classList.add('active'); document.getElementById('loginOverlay').classList.add('active'); });
+document.getElementById('btnCloseLogin').addEventListener('click', () => { document.getElementById('loginModal').classList.remove('active'); document.getElementById('loginOverlay').classList.remove('active'); });
+document.getElementById('btnSubmitLogin').addEventListener('click', () => {
+  if(document.getElementById('adminUsername').value === 'admin' && document.getElementById('adminPassword').value === 'chimchum123'){
+    sessionStorage.setItem('chimchum_admin', 'true');
+    window.location.href = "admin.html";
+  } else { alert("Akses ditolak! Kredensial salah."); }
+});
+</script>
+</body>
+</html>
