@@ -280,6 +280,14 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
       
       <div class="kasir-receipt">
         <h3><i class="fa-solid fa-file-invoice-dollar"></i> Struk Kasir Dine-In</h3>
+        <div class="receipt-items" id="kasirCartItems">
+          <p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:16px; margin: 15px 0;">
+          <span>Total Tagihan:</span>
+          <span id="kasirGrandTotal" style="color:var(--primary)">Rp 0</span>
+        </div>
         
         <div class="dine-in-details" style="background: #fff5f0; padding: 15px; border-radius: 14px; margin-top: 15px; border: 1px solid #ffe0d0;">
           <h4 style="font-size: 14px; margin-bottom: 12px; color: #222; font-weight: 600;">📋 Data Pelanggan Dine-In</h4>
@@ -326,14 +334,6 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
           </div>
         </div>
         
-        <div class="receipt-items" id="kasirCartItems">
-          <p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:16px; margin: 15px 0;">
-          <span>Total Tagihan:</span>
-          <span id="kasirGrandTotal" style="color:var(--primary)">Rp 0</span>
-        </div>
         
         <button class="btn-primary" style="width:100%; padding:12px; background:var(--success)" onclick="submitKasirOrder()">
           <i class="fa-solid fa-circle-check"></i> Proses & Simpan Transaksi
