@@ -259,44 +259,46 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
   </div>
 
   <div id="tab-kasir" class="tab-content">
-    <div class="kasir-grid">
-      <div class="kasir-controls" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-      <div style="flex: 1; min-width: 250px; position: relative;">
-        <input type="text" id="searchMenuKasir" class="form-control" placeholder="🔍 Cari nama menu atau produk..." style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; outline: none; margin-bottom: 0;">
+    <div class="kasir-controls" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <div style="flex: 1; min-width: 250px;">
+        <input type="text" id="searchMenuKasir" placeholder="🔍 Cari nama menu atau produk..." style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; margin: 0;">
       </div>
-      
       <div style="width: 200px;">
-        <select id="filterKategoriKasir" class="form-control" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; outline: none; background: white; cursor: pointer; margin-bottom: 0;">
+        <select id="filterKategoriKasir" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; outline: none; background: white; cursor: pointer; margin: 0;">
           <option value="Semua">All Kategori</option>
-          </select>
+        </select>
       </div>
     </div>
+
+    <div class="kasir-grid">
       <div>
         <div class="card" style="padding:12px; margin-bottom:12px;">
           <p style="font-size:14px; font-weight:500;"><i class="fa-solid fa-store"></i> Klik menu untuk memasukkan ke dalam struk belanja meja:</p>
         </div>
         <div class="kasir-menu-list" id="kasirMenuList"></div>
       </div>
+      
       <div class="kasir-receipt">
         <h3><i class="fa-solid fa-file-invoice-dollar"></i> Struk Kasir Dine-In</h3>
-        <div class="dine-in-details" style="background: #fff5f0; padding: 20px; border-radius: 14px; margin-top: 20px; border: 1px solid #ffe0d0;">
-        <h3 style="font-size: 16px; margin-bottom: 12px; color: #222; font-weight: 600;">📋 Data Pelanggan Dine-In</h3>
         
-        <div style="margin-bottom: 12px;">
-          <input type="text" id="kasirNomorMeja" class="form-control" placeholder="Nomor Meja * (Contoh: Meja 05)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none;" required>
+        <div class="dine-in-details" style="background: #fff5f0; padding: 15px; border-radius: 14px; margin-top: 15px; border: 1px solid #ffe0d0;">
+          <h4 style="font-size: 14px; margin-bottom: 12px; color: #222; font-weight: 600;">📋 Data Pelanggan Dine-In</h4>
+          
+          <div style="margin-bottom: 10px;">
+            <input type="text" id="kasirNomorMeja" placeholder="Nomor Meja * (Contoh: Meja 05)" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 0;" required>
+          </div>
+          
+          <div style="margin-bottom: 12px;">
+            <input type="number" id="kasirWaPelanggan" placeholder="Nomor WhatsApp Pelanggan (Opsional)" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 0;">
+          </div>
+          
+          <div style="border-top: 1px dashed #ff6b35; padding-top: 10px;">
+            <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 13px; cursor: pointer; color: #222;">
+              <input type="checkbox" id="printStrukCheck" style="width: 18px; height: 18px; accent-color: #ff6b35; cursor: pointer;" checked> 
+              🖨️ Otomatis Print Struk Belanja
+            </label>
+          </div>
         </div>
-        
-        <div style="margin-bottom: 16px;">
-          <input type="number" id="kasirWaPelanggan" class="form-control" placeholder="Nomor WhatsApp Pelanggan (Opsional)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none;">
-        </div>
-        
-        <div style="border-top: 1px dashed #ff6b35; padding-top: 12px;">
-          <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; cursor: pointer; color: #222;">
-            <input type="checkbox" id="printStrukCheck" style="width: 18px; height: 18px; accent-color: #ff6b35; cursor: pointer;" checked> 
-            🖨️ Otomatis Print Struk Belanja
-          </label>
-        </div>
-      </div>
         
         <div class="receipt-items" id="kasirCartItems">
           <p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>
@@ -323,7 +325,6 @@ import {
 } from './firebase.js';
 
 // ── SESSION GUARD SECURITY ──
-// Memastikan halaman tidak bisa diakses direct tanpa tanda login dari index.html
 if (sessionStorage.getItem('chimchum_admin') !== 'true') {
   alert("Akses Ditolak! Anda harus login melalui halaman utama.");
   window.location.href = "index.html";
@@ -335,8 +336,8 @@ const kasirMenuList = document.getElementById("kasirMenuList");
 const kasirCartItems = document.getElementById("kasirCartItems");
 
 let editId = null;
-let cachedProducts = []; // Menyimpan data produk lokal untuk efisiensi modul kasir
-let kasirCart = {};      // Menyimpan data item belanja kasir sementara
+let cachedProducts = []; 
+let kasirCart = {};      
 
 // DOM Element Inputs untuk form Produk
 const inpNama = document.getElementById("nama");
@@ -378,10 +379,12 @@ window.loadProducts = async () => {
     const snap = await getDocs(collection(db, "products"));
     tableBody.innerHTML = "";
     cachedProducts = [];
+    const kategoriSet = new Set();
 
     snap.forEach(d => {
       const p = d.data();
       cachedProducts.push({ id: d.id, ...p });
+      if(p.kategori) kategoriSet.add(p.kategori.trim());
 
       tableBody.innerHTML += `
         <tr>
@@ -404,6 +407,8 @@ window.loadProducts = async () => {
         </tr>
       `;
     });
+    
+    updateKasirKategoriDropdown(kategoriSet);
     renderKasirMenu();
   } catch(err) {
     console.error("Error load products:", err);
@@ -411,7 +416,7 @@ window.loadProducts = async () => {
   }
 };
 
-// 1. ISI DROPDOWN KATEGORI SECARA DINAMIS (Panggil fungsi ini di dalam loadProducts kasir kamu)
+/* KONTROL DROPDOWN KATEGORI KASIR */
 function updateKasirKategoriDropdown(kategoriSet) {
   const kategoriSelect = document.getElementById('filterKategoriKasir');
   const daftarKategori = ['Semua', ...Array.from(kategoriSet).sort()];
@@ -421,59 +426,30 @@ function updateKasirKategoriDropdown(kategoriSet) {
   `).join('');
 }
 
-// 2. FUNGSI FILTER GABUNGAN (Search + Kategori)
+/* FUNGSI SEARCH & FILTER KASIR */
 function jalankanFilterKasir() {
   const kataKunci = document.getElementById('searchMenuKasir').value.toLowerCase();
   const kategoriTerpilih = document.getElementById('filterKategoriKasir').value;
-  
-  // Ambil semua elemen produk di kasir
-  const semuaProduk = document.querySelectorAll('.product-kasir-card');
+  const semuaProduk = document.querySelectorAll('.kasir-item-card');
   
   semuaProduk.forEach(card => {
-    // Cari nama produk di dalam tag h3 (atau sesuaikan dengan tag nama produkmu)
-    const namaProduk = card.querySelector('h3').innerText.toLowerCase();
-    const kategoriProduk = card.dataset.kategori || 'Lainnya';
+    const namaProduk = card.querySelector('h4').innerText.toLowerCase();
+    const kategoriProduk = card.dataset.kategori || 'Umum';
     
     const cocokSearch = namaProduk.includes(kataKunci);
     const cocokKategori = (kategoriTerpilih === 'Semua') || (kategoriProduk === kategoriTerpilih);
     
-    // Tampilkan jika cocok keduanya, sembunyikan jika tidak
     if (cocokSearch && cocokKategori) {
-      card.style.display = 'block'; // atau 'flex' / '' tergantung layouting awal
+      card.style.display = 'block';
     } else {
       card.style.display = 'none';
     }
   });
 }
 
-// 3. PASANG EVENT LISTENER KE SEARCH & FILTER
+// Pasang Event Listeners Kasir
 document.getElementById('searchMenuKasir').addEventListener('input', jalankanFilterKasir);
 document.getElementById('filterKategoriKasir').addEventListener('change', jalankanFilterKasir);
-
-
-// Ambil data meja & WA
-const nomorMeja = document.getElementById('kasirNomorMeja').value.trim();
-const waPelanggan = document.getElementById('kasirWaPelanggan').value.trim();
-const statusPrint = document.getElementById('printStrukCheck').checked;
-
-if (!nomorMeja) {
-  alert('Nomor Meja wajib diisi untuk pesanan Dine-In!');
-  return;
-}
-
-// 1. Proses simpan ke Firebase seperti biasa...
-// Masukkan field tambahan: meja: nomorMeja, wa_pelanggan: waPelanggan || '-'
-
-// 2. Logika Deteksi Fitur Print Struk Belanja
-if (statusPrint) {
-  bukaJendelaCetakStruk(); 
-}
-
-function bukaJendelaCetakStruk() {
-  // Contoh cetak bawaan browser (jika printer thermal sudah terhubung ke PC/Tablet sebagai printer default)
-  // Kamu bisa membuat layout struk sederhana, lalu panggil:
-  window.print();
-}
 
 /* CREATE / UPDATE PRODUCT */
 window.saveProduct = async () => {
@@ -543,7 +519,6 @@ window.loadOrders = async () => {
     let ordersList = [];
 
     snap.forEach(d => { ordersList.push({ id: d.id, ...d.data() }); });
-    // Sort urutan waktu terbaru di atas
     ordersList.sort((a, b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
 
     if(ordersList.length === 0) {
@@ -562,7 +537,7 @@ window.loadOrders = async () => {
         <tr>
           <td style="font-size:13px; color:var(--gray);">${tgl}</td>
           <td><b>${o.customer_name || '-'}</b></td>
-          <td>${o.phone !== '-' ? `<a href="https://wa.me/${o.phone}" target="_blank" style="color:var(--primary); font-weight:600;"><i class="fa-brands fa-whatsapp"></i> ${o.phone}</a>` : '-'}</td>
+          <td>${o.phone && o.phone !== '-' ? `<a href="https://wa.me/${o.phone}" target="_blank" style="color:var(--primary); font-weight:600;"><i class="fa-brands fa-whatsapp"></i> ${o.phone}</a>` : '-'}</td>
           <td><span style="font-size:13px;">${o.address || '-'}</span></td>
           <td>${itemStr}</td>
           <td style="color:var(--success); font-weight:700;">${rupiah(o.grand_total || 0)}</td>
@@ -597,7 +572,7 @@ function renderKasirMenu() {
   }
   cachedProducts.forEach(p => {
     kasirMenuList.innerHTML += `
-      <div class="kasir-item-card" onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga})">
+      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga})">
         <img src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
         <h4>${p.nama}</h4>
         <p>${rupiah(p.harga)}</p>
@@ -651,20 +626,77 @@ function updateKasirCartUI() {
   document.getElementById("kasirGrandTotal").innerText = rupiah(grandTotal);
 }
 
+/* FUNGSI CETAK STRUK PRINTER THERMAL (58mm/80mm) */
+function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal) {
+  const printWindow = window.open('', '_blank', 'width=350,height=600');
+  const tgl = new Date().toLocaleString('id-ID');
+  
+  let itemsHtml = items.map(i => `
+    <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px;">
+      <span>${i.nama} x${i.qty}</span>
+      <span>${rupiah(i.qty * i.harga)}</span>
+    </div>
+  `).join('');
+  
+  printWindow.document.write(`
+    <html>
+    <head>
+      <title>Struk Belanja - ChimChum</title>
+      <style>
+        @page { margin: 0; }
+        body { font-family: 'Courier New', Courier, monospace; width: 280px; padding: 10px; color: #000; }
+        .text-center { text-align: center; }
+        .line { border-top: 1px dashed #000; margin: 8px 0; }
+        .bold { font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div>
+      <div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div>
+      <div class="line"></div>
+      <div style="font-size:11px; line-height:1.4;">
+        Waktu : ${tgl}<br>
+        Meja  : ${noMeja}<br>
+        WA Pllg: ${waPelanggan || '-'}
+      </div>
+      <div class="line"></div>
+      ${itemsHtml}
+      <div class="line"></div>
+      <div style="display:flex; justify-content:space-between; font-size:14px;" class="bold">
+        <span>TOTAL:</span>
+        <span>${rupiah(grandTotal)}</span>
+      </div>
+      <div class="line"></div>
+      <div class="text-center" style="font-size:11px; margin-top:12px;">Terima Kasih Atas Kunjungan Anda!</div>
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 300);
+        }
+      <\/script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+/* SUBMIT TRANSAKSI KASIR */
 window.submitKasirOrder = async () => {
   const items = Object.values(kasirCart);
   if(items.length === 0) { alert("Struk kasir kosong! Pilih menu terlebih dahulu."); return; }
   
-  const noMeja = document.getElementById("nomorMeja").value.trim();
+  const noMeja = document.getElementById("kasirNomorMeja").value.trim();
   if(!noMeja) { alert("Harap isi Nomor Meja pelanggan dine-in!"); return; }
 
+  const waPelanggan = document.getElementById("kasirWaPelanggan").value.trim();
+  const statusPrint = document.getElementById("printStrukCheck").checked;
   const grandTotal = items.reduce((total, item) => total + (item.qty * item.harga), 0);
 
   try {
-    // Simpan data order kasir ke collection 'orders' biar sync dengan riwayat pesanan utama
+    // Simpan data order kasir ke collection 'orders'
     await addDoc(collection(db, "orders"), {
-      customer_name: "Dine-In (Meja " + noMeja + ")",
-      phone: "-", // Penanda transaksi langsung di tempat
+      customer_name: "Dine-In (" + noMeja + ")",
+      phone: waPelanggan || "-", 
       address: "Makan di Tempat",
       items: items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
       grand_total: grandTotal,
@@ -672,9 +704,16 @@ window.submitKasirOrder = async () => {
     });
 
     alert("🎉 Transaksi Kasir Berhasil Disimpan!");
-    // Reset Data POS Kasir
+
+    // Jalankan sistem cetak jika dicentang
+    if (statusPrint) {
+      cetakStrukThermal(noMeja, waPelanggan, items, grandTotal);
+    }
+
+    // Reset Data Formulir & POS Kasir
     kasirCart = {};
-    document.getElementById("nomorMeja").value = "";
+    document.getElementById("kasirNomorMeja").value = "";
+    document.getElementById("kasirWaPelanggan").value = "";
     updateKasirCartUI();
     
   } catch(err) {
