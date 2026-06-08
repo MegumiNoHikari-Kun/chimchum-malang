@@ -575,6 +575,7 @@ async function loadProducts() {
 
     // Kumpulkan semua kategori unik
     const kategoriSet = new Set();
+    const fotoSet     = new Set(); // untuk distinct galeri
 
     snapshot.forEach((doc) => {
       const p     = doc.data();
@@ -605,8 +606,9 @@ async function loadProducts() {
           </div>
         </div>`;
 
-      // GALERI
-      if (p.foto) {
+      // GALERI — hanya tampilkan foto yang belum ada (distinct)
+      if (p.foto && !fotoSet.has(p.foto)) {
+        fotoSet.add(p.foto);
         galleryContainer.innerHTML += `
           <img src="${p.foto}" alt="${p.nama}"
                onerror="this.parentNode.removeChild(this)">`;
@@ -786,7 +788,7 @@ document.getElementById('checkoutModal').addEventListener('click', (e) => {
 });
 
 // ── SUBMIT ORDER ─────────────────────────────────────────────
-// FIX iOS/iPad: window.open() dipanggil SEBELUM await agar tidak diblokir browser mobile
+// ── SUBMIT ORDER ─────────────────────────────────────────────
 window.submitOrder = async () => {
   const customerName    = document.getElementById('customerName').value.trim();
   const customerPhone   = document.getElementById('customerPhone').value.trim();
@@ -797,7 +799,6 @@ window.submitOrder = async () => {
   const items      = Object.values(cart);
   const grandTotal = items.reduce((a,i) => a + i.qty * i.harga, 0);
 
-  // Bangun URL WA sebelum async
   const itemLines = items.map(i => `🍜 ${i.nama} × ${i.qty} = ${rupiah(i.qty * i.harga)}`).join('\n');
   const waText = encodeURIComponent(
 `Halo ChimChum Malang 👋
@@ -818,9 +819,6 @@ Terima kasih! 🙏`
   );
   const waURL = `https://wa.me/${WA_NUMBER}?text=${waText}`;
 
-  // Buka tab SEKARANG — masih di dalam user gesture, sebelum await
-  const waTab = window.open('', '_blank');
-
   try {
     await addDoc(collection(db, 'orders'), {
       customer_name : customerName,
@@ -838,26 +836,19 @@ Terima kasih! 🙏`
       created_at  : serverTimestamp()
     });
 
-    // Arahkan tab yang sudah terbuka ke WA
-    if (waTab) {
-      waTab.location.href = waURL;
-    } else {
-      // Fallback: jika tab tetap null (sangat jarang)
-      window.location.href = waURL;
-    }
-
-    // Reset form & cart
+    // Reset form & cart sebelum redirect
     Object.keys(cart).forEach(k => delete cart[k]);
     updateCartUI();
     document.getElementById('customerName').value    = '';
     document.getElementById('customerPhone').value   = '';
     document.getElementById('customerAddress').value = '';
     closeCheckout();
-    alert('Pesanan berhasil! Lanjutkan chat di WhatsApp 🎉');
+
+    // Buka WA di tab yang sama
+    window.location.href = waURL;
 
   } catch (err) {
     console.error('submitOrder:', err);
-    if (waTab) waTab.close(); // tutup tab kosong jika Firestore gagal
     alert('Gagal menyimpan order. Hubungi kami langsung via WA.');
   }
 };
