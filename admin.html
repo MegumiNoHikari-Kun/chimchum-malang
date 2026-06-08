@@ -736,24 +736,50 @@ function updateKasirCartUI() {
   currentKasirGrandTotal = grandTotal; window.hitungKembalian();
 }
 
-function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian) {
-  const printWindow = window.open('', '_blank', 'width=350,height=600');
+// 1. Ubah fungsi cetak agar menerima object window yang sudah dibuka
+function cetakStrukThermal(printWindow, noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian) {
+  if (!printWindow) return; // Proteksi jika window gagal terbuka
+  
   const tgl = new Date().toLocaleString('id-ID');
   let itemsHtml = items.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px;"><span>${i.nama} x${i.qty}</span><span>${rupiah(i.qty * i.harga)}</span></div>`).join('');
   
   printWindow.document.write(`
-    <html><head><title>Struk Belanja</title><style>@page { margin: 0; } body { font-family: 'Courier New', monospace; width: 280px; padding: 10px; } .text-center { text-align: center; } .line { border-top: 1px dashed #000; margin: 8px 0; } .bold { font-weight: bold; } .logo-container img { width: 65px; height: 65px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; }</style></head>
+    <html>
+    <head>
+      <title>Struk Belanja</title>
+      <style>
+        @page { margin: 0; } 
+        body { font-family: 'Courier New', monospace; width: 280px; padding: 10px; } 
+        .text-center { text-align: center; } 
+        .line { border-top: 1px dashed #000; margin: 8px 0; } 
+        .bold { font-weight: bold; } 
+        .logo-container img { width: 65px; height: 65px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; }
+      </style>
+    </head>
     <body>
       <div class="text-center logo-container"><img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg"></div>
-      <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div><div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div><div class="line"></div>
-      <div style="font-size:11px;">Waktu: ${tgl}<br>Meja: ${noMeja}<br>WA: ${waPelanggan || '-'}</div><div class="line"></div>
-      ${itemsHtml}<div class="line"></div>
-      <div style="display:flex; justify-content:space-between; font-size:13px;" class="bold"><span>TOTAL TAGIHAN:</span><span>${rupiah(grandTotal)}</span></div><div class="line"></div>
+      <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div>
+      <div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div>
+      <div class="line"></div>
+      <div style="font-size:11px;">Waktu: ${tgl}<br>Meja: ${noMeja}<br>WA: ${waPelanggan || '-'}</div>
+      <div class="line"></div>
+      ${itemsHtml}
+      <div class="line"></div>
+      <div style="display:flex; justify-content:space-between; font-size:13px;" class="bold"><span>TOTAL TAGIHAN:</span><span>${rupiah(grandTotal)}</span></div>
+      <div class="line"></div>
       <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Metode Bayar:</span><span class="bold">${metodeBayar}</span></div>
       <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Uang Diterima:</span><span>${rupiah(uangBayar)}</span></div>
-      <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Kembalian:</span><span class="bold">${rupiah(kembalian)}</span></div><div class="line"></div>
+      <div style="display:flex; justify-content:space-between; font-size:12px;"><span>Kembalian:</span><span class="bold">${rupiah(kembalian)}</span></div>
+      <div class="line"></div>
       <div class="text-center" style="font-size:11px; margin-top:12px;">Terima Kasih Atas Kunjungan Anda!</div>
-      <script>window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 300); }</script>
+      <script>
+        window.onload = function() { 
+          window.print(); 
+          setTimeout(function() { window.close(); }, 300); 
+        }
+      </script>
+    </body>
+    </html>
   `);
   printWindow.document.close();
 }
@@ -775,6 +801,13 @@ window.submitKasirOrder = async () => {
     uangBayar = Number(document.getElementById("kasirUangBayar").value) || 0;
     if (uangBayar < grandTotal) { alert("Uang tunai kurang!"); return; }
     kembalian = uangBayar - grandTotal;
+  }
+
+  // --- PERBAIKAN POPUP BLOCKER ---
+  // Buka window baru di sini (saat user baru saja klik tombol submit)
+  let printWindow = null;
+  if (statusPrint) {
+    printWindow = window.open('', '_blank', 'width=350,height=600');
   }
 
   try {
@@ -801,7 +834,11 @@ window.submitKasirOrder = async () => {
     });
 
     alert("🎉 Transaksi Kasir Berhasil Disimpan & Stok Diperbarui!");
-    if (statusPrint) { cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian); }
+    
+    // Kirim objek printWindow yang sudah dibuat di awal ke fungsi cetak
+    if (statusPrint && printWindow) { 
+      cetakStrukThermal(printWindow, noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian); 
+    }
 
     // Reset Form POS
     kasirCart = {};
@@ -812,8 +849,12 @@ window.submitKasirOrder = async () => {
     window.toggleCashSection();
     updateKasirCartUI();
     
-    await loadProducts(); // Reload data produk agar list menu kasir & tab stok terupdate otomatis
-  } catch(err) { alert("Gagal memproses transaksi kasir."); }
+    await loadProducts(); // Reload data produk
+  } catch(err) { 
+    // Jika proses database gagal, tutup kembali window kosong yang telanjur dibuka
+    if (printWindow) printWindow.close();
+    alert("Gagal memproses transaksi kasir."); 
+  }
 };
 
 loadProducts();
