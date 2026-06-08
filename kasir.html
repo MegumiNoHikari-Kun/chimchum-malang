@@ -392,6 +392,7 @@ if (sessionStorage.getItem('chimchum_kasir') !== 'true') {
 }
 
 const tableBody = document.getElementById("tableBody");
+const hasTableBody = !!tableBody;
 const orderTableBody = document.getElementById("orderTableBody");
 const kasirMenuList = document.getElementById("kasirMenuList");
 const kasirCartItems = document.getElementById("kasirCartItems");
@@ -419,7 +420,7 @@ window.switchTab = (tabId, element) => {
 };
 
 /* LOGOUT kasir */
-window.logoutkasir = () => {
+window.logoutKasir = () => {
   if(confirm("Apakah anda yakin ingin keluar dari panel kasir?")) {
     sessionStorage.removeItem('chimchum_kasir');
     window.location.href = "index.html";
@@ -428,25 +429,26 @@ window.logoutkasir = () => {
 
 /* LOAD PRODUCTS (TAB 1 & SYNC KASIR) */
 window.loadProducts = async () => {
-  tableBody.innerHTML = "<tr><td colspan='7'>Memuat produk...</td></tr>";
-  try {
-    const snap = await getDocs(collection(db, "products"));
-    if (tableBody) tableBody.innerHTML = "";
-    cachedProducts = [];
-    const kategoriSet = new Set();
+  const snap = await getDocs(collection(db, "products"));
 
-    snap.forEach(d => {
-      const p = d.data();
-      cachedProducts.push({ id: d.id, ...p });
-      if(p.kategori) kategoriSet.add(p.kategori.trim());
+  cachedProducts = [];
+  const kategoriSet = new Set();
+
+  snap.forEach(d => {
+    const p = d.data();
+
+    cachedProducts.push({
+      id: d.id,
+      ...p
     });
-    
-    updateKasirKategoriDropdown(kategoriSet);
-    renderKasirMenu();
-  } catch(err) {
-    console.error("Error load products:", err);
-    tableBody.innerHTML = "<tr><td colspan='7'>Gagal memuat data produk.</td></tr>";
-  }
+
+    if (p.kategori) {
+      kategoriSet.add(p.kategori.trim());
+    }
+  });
+
+  updateKasirKategoriDropdown(kategoriSet);
+  renderKasirMenu();
 };
 
 /* KONTROL DROPDOWN KATEGORI KASIR */
