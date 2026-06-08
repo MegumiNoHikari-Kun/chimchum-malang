@@ -247,7 +247,7 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
             <th>Waktu & Tanggal</th>
             <th>Pelanggan</th>
             <th>No. WA</th>
-            <th>Tipe / Alamat Pengiriman</th>
+            <th>Tipe / Metode Pengiriman</th>
             <th>Item Pesanan</th>
             <th>Total Pembayaran</th>
             <th>Aksi</th>
@@ -288,8 +288,34 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
             <input type="text" id="kasirNomorMeja" placeholder="Nomor Meja * (Contoh: Meja 05)" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 0;" required>
           </div>
           
-          <div style="margin-bottom: 12px;">
+          <div style="margin-bottom: 10px;">
             <input type="number" id="kasirWaPelanggan" placeholder="Nomor WhatsApp Pelanggan (Opsional)" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 0;">
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <label style="font-size: 12px; font-weight: 500;">Metode Pembayaran *</label>
+            <select id="kasirMetodeBayar" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; margin-bottom: 0;" onchange="window.toggleCashSection()">
+              <option value="Cash">Cash (Tunai)</option>
+              <option value="QRIS">QRIS</option>
+              <option value="Transfer">Transfer Bank</option>
+            </select>
+          </div>
+
+          <div id="sectionKalkulatorCash" style="background: white; padding: 12px; border-radius: 10px; border: 1px solid #ffd0b8; margin-bottom: 12px;">
+            <label style="font-size: 11px; font-weight: 600; color: var(--gray);">Uang Tunai Diterima (Rp)</label>
+            <input type="number" id="kasirUangBayar" placeholder="Contoh: 100000" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; margin-bottom: 8px;" oninput="window.hitungKembalian()">
+            
+            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;">
+              <button type="button" style="padding: 4px 8px; font-size: 11px; background: #f1f2f6; color: #222;" onclick="window.setUangCepat(20000)">20.000</button>
+              <button type="button" style="padding: 4px 8px; font-size: 11px; background: #f1f2f6; color: #222;" onclick="window.setUangCepat(50000)">50.000</button>
+              <button type="button" style="padding: 4px 8px; font-size: 11px; background: #f1f2f6; color: #222;" onclick="window.setUangCepat(100000)">100.000</button>
+              <button type="button" style="padding: 4px 8px; font-size: 11px; background: var(--primary); color: white;" onclick="window.setUangPas()">Uang Pas</button>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+              <span>Kembalian:</span>
+              <span id="kasirKembalian" style="color: var(--success);">Rp 0</span>
+            </div>
           </div>
           
           <div style="border-top: 1px dashed #ff6b35; padding-top: 10px;">
@@ -338,15 +364,7 @@ const kasirCartItems = document.getElementById("kasirCartItems");
 let editId = null;
 let cachedProducts = []; 
 let kasirCart = {};      
-
-// DOM Element Inputs untuk form Produk
-const inpNama = document.getElementById("nama");
-const inpKategori = document.getElementById("kategori");
-const inpIsi = document.getElementById("isi");
-const inpHarga = document.getElementById("harga");
-const inpStok = document.getElementById("stok");
-const inpFoto = document.getElementById("foto");
-const inpDeskripsi = document.getElementById("deskripsi");
+let currentKasirGrandTotal = 0; // Menyimpan hitungan total aktif untuk kalkulator cash
 
 /* HELPERS */
 function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
@@ -447,9 +465,59 @@ function jalankanFilterKasir() {
   });
 }
 
-// Pasang Event Listeners Kasir
 document.getElementById('searchMenuKasir').addEventListener('input', jalankanFilterKasir);
 document.getElementById('filterKategoriKasir').addEventListener('change', jalankanFilterKasir);
+
+/* ================= LOGIKA INTERAKTIF KASIR CASH & KEMBALIAN ================= */
+window.toggleCashSection = () => {
+  const metode = document.getElementById("kasirMetodeBayar").value;
+  const section = document.getElementById("sectionKalkulatorCash");
+  if (metode === "Cash") {
+    section.style.display = "block";
+  } else {
+    section.style.display = "none";
+  }
+  window.hitungKembalian();
+};
+
+window.hitungKembalian = () => {
+  const metode = document.getElementById("kasirMetodeBayar").value;
+  if(metode !== "Cash") return;
+
+  const uangBayar = Number(document.getElementById("kasirUangBayar").value) || 0;
+  const kembalian = uangBayar - currentKasirGrandTotal;
+  const elKembalian = document.getElementById("kasirKembalian");
+
+  if(uangBayar === 0) {
+    elKembalian.innerText = "Rp 0";
+    elKembalian.style.color = "var(--dark)";
+  } else if (kembalian < 0) {
+    elKembalian.innerText = "Uang Kurang!";
+    elKembalian.style.color = "red";
+  } else {
+    elKembalian.innerText = rupiah(kembalian);
+    elKembalian.style.color = "var(--success)";
+  }
+};
+
+window.setUangCepat = (nominal) => {
+  document.getElementById("kasirUangBayar").value = nominal;
+  window.hitungKembalian();
+};
+
+window.setUangPas = () => {
+  document.getElementById("kasirUangBayar").value = currentKasirGrandTotal;
+  window.hitungKembalian();
+};
+
+// DOM Element Inputs untuk form Produk
+const inpNama = document.getElementById("nama");
+const inpKategori = document.getElementById("kategori");
+const inpIsi = document.getElementById("isi");
+const inpHarga = document.getElementById("harga");
+const inpStok = document.getElementById("stok");
+const inpFoto = document.getElementById("foto");
+const inpDeskripsi = document.getElementById("deskripsi");
 
 /* CREATE / UPDATE PRODUCT */
 window.saveProduct = async () => {
@@ -533,12 +601,14 @@ window.loadOrders = async () => {
         itemStr = o.items.map(i => `<span style="display:block; font-size:13px;">📌 ${i.nama} <b>(${i.qty}x)</b></span>`).join("");
       } else { itemStr = "<span style='color:red;'>Format pesanan lama</span>"; }
 
+      const labelTipe = o.payment_method ? `${o.address || '-'} <br><b style="color:var(--primary)">[${o.payment_method}]</b>` : (o.address || '-');
+
       orderTableBody.innerHTML += `
         <tr>
           <td style="font-size:13px; color:var(--gray);">${tgl}</td>
           <td><b>${o.customer_name || '-'}</b></td>
           <td>${o.phone && o.phone !== '-' ? `<a href="https://wa.me/${o.phone}" target="_blank" style="color:var(--primary); font-weight:600;"><i class="fa-brands fa-whatsapp"></i> ${o.phone}</a>` : '-'}</td>
-          <td><span style="font-size:13px;">${o.address || '-'}</span></td>
+          <td><span style="font-size:13px;">${labelTipe}</span></td>
           <td>${itemStr}</td>
           <td style="color:var(--success); font-weight:700;">${rupiah(o.grand_total || 0)}</td>
           <td>
@@ -600,6 +670,8 @@ function updateKasirCartUI() {
   if (items.length === 0) {
     kasirCartItems.innerHTML = `<p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>`;
     document.getElementById("kasirGrandTotal").innerText = rupiah(0);
+    currentKasirGrandTotal = 0;
+    window.hitungKembalian();
     return;
   }
 
@@ -624,10 +696,12 @@ function updateKasirCartUI() {
   }).join('');
 
   document.getElementById("kasirGrandTotal").innerText = rupiah(grandTotal);
+  currentKasirGrandTotal = grandTotal;
+  window.hitungKembalian();
 }
 
 /* FUNGSI CETAK STRUK PRINTER THERMAL (58mm/80mm) */
-function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal) {
+function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian) {
   const printWindow = window.open('', '_blank', 'width=350,height=600');
   const tgl = new Date().toLocaleString('id-ID');
   
@@ -648,25 +722,47 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal) {
         .text-center { text-align: center; }
         .line { border-top: 1px dashed #000; margin: 8px 0; }
         .bold { font-weight: bold; }
+        .logo-container img { width: 65px; height: 65px; object-fit: cover; border-radius: 50%; margin-bottom: 5px; }
       </style>
     </head>
     <body>
+      <div class="text-center logo-container">
+        <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg" alt="Logo">
+      </div>
       <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div>
       <div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div>
       <div class="line"></div>
+      
       <div style="font-size:11px; line-height:1.4;">
-        Waktu : ${tgl}<br>
-        Meja  : ${noMeja}<br>
+        Waktu  : ${tgl}<br>
+        Meja   : ${noMeja}<br>
         WA Pllg: ${waPelanggan || '-'}
       </div>
       <div class="line"></div>
+      
       ${itemsHtml}
       <div class="line"></div>
-      <div style="display:flex; justify-content:space-between; font-size:14px;" class="bold">
-        <span>TOTAL:</span>
+      
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:3px;" class="bold">
+        <span>TOTAL TAGIHAN:</span>
         <span>${rupiah(grandTotal)}</span>
       </div>
       <div class="line"></div>
+      
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+        <span>Metode Bayar:</span>
+        <span class="bold">${metodeBayar}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+        <span>Uang Diterima:</span>
+        <span>${rupiah(uangBayar)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+        <span>Kembalian:</span>
+        <span class="bold">${rupiah(kembalian)}</span>
+      </div>
+      <div class="line"></div>
+      
       <div class="text-center" style="font-size:11px; margin-top:12px;">Terima Kasih Atas Kunjungan Anda!</div>
       <script>
         window.onload = function() {
@@ -689,8 +785,22 @@ window.submitKasirOrder = async () => {
   if(!noMeja) { alert("Harap isi Nomor Meja pelanggan dine-in!"); return; }
 
   const waPelanggan = document.getElementById("kasirWaPelanggan").value.trim();
+  const metodeBayar = document.getElementById("kasirMetodeBayar").value;
   const statusPrint = document.getElementById("printStrukCheck").checked;
   const grandTotal = items.reduce((total, item) => total + (item.qty * item.harga), 0);
+
+  let uangBayar = grandTotal;
+  let kembalian = 0;
+
+  // Validasi khusus pembayaran cash tunai
+  if (metodeBayar === "Cash") {
+    uangBayar = Number(document.getElementById("kasirUangBayar").value) || 0;
+    if (uangBayar < grandTotal) {
+      alert("Gagal simpan! Uang tunai yang dimasukkan masih kurang dari total tagihan.");
+      return;
+    }
+    kembalian = uangBayar - grandTotal;
+  }
 
   try {
     // Simpan data order kasir ke collection 'orders'
@@ -700,6 +810,9 @@ window.submitKasirOrder = async () => {
       address: "Makan di Tempat",
       items: items.map(i => ({ nama: i.nama, qty: i.qty, harga: i.harga })),
       grand_total: grandTotal,
+      payment_method: metodeBayar,
+      cash_received: uangBayar,
+      cash_change: kembalian,
       created_at: serverTimestamp()
     });
 
@@ -707,13 +820,16 @@ window.submitKasirOrder = async () => {
 
     // Jalankan sistem cetak jika dicentang
     if (statusPrint) {
-      cetakStrukThermal(noMeja, waPelanggan, items, grandTotal);
+      cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian);
     }
 
-    // Reset Data Formulir & POS Kasir
+    // Reset Data Formulir POS Kasir kembali ke default semula
     kasirCart = {};
     document.getElementById("kasirNomorMeja").value = "";
     document.getElementById("kasirWaPelanggan").value = "";
+    document.getElementById("kasirUangBayar").value = "";
+    document.getElementById("kasirMetodeBayar").value = "Cash";
+    window.toggleCashSection();
     updateKasirCartUI();
     
   } catch(err) {
