@@ -557,11 +557,13 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 
 <!-- SCRIPT -->
 <script type="module">
-import { db } from './firebase.js';
 import {
+  db,
   collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getDocs,
+  addDoc,
+  serverTimestamp
+} from './firebase.js';
 
 const cart = {};
 
