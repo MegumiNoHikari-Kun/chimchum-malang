@@ -260,6 +260,17 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
 
   <div id="tab-kasir" class="tab-content">
     <div class="kasir-grid">
+      <div class="kasir-controls" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+      <div style="flex: 1; min-width: 250px; position: relative;">
+        <input type="text" id="searchMenuKasir" class="form-control" placeholder="🔍 Cari nama menu atau produk..." style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; outline: none; margin-bottom: 0;">
+      </div>
+      
+      <div style="width: 200px;">
+        <select id="filterKategoriKasir" class="form-control" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif; outline: none; background: white; cursor: pointer; margin-bottom: 0;">
+          <option value="Semua">All Kategori</option>
+          </select>
+      </div>
+    </div>
       <div>
         <div class="card" style="padding:12px; margin-bottom:12px;">
           <p style="font-size:14px; font-weight:500;"><i class="fa-solid fa-store"></i> Klik menu untuk memasukkan ke dalam struk belanja meja:</p>
@@ -268,8 +279,24 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
       </div>
       <div class="kasir-receipt">
         <h3><i class="fa-solid fa-file-invoice-dollar"></i> Struk Kasir Dine-In</h3>
-        <label style="font-size:13px; font-weight:600;">Nomor Meja Pelanggan *</label>
-        <input type="text" id="nomorMeja" placeholder="Contoh: 01 / 02 / VIP" style="margin-bottom:10px;">
+        <div class="dine-in-details" style="background: #fff5f0; padding: 20px; border-radius: 14px; margin-top: 20px; border: 1px solid #ffe0d0;">
+        <h3 style="font-size: 16px; margin-bottom: 12px; color: #222; font-weight: 600;">📋 Data Pelanggan Dine-In</h3>
+        
+        <div style="margin-bottom: 12px;">
+          <input type="text" id="kasirNomorMeja" class="form-control" placeholder="Nomor Meja * (Contoh: Meja 05)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none;" required>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <input type="number" id="kasirWaPelanggan" class="form-control" placeholder="Nomor WhatsApp Pelanggan (Opsional)" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; outline: none;">
+        </div>
+        
+        <div style="border-top: 1px dashed #ff6b35; padding-top: 12px;">
+          <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; cursor: pointer; color: #222;">
+            <input type="checkbox" id="printStrukCheck" style="width: 18px; height: 18px; accent-color: #ff6b35; cursor: pointer;" checked> 
+            🖨️ Otomatis Print Struk Belanja
+          </label>
+        </div>
+      </div>
         
         <div class="receipt-items" id="kasirCartItems">
           <p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>
@@ -279,6 +306,7 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
           <span>Total Tagihan:</span>
           <span id="kasirGrandTotal" style="color:var(--primary)">Rp 0</span>
         </div>
+        
         <button class="btn-primary" style="width:100%; padding:12px; background:var(--success)" onclick="submitKasirOrder()">
           <i class="fa-solid fa-circle-check"></i> Proses & Simpan Transaksi
         </button>
@@ -382,6 +410,70 @@ window.loadProducts = async () => {
     tableBody.innerHTML = "<tr><td colspan='7'>Gagal memuat data produk.</td></tr>";
   }
 };
+
+// 1. ISI DROPDOWN KATEGORI SECARA DINAMIS (Panggil fungsi ini di dalam loadProducts kasir kamu)
+function updateKasirKategoriDropdown(kategoriSet) {
+  const kategoriSelect = document.getElementById('filterKategoriKasir');
+  const daftarKategori = ['Semua', ...Array.from(kategoriSet).sort()];
+  
+  kategoriSelect.innerHTML = daftarKategori.map(k => `
+    <option value="${k}">${k}</option>
+  `).join('');
+}
+
+// 2. FUNGSI FILTER GABUNGAN (Search + Kategori)
+function jalankanFilterKasir() {
+  const kataKunci = document.getElementById('searchMenuKasir').value.toLowerCase();
+  const kategoriTerpilih = document.getElementById('filterKategoriKasir').value;
+  
+  // Ambil semua elemen produk di kasir
+  const semuaProduk = document.querySelectorAll('.product-kasir-card');
+  
+  semuaProduk.forEach(card => {
+    // Cari nama produk di dalam tag h3 (atau sesuaikan dengan tag nama produkmu)
+    const namaProduk = card.querySelector('h3').innerText.toLowerCase();
+    const kategoriProduk = card.dataset.kategori || 'Lainnya';
+    
+    const cocokSearch = namaProduk.includes(kataKunci);
+    const cocokKategori = (kategoriTerpilih === 'Semua') || (kategoriProduk === kategoriTerpilih);
+    
+    // Tampilkan jika cocok keduanya, sembunyikan jika tidak
+    if (cocokSearch && cocokKategori) {
+      card.style.display = 'block'; // atau 'flex' / '' tergantung layouting awal
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// 3. PASANG EVENT LISTENER KE SEARCH & FILTER
+document.getElementById('searchMenuKasir').addEventListener('input', jalankanFilterKasir);
+document.getElementById('filterKategoriKasir').addEventListener('change', jalankanFilterKasir);
+
+
+// Ambil data meja & WA
+const nomorMeja = document.getElementById('kasirNomorMeja').value.trim();
+const waPelanggan = document.getElementById('kasirWaPelanggan').value.trim();
+const statusPrint = document.getElementById('printStrukCheck').checked;
+
+if (!nomorMeja) {
+  alert('Nomor Meja wajib diisi untuk pesanan Dine-In!');
+  return;
+}
+
+// 1. Proses simpan ke Firebase seperti biasa...
+// Masukkan field tambahan: meja: nomorMeja, wa_pelanggan: waPelanggan || '-'
+
+// 2. Logika Deteksi Fitur Print Struk Belanja
+if (statusPrint) {
+  bukaJendelaCetakStruk(); 
+}
+
+function bukaJendelaCetakStruk() {
+  // Contoh cetak bawaan browser (jika printer thermal sudah terhubung ke PC/Tablet sebagai printer default)
+  // Kamu bisa membuat layout struk sederhana, lalu panggil:
+  window.print();
+}
 
 /* CREATE / UPDATE PRODUCT */
 window.saveProduct = async () => {
