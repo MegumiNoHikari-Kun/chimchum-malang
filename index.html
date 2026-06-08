@@ -564,6 +564,7 @@ import {
   addDoc,
   serverTimestamp
 } from './firebase.js';
+import { doc, updateDoc, increment } from './firebase.js';
 
 const cart = {};
 
@@ -596,7 +597,11 @@ window.cardDecQty = (id) => {
   if (v > 1) el.innerText = v - 1;
 };
 
-window.addToCart = (id, nama, harga, foto, isi) => {
+window.addToCart = (id, nama, harga, foto, isi, stok) => {
+  if (stok <= 0) {
+  alert("Stok habis!");
+  return;
+}
   const qty = Number(document.getElementById(`cardqty-${id}`).innerText);
 
   if (!cart[id]) {
@@ -607,6 +612,52 @@ window.addToCart = (id, nama, harga, foto, isi) => {
 
   alert(`${nama} (${qty}) masuk keranjang`);
   document.getElementById(`cardqty-${id}`).innerText = 1;
+};
+
+window.submitOrder = async () => {
+  const items = Object.values(cart);
+
+  if (items.length === 0) return alert("Keranjang kosong!");
+
+  const name = document.getElementById('customerName').value;
+  const phone = document.getElementById('customerPhone').value;
+  const address = document.getElementById('customerAddress').value;
+
+  const grandTotal = items.reduce((a, i) => a + i.qty * i.harga, 0);
+
+  const orderData = {
+    customer_name: name,
+    phone,
+    address,
+    items,
+    grand_total: grandTotal,
+    payment_method: "WA",
+    created_at: serverTimestamp(),
+    type: "delivery"
+  };
+
+  // 1. SIMPAN KE DATABASE
+  await addDoc(collection(db, "orders"), orderData);
+
+  // 2. KURANGI STOK PRODUK
+  for (const item of items) {
+    const ref = doc(db, "products", item.id);
+    await updateDoc(ref, {
+      stok: increment(-item.qty)
+    });
+  }
+
+  // 3. BUKA WA
+  let text = `*ORDER CHIMCHUM MALANG*\n\n`;
+  items.forEach(i => {
+    text += `- ${i.nama} x${i.qty}\n`;
+  });
+  text += `\nTotal: Rp ${grandTotal}`;
+
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`);
+
+  alert("Order berhasil dikirim!");
+  location.reload();
 };
 
 // ── LOAD PRODUCTS ───────────────────────
@@ -646,10 +697,14 @@ async function loadProducts() {
 
           <div class="card-content">
             <h3>${p.nama}</h3>
-            <p>${p.deskripsi || ''}</p>
-
-            <p style="margin-top:5px;font-size:13px;color:#777">
-              Isi ${p.isi || 0} pcs
+            <p>${p.deskripsi}</p>
+            
+            <p style="margin-top:4px;font-size:13px;color:#999">
+              Isi ${p.isi} pcs
+            </p>
+            
+            <p style="margin-top:4px;font-size:13px;font-weight:600;color:${p.stok > 5 ? '#2ecc71' : '#e74c3c'}">
+              Stok: ${p.stok ?? 0} porsi
             </p>
 
             <!-- STOK INFO -->
@@ -669,7 +724,9 @@ async function loadProducts() {
               <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
 
               <button class="btn-add-cart"
-                onclick="addToCart('${id}','${safeAttr(p.nama)}',${p.harga},'${safeAttr(p.foto)}','${p.isi}')">
+              id="addbtn-${id}"
+              ${p.stok <= 0 ? 'disabled style="background:#ccc;cursor:not-allowed"' : ''}
+              onclick="addToCart('${id}','${safeAttr(p.nama)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}',${p.stok})">
                 + Keranjang
               </button>
             </div>
