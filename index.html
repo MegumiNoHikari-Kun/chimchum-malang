@@ -557,357 +557,189 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 
 <!-- SCRIPT -->
 <script type="module">
-import { db, collection, getDocs, addDoc, serverTimestamp, doc, updateDoc } from './firebase.js';
-
-let cart = {};
-let productsCache = [];
-
-const rupiah = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
-
-/* =========================
-   CART UI CONTROL
-========================= */
-window.openCart = () => {
-  document.getElementById("cartSidebar").classList.add("active");
-  document.getElementById("cartOverlay").classList.add("active");
-};
-
-window.closeCart = () => {
-  document.getElementById("cartSidebar").classList.remove("active");
-  document.getElementById("cartOverlay").classList.remove("active");
-};
-
-/* =========================
-   LOAD PRODUCTS
-========================= */
+import { db } from './firebase.js';
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const WA_NUMBER = '6285723785380';
 const cart = {};
 
-// ── HELPERS ──────────────────────────────────────────────────
-function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
-function stars(n){ return '⭐'.repeat(Math.min(5, Math.max(1, Number(n)||5))); }
-function safeAttr(str){ return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-
-// ── LOAD PRODUCTS + FILTER ───────────────────────────────────
+// ── ELEMENTS ─────────────────────────────
 const menuContainer    = document.getElementById('menuContainer');
 const galleryContainer = document.getElementById('galleryContainer');
 const filterTabs       = document.getElementById('filterTabs');
-let activeFilter = 'Semua';
 
+let activeFilter = 'Semua';
+let productsData = [];
+
+// ── HELPERS ─────────────────────────────
+function rupiah(n){
+  return 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+}
+
+function safeAttr(str){
+  return String(str ?? '')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+// ── CART QTY TEMP (UI ONLY) ─────────────
+window.cardIncQty = (id) => {
+  const el = document.getElementById(`cardqty-${id}`);
+  el.innerText = Number(el.innerText) + 1;
+};
+
+window.cardDecQty = (id) => {
+  const el = document.getElementById(`cardqty-${id}`);
+  const v = Number(el.innerText);
+  if (v > 1) el.innerText = v - 1;
+};
+
+// ── CART ADD ────────────────────────────
+window.addToCart = (id, nama, harga, foto, isi) => {
+  const qty = Number(document.getElementById(`cardqty-${id}`).innerText);
+
+  if (!cart[id]) {
+    cart[id] = { id, nama, harga, foto, isi, qty };
+  } else {
+    cart[id].qty += qty;
+  }
+
+  alert(`${nama} ditambahkan ke keranjang (${qty})`);
+  document.getElementById(`cardqty-${id}`).innerText = 1;
+};
+
+// ── LOAD PRODUCTS ───────────────────────
 async function loadProducts() {
   try {
     const snapshot = await getDocs(collection(db, 'products'));
+
     menuContainer.innerHTML = '';
     galleryContainer.innerHTML = '';
 
     if (snapshot.empty) {
       menuContainer.innerHTML = '<p>Belum ada menu tersedia.</p>';
-      galleryContainer.innerHTML = '<p>Belum ada foto.</p>';
+      galleryContainer.innerHTML = '<p>Belum ada galeri.</p>';
       return;
     }
 
     const kategoriSet = new Set();
-    const fotoSet     = new Set();
+    const fotoSet = new Set();
+
+    productsData = [];
 
     snapshot.forEach((doc) => {
-      const p     = doc.data();
-      const id    = doc.id;
-      const harga = Number(p.harga);
-      const kat   = p.kategori || 'Lainnya';
-      kategoriSet.add(kat);
+      const p = doc.data();
+      const id = doc.id;
 
+      productsData.push({ id, ...p });
+
+      kategoriSet.add(p.kategori || 'Lainnya');
+
+      // ── MENU CARD ──
       menuContainer.innerHTML += `
-        <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
+        <div class="card" data-kategori="${safeAttr(p.kategori || 'Lainnya')}">
+
           <img src="${p.foto}" alt="${p.nama}"
-               onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
+            onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
+
           <div class="card-content">
             <h3>${p.nama}</h3>
-            <p>${p.deskripsi}</p>
-            <p style="margin-top:4px;font-size:13px;color:#999">Isi ${p.isi} pcs</p>
-            <div class="price">${rupiah(harga)}</div>
+
+            <p>${p.deskripsi || ''}</p>
+
+            <p style="margin-top:5px;font-size:13px;color:#777">
+              Isi ${p.isi || 0} pcs
+            </p>
+
+            <!-- STOK INFO -->
+            <p style="
+              margin-top:2px;
+              font-size:13px;
+              font-weight:700;
+              color:${(p.stok ?? 0) <= 5 ? '#e74c3c' : '#2ecc71'}">
+              Stok: ${p.stok ?? 0}
+            </p>
+
+            <div class="price">${rupiah(p.harga)}</div>
+
             <div class="card-order-row">
               <button class="card-qty-btn" onclick="cardDecQty('${id}')">−</button>
+
               <span class="card-qty-num" id="cardqty-${id}">1</span>
+
               <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
-              <button class="btn-add-cart" id="addbtn-${id}"
-                onclick="addToCart('${id}','${safeAttr(p.nama)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}')">
+
+              <button class="btn-add-cart"
+                onclick="addToCart('${id}','${safeAttr(p.nama)}',${p.harga},'${safeAttr(p.foto)}','${p.isi}')">
                 + Keranjang
               </button>
             </div>
           </div>
-        </div>`;
+        </div>
+      `;
 
-      if (p.foto && !fotoSet.has(p.foto)) {
-        fotoSet.add(p.foto);
-        galleryContainer.innerHTML += `
-          <img src="${p.foto}" alt="${p.nama}"
-               onerror="this.parentNode.removeChild(this)">`;
-      }
+      // ── GALERI (ALL UNIQUE IMAGE) ──
+      if (p.foto) fotoSet.add(p.foto);
     });
 
-    const semua = ['Semua', ...Array.from(kategoriSet).sort()];
-    filterTabs.innerHTML = semua.map(k => `
-      <button
-        class="filter-btn ${k === activeFilter ? 'active' : ''}"
-        onclick="applyFilter('${safeAttr(k)}')">
+    // ── FILTER RENDER ──
+    const kategoriList = ['Semua', ...Array.from(kategoriSet).sort()];
+
+    filterTabs.innerHTML = kategoriList.map(k => `
+      <button class="filter-btn ${k === activeFilter ? 'active' : ''}"
+        data-kategori="${safeAttr(k)}"
+        onclick="applyFilter(this.dataset.kategori)">
         ${k}
-      </button>`).join('');
+      </button>
+    `).join('');
+
+    // ── GALERI RENDER ──
+    galleryContainer.innerHTML = '';
+
+    if (fotoSet.size === 0) {
+      galleryContainer.innerHTML = '<p>Belum ada foto.</p>';
+    } else {
+      fotoSet.forEach((foto) => {
+        const first = productsData.find(p => p.foto === foto);
+
+        galleryContainer.innerHTML += `
+          <img src="${foto}"
+            alt="${first?.nama || 'Menu'}"
+            onerror="this.style.display='none'">
+        `;
+      });
+    }
 
     applyFilter(activeFilter);
 
   } catch (err) {
-    console.error('loadProducts:', err);
-    menuContainer.innerHTML = '<p>Gagal memuat menu dari Firebase.</p>';
-    galleryContainer.innerHTML = '';
+    console.error(err);
+    menuContainer.innerHTML = '<p>Gagal memuat menu.</p>';
   }
 }
 
+// ── FILTER SYSTEM ───────────────────────
 window.applyFilter = (kategori) => {
   activeFilter = kategori;
+
   document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.innerText.trim() === kategori);
+    btn.classList.toggle(
+      'active',
+      btn.dataset.kategori === kategori
+    );
   });
+
   document.querySelectorAll('.card[data-kategori]').forEach(card => {
     const match = kategori === 'Semua' || card.dataset.kategori === kategori;
-    card.classList.toggle('hidden-card', !match);
+    card.style.display = match ? 'block' : 'none';
   });
 };
 
-/* =========================
-   CART LOGIC
-========================= */
-window.addToCart = (id, nama, harga, foto, maxStok) => {
-  if (!cart[id]) {
-    cart[id] = { id, nama, harga, foto, qty: 1, maxStok };
-  } else {
-    if (cart[id].qty < maxStok) {
-      cart[id].qty++;
-    } else {
-      alert("Stok tidak cukup");
-    }
-  }
-  updateCartUI();
-};
-
-window.ubahQty = (id, delta) => {
-  if (!cart[id]) return;
-
-  cart[id].qty += delta;
-
-  if (cart[id].qty <= 0) delete cart[id];
-  if (cart[id] && cart[id].qty > cart[id].maxStok) {
-    cart[id].qty = cart[id].maxStok;
-  }
-
-  updateCartUI();
-};
-
-/* =========================
-   UPDATE CART UI
-========================= */
-function updateCartUI() {
-  const container = document.getElementById("cartItems");
-  const badge = document.getElementById("cartBadge");
-  const totalEl = document.getElementById("cartGrandTotal");
-
-  const items = Object.values(cart);
-
-  container.innerHTML = "";
-
-  let totalQty = 0;
-  let totalPrice = 0;
-
-  if (items.length === 0) {
-    container.innerHTML = `<div class="cart-empty">Keranjang kosong</div>`;
-  } else {
-    items.forEach(item => {
-      totalQty += item.qty;
-      totalPrice += item.qty * item.harga;
-
-      container.innerHTML += `
-        <div class="cart-item">
-          <img src="${item.foto || 'https://via.placeholder.com/60'}">
-
-          <div class="cart-item-info">
-            <h4>${item.nama}</h4>
-            <div class="item-price">${rupiah(item.harga)}</div>
-
-            <div class="cart-item-qty">
-              <button class="cqty-btn" onclick="ubahQty('${item.id}',-1)">-</button>
-              <span class="cqty-num">${item.qty}</span>
-              <button class="cqty-btn" onclick="ubahQty('${item.id}',1)">+</button>
-            </div>
-          </div>
-
-          <button class="cart-item-remove" onclick="ubahQty('${item.id}',-999)">×</button>
-        </div>
-      `;
-    });
-  }
-
-  badge.innerText = totalQty;
-  badge.classList.toggle("hidden", totalQty === 0);
-  totalEl.innerText = rupiah(totalPrice);
-}
-
-/* =========================
-   CHECKOUT FLOW (FIXED)
-========================= */
-window.openCheckout = () => {
-  if (Object.keys(cart).length === 0) {
-    alert("Keranjang kosong");
-    return;
-  }
-  window.closeCart();
-  document.getElementById("checkoutModal").classList.add("active");
-
-  renderCheckout();
-};
-
-window.closeCheckout = () => {
-  document.getElementById("checkoutModal").classList.remove("active");
-};
-
-function renderCheckout() {
-  const el = document.getElementById("checkoutSummary");
-  const items = Object.values(cart);
-
-  let total = 0;
-  el.innerHTML = "";
-
-  items.forEach(i => {
-    total += i.qty * i.harga;
-    el.innerHTML += `
-      <div class="summary-item">
-        <span>${i.nama} x${i.qty}</span>
-        <span>${rupiah(i.qty * i.harga)}</span>
-      </div>
-    `;
-  });
-
-  el.innerHTML += `
-    <div class="summary-total">
-      <span>Total</span>
-      <span>${rupiah(total)}</span>
-    </div>
-  `;
-}
-
-/* =========================
-   SUBMIT ORDER (WA + FIRESTORE)
-========================= */
-window.submitOrder = async () => {
-  const nama = document.getElementById("customerName").value;
-  const phone = document.getElementById("customerPhone").value;
-  const address = document.getElementById("customerAddress").value;
-
-  if (!nama || !phone) {
-    alert("Nama & WhatsApp wajib diisi");
-    return;
-  }
-
-  const items = Object.values(cart);
-  const total = items.reduce((a, b) => a + b.qty * b.harga, 0);
-
-  try {
-    await addDoc(collection(db, "orders"), {
-      customer_name: nama,
-      phone,
-      address,
-      items,
-      total,
-      created_at: serverTimestamp()
-    });
-
-    let text = `*ORDER CHIMCHUM MALANG*\n\n`;
-    items.forEach(i => {
-      text += `- ${i.nama} x${i.qty}\n`;
-    });
-    text += `\nTOTAL: ${rupiah(total)}`;
-
-    window.open(`https://wa.me/6285723785380?text=${encodeURIComponent(text)}`, "_blank");
-
-    cart = {};
-    updateCartUI();
-    closeCheckout();
-
-  } catch (e) {
-    console.error(e);
-    alert("Gagal order");
-  }
-};
-
-/* =========================
-   TESTIMONI
-========================= */
-window.loadTestimoni = async () => {
-  const container = document.getElementById("testimoniContainer");
-  container.innerHTML = "";
-
-  const snap = await getDocs(collection(db, "testimonials"));
-
-  snap.forEach(d => {
-    const t = d.data();
-
-    container.innerHTML += `
-      <div class="testimonial">
-        <div class="stars">${"⭐".repeat(t.rating || 5)}</div>
-        <p>${t.komentar}</p>
-        <h4>${t.nama} - ${t.kota}</h4>
-      </div>
-    `;
-  });
-};
-
-window.submitTestimoni = async () => {
-  const nama = document.getElementById("testiNama").value;
-  const kota = document.getElementById("testiKota").value;
-  const komentar = document.getElementById("testiKomentar").value;
-
-  const rating = document.querySelector('input[name="rating"]:checked')?.value;
-
-  if (!nama || !kota || !komentar || !rating) {
-    alert("Lengkapi semua data");
-    return;
-  }
-
-  await addDoc(collection(db, "testimonials"), {
-    nama, kota, komentar, rating: Number(rating),
-    created_at: serverTimestamp()
-  });
-
-  document.getElementById("testiSuccess").style.display = "block";
-  loadTestimoni();
-};
-
-/* =========================
-   LOGIN MODAL
-========================= */
-document.getElementById('btnOpenLogin').onclick = (e) => {
-  e.preventDefault();
-  document.getElementById('loginModal').classList.add('active');
-};
-
-document.getElementById('btnCloseLogin').onclick = () => {
-  document.getElementById('loginModal').classList.remove('active');
-};
-
-document.getElementById('btnSubmitLogin').onclick = () => {
-  const u = document.getElementById('adminUsername').value;
-  const p = document.getElementById('adminPassword').value;
-
-  if (u === "admin" && p === "chimchum123") {
-    sessionStorage.setItem("admin", "true");
-    window.location.href = "admin.html";
-  } else {
-    alert("Login gagal");
-  }
-};
-
-/* INIT */
+// ── INIT ────────────────────────────────
 loadProducts();
-loadTestimoni();
 
 </script>
 </body>
