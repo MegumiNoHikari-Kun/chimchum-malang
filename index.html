@@ -917,6 +917,9 @@ if (btnSubmitLogin) {
     const pass = document.getElementById('adminPassword').value;
     
     if (user === "admin" && pass === "chimchum123") {
+      // Simpan session token admin ke browser sebelum dialihkan
+      sessionStorage.setItem('chimchum_admin', 'true');
+      
       alert("Login berhasil! Mengalihkan ke Dashboard...");
       window.location.href = "admin.html";
     } else {
