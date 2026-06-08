@@ -723,9 +723,22 @@ authReady.then(() => {
 
 // ── CARD QTY ─────────────────────────────────────────────────
 const cardQtys = {};
+const cardStoks = {}; // simpan stok per produk untuk validasi
 function getCardQty(id){ return cardQtys[id] || 1; }
+
 window.cardIncQty = (id) => {
-  cardQtys[id] = getCardQty(id) + 1;
+  const stokMax   = cardStoks[id] ?? 999;
+  const inCart    = cart[id]?.qty || 0;
+  const maxBisa   = stokMax - inCart;         // sisa stok yang belum di-cart
+  const current   = getCardQty(id);
+  if (current >= maxBisa) {
+    // sudah mentok — goyangkan angka sebagai feedback
+    const el = document.getElementById(`cardqty-${id}`);
+    el.style.color = '#e74c3c';
+    setTimeout(() => { el.style.color = ''; }, 600);
+    return;
+  }
+  cardQtys[id] = current + 1;
   document.getElementById(`cardqty-${id}`).innerText = cardQtys[id];
 };
 window.cardDecQty = (id) => {
@@ -735,7 +748,18 @@ window.cardDecQty = (id) => {
 
 // ── KERANJANG ────────────────────────────────────────────────
 window.addToCart = (id, nama, harga, foto, isi, stokSaat = 999) => {
-  const qty = getCardQty(id);
+  cardStoks[id] = stokSaat; // simpan stok untuk validasi cardIncQty
+
+  const qty       = getCardQty(id);
+  const inCart    = cart[id]?.qty || 0;
+  const totalNanti = inCart + qty;
+
+  // Validasi tidak melebihi stok
+  if (totalNanti > stokSaat) {
+    alert(`Stok ${nama} hanya ${stokSaat} porsi. Di keranjang sudah ${inCart}.`);
+    return;
+  }
+
   if (cart[id]) { cart[id].qty += qty; }
   else { cart[id] = { id, nama, harga, foto, isi, qty, stokSaat }; }
 
@@ -785,7 +809,13 @@ function updateCartUI() {
 
 window.cartChangeQty = (id, delta) => {
   if (!cart[id]) return;
-  cart[id].qty = Math.max(1, cart[id].qty + delta);
+  const stokMax = cart[id].stokSaat ?? 999;
+  const next    = cart[id].qty + delta;
+  if (next > stokMax) {
+    alert(`Stok tersisa hanya ${stokMax} porsi.`);
+    return;
+  }
+  cart[id].qty = Math.max(1, next);
   updateCartUI();
 };
 window.removeFromCart = (id) => { delete cart[id]; updateCartUI(); };
