@@ -571,6 +571,7 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 import {
   db, authReady,
   collection,
+  query,
   where,
   orderBy,
   getDocs,
@@ -697,7 +698,7 @@ async function loadTestimoni() {
     const q = query(
       collection(db, "testimonials"),
       where("rating", ">", 3),
-      orderBy("rating", "desc"),
+      orderBy("created_at", "desc"),
       limit(10)
     );
 
