@@ -46,6 +46,6 @@ export const authReady = new Promise((resolve) => {
 export {
   db, auth,
   collection, getDocs, addDoc, updateDoc, deleteDoc,
-  doc, serverTimestamp, query, orderBy, where,limit
+  doc, serverTimestamp, query, orderBy, where,limit,
   signInWithEmailAndPassword, signOut, onAuthStateChanged
 };
