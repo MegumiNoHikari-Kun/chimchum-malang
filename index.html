@@ -692,6 +692,7 @@ async function loadTestimoni() {
   const container = document.getElementById('testimoniContainer');
   try {
     const snapshot = await getDocs(collection(db, 'testimonials'));
+    console.log('testimonials:', snapshot);
     container.innerHTML = '';
 
     if (snapshot.empty) {
