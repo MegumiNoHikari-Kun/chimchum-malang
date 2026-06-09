@@ -386,6 +386,12 @@ th { background: #fff1ea; font-weight: 600; }
     <div class="card">
       <h3><i class="fa-solid fa-receipt"></i> Riwayat Pesanan &amp; Transaksi</h3>
     </div>
+    <div id="orderSummary"
+         style="display:grid;
+                grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+                gap:12px;
+                margin-bottom:15px;">
+    </div>
     <table>
       <thead>
         <tr>
@@ -428,6 +434,7 @@ let cachedProducts = [];
 let cachedOrders = [];
 let kasirCart = {};
 let currentKasirGrandTotal = 0;
+let currentOrderFilter = "all";
 
 /* ── HELPERS ── */
 function rupiah(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
@@ -738,50 +745,119 @@ window.submitKasirOrder = async () => {
   }
 };
 
-/* ── PESANAN MASUK ── */
-window.loadOrders = async () => {
-  const tbody = document.getElementById("orderTableBody");
-  tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Sedang menarik data...</td></tr>";
+function renderOrderSummary(list){
 
-  try {
-    const snap = await getDocs(collection(db, "orders"));
-    let list = [];
-    // snap.forEach(d => list.push({ id: d.id, ...d.data() }));    
-    // list.sort((a, b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
-    
-    // cachedOrders = list; 
-    // console.log("cachedOrders", cachedOrders);
-    
-    snap.forEach(d => {
-      list.push({
-        id: d.id,
-        ...d.data()
-      });
-    });
-    
-    list.sort(
-      (a,b)=>
-      (b.created_at?.seconds || 0)
-      -
-      (a.created_at?.seconds || 0)
-    );
-    
-    cachedOrders = list;
-    console.log("CACHE:", cachedOrders);
-    
-    console.log(cachedOrders);
-    console.log(
-      cachedOrders.map(o => o.id)
-    );
-    
-  
+  const summaryEl = document.getElementById("orderSummary");
 
-    if (list.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Belum ada data pesanan terekam.</td></tr>";
-      return;
+  const counts = {
+    all: list.length,
+    new: 0,
+    diproses: 0,
+    selesai: 0,
+    dibatalkan: 0
+  };
+
+  list.forEach(order => {
+    const status = order.status || "new";
+
+    if(counts[status] !== undefined){
+      counts[status]++;
     }
+  });
 
-    tbody.innerHTML = list.map(o => {
+  const cards = [
+    {
+      key:"all",
+      title:"Total Pesanan",
+      value:counts.all,
+      color:"#34495e"
+    },
+    {
+      key:"new",
+      title:"Pesanan Baru",
+      value:counts.new,
+      color:"#d35400"
+    },
+    {
+      key:"diproses",
+      title:"Sedang Diproses",
+      value:counts.diproses,
+      color:"#2980b9"
+    },
+    {
+      key:"selesai",
+      title:"Pesanan Selesai",
+      value:counts.selesai,
+      color:"#27ae60"
+    },
+    {
+      key:"dibatalkan",
+      title:"Dibatalkan",
+      value:counts.dibatalkan,
+      color:"#e74c3c"
+    }
+  ];
+
+  summaryEl.innerHTML = cards.map(card => `
+    <div
+      onclick="filterOrders('${card.key}')"
+      style="
+        cursor:pointer;
+        background:white;
+        padding:15px;
+        border-radius:12px;
+        box-shadow:0 2px 10px rgba(0,0,0,.05);
+        border:3px solid ${
+          currentOrderFilter === card.key
+          ? card.color
+          : 'transparent'
+        };
+      ">
+      <div style="font-size:13px;color:#666;">
+        ${card.title}
+      </div>
+
+      <div style="
+        font-size:28px;
+        font-weight:700;
+        color:${card.color};
+      ">
+        ${card.value}
+      </div>
+    </div>
+  `).join('');
+}
+
+window.filterOrders = (status) => {
+  currentOrderFilter = status;
+  renderOrdersTable();
+};
+
+function renderOrdersTable(){
+
+  const tbody = document.getElementById("orderTableBody");
+
+  let list = [...cachedOrders];
+
+  if(currentOrderFilter !== "all"){
+    list = list.filter(
+      o => (o.status || "new") === currentOrderFilter
+    );
+  }
+
+  if(list.length === 0){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8"
+            style="text-align:center;padding:20px;color:#aaa;">
+          Tidak ada data.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = list.map(o => {
       const tgl = o.created_at
         ? new Date(o.created_at.seconds * 1000).toLocaleString('id-ID')
         : '-';
@@ -884,6 +960,41 @@ window.loadOrders = async () => {
     console.error(err);
     tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; color:red; padding:20px;'>Gagal memuat log pesanan.</td></tr>";
   }
+}
+
+/* ── PESANAN MASUK ── */
+window.loadOrders = async () => {
+  const tbody = document.getElementById("orderTableBody");
+  tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Sedang menarik data...</td></tr>";
+
+  try {
+    const snap = await getDocs(collection(db, "orders"));
+    let list = [];
+    
+    snap.forEach(d => {
+      list.push({
+        id: d.id,
+        ...d.data()
+      });
+    });
+    
+    list.sort(
+      (a,b)=>
+      (b.created_at?.seconds || 0)
+      -
+      (a.created_at?.seconds || 0)
+    );
+    
+    cachedOrders = list;
+    renderOrdersTable();
+  
+
+    if (list.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Belum ada data pesanan terekam.</td></tr>";
+      return;
+    }
+
+    
 };
 
 window.deleteOrder = async (id) => {
@@ -900,7 +1011,7 @@ window.updateOrderStatus = async (id, status) => {
       status: status
     });
 
-    loadOrders();
+    await loadOrders();
 
   } catch(err){
     console.error(err);
