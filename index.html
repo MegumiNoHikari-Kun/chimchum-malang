@@ -698,14 +698,10 @@ async function loadTestimoni() {
   try {
     const q = query(
       collection(db, "testimonials"),
-      where("rating", ">", 3),
-      orderBy("created_at", "desc"),
-      limit(10)
+      orderBy("created_at", "desc")
     );
 
     const snapshot = await getDocs(q);
-
-    console.log('Jumlah testimonial:', snapshot.size);
 
     container.innerHTML = '';
 
@@ -715,11 +711,12 @@ async function loadTestimoni() {
       return;
     }
 
-    snapshot.forEach((doc) => {
-      console.log(doc.data());
+    const testimonials = snapshot.docs
+      .map(doc => doc.data())
+      .filter(t => Number(t.rating) > 3)
+      .slice(0, 10);
 
-      const t = doc.data();
-
+    testimonials.forEach((t) => {
       container.innerHTML += `
         <div class="testimonial">
           <div class="stars">${stars(t.rating)}</div>
