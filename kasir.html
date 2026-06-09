@@ -887,32 +887,14 @@ window.updateOrderStatus = async (id, status) => {
   }
 };
 
-window.reprintOrder = async (id) => {
+window.reprintOrder = (id) => {
 
-  try {
+  console.log("ID DITERIMA:", id);
 
-    const snap = await getDocs(
-      doc(db, "orders", id)
-    );
+  const order = cachedOrders.find(o => o.id === id);
 
-    if (!snap.exists()) {
-      alert("Pesanan tidak ditemukan");
-      return;
-    }
+  console.log("HASIL:", order);
 
-    const order = {
-      id: snap.id,
-      ...snap.data()
-    };
-
-    cetakUlangPesanan(order);
-
-  } catch(err) {
-
-    console.error(err);
-    alert("Gagal mengambil data pesanan");
-
-  }
 };
 
 function cetakUlangPesanan(order){
