@@ -571,6 +571,8 @@ footer{background:#111;color:white;padding:40px 20px;text-align:center;}
 import {
   db, authReady,
   collection,
+  where,
+  orderBy,
   getDocs,
   addDoc,
   updateDoc,
@@ -700,6 +702,15 @@ async function loadTestimoni() {
       return;
     }
 
+    const q = query(
+      collection(db, "testimonials"),
+      where("rating", ">", 3),
+      orderBy("rating", "desc"),
+      limit(10)
+    );
+
+    const snapshot = await getDocs(q);
+    
     snapshot.forEach((doc) => {
       const t = doc.data();
       container.innerHTML += `
