@@ -692,16 +692,8 @@ window.applyFilter = (kategori) => {
 // ── LOAD TESTIMONI ───────────────────────────────────────────
 async function loadTestimoni() {
   const container = document.getElementById('testimoniContainer');
+
   try {
-    const snapshot = await getDocs(collection(db, 'testimonials'));
-    console.log('testimonials:', rows);
-    container.innerHTML = '';
-
-    if (snapshot.empty) {
-      container.innerHTML = '<p style="text-align:center;color:#aaa;padding:40px 0">Belum ada testimoni.</p>';
-      return;
-    }
-
     const q = query(
       collection(db, "testimonials"),
       where("rating", ">", 3),
@@ -710,9 +702,22 @@ async function loadTestimoni() {
     );
 
     const snapshot = await getDocs(q);
-    
+
+    console.log('Jumlah testimonial:', snapshot.size);
+
+    container.innerHTML = '';
+
+    if (snapshot.empty) {
+      container.innerHTML =
+        '<p style="text-align:center;color:#aaa;padding:40px 0">Belum ada testimoni.</p>';
+      return;
+    }
+
     snapshot.forEach((doc) => {
+      console.log(doc.data());
+
       const t = doc.data();
+
       container.innerHTML += `
         <div class="testimonial">
           <div class="stars">${stars(t.rating)}</div>
@@ -723,7 +728,8 @@ async function loadTestimoni() {
 
   } catch (err) {
     console.error('loadTestimoni:', err);
-    container.innerHTML = '<p style="text-align:center;color:#aaa">Gagal memuat testimoni.</p>';
+    container.innerHTML =
+      '<p style="text-align:center;color:#aaa">Gagal memuat testimoni.</p>';
   }
 }
 
