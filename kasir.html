@@ -833,6 +833,13 @@ window.filterOrders = (status) => {
   renderOrdersTable();
 };
 
+window.filterOrders = (status) => {
+  currentOrderFilter = status;
+
+  renderOrderSummary(cachedOrders);
+  renderOrdersTable();
+};
+
 function renderOrdersTable(){
 
   const tbody = document.getElementById("orderTableBody");
@@ -858,40 +865,53 @@ function renderOrdersTable(){
   }
 
   tbody.innerHTML = list.map(o => {
-      const tgl = o.created_at
-        ? new Date(o.created_at.seconds * 1000).toLocaleString('id-ID')
-        : '-';
 
-      const itemStr = Array.isArray(o.items)
-        ? o.items.map(i => `<span style="display:block; font-size:13px;">📌 ${i.nama} <b>(${i.qty}x)</b></span>`).join('')
-        : "<span style='color:red;'>Format pesanan lama</span>";
+    const tgl = o.created_at
+      ? new Date(o.created_at.seconds * 1000)
+          .toLocaleString('id-ID')
+      : '-';
 
-      const labelTipe = o.payment_method
-        ? `${o.address || '-'} <br><b style="color:var(--primary)">[${o.payment_method}]</b>`
-        : (o.address || '-');
+    const itemStr = Array.isArray(o.items)
+      ? o.items.map(i =>
+          `<span style="display:block;font-size:13px;">
+            📌 ${i.nama} <b>(${i.qty}x)</b>
+          </span>`
+        ).join('')
+      : "<span style='color:red;'>Format pesanan lama</span>";
 
-      const waLink = (o.phone && o.phone !== '-')
-        ? `<a href="https://wa.me/${o.phone}" target="_blank"
-              style="color:var(--primary); font-weight:600;">
-             <i class="fa-brands fa-whatsapp"></i> ${o.phone}
-           </a>`
-        : '-';
-      const status = o.status || "new";
+    const labelTipe = o.payment_method
+      ? `${o.address || '-'} <br>
+         <b style="color:var(--primary)">
+           [${o.payment_method}]
+         </b>`
+      : (o.address || '-');
 
-      let statusBadge = `
+    const waLink =
+      (o.phone && o.phone !== '-')
+      ? `<a href="https://wa.me/${o.phone}"
+            target="_blank"
+            style="color:var(--primary);font-weight:600;">
+            <i class="fa-brands fa-whatsapp"></i>
+            ${o.phone}
+         </a>`
+      : '-';
+
+    const status = o.status || "new";
+
+    let statusBadge = `
       <span style="
-      padding:5px 10px;
-      border-radius:20px;
-      font-size:12px;
-      font-weight:600;
-      background:#ffe8cc;
-      color:#d35400;">
-      NEW
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:600;
+        background:#ffe8cc;
+        color:#d35400;">
+        NEW
       </span>`;
 
-      if(status === "diproses"){
-        statusBadge = `
-        <span style="
+    if(status === "diproses"){
+      statusBadge = `
+      <span style="
         padding:5px 10px;
         border-radius:20px;
         font-size:12px;
@@ -899,12 +919,12 @@ function renderOrdersTable(){
         background:#d6ecff;
         color:#2980b9;">
         DIPROSES
-        </span>`;
-      }
-      
-      if(status === "selesai"){
-        statusBadge = `
-        <span style="
+      </span>`;
+    }
+
+    if(status === "selesai"){
+      statusBadge = `
+      <span style="
         padding:5px 10px;
         border-radius:20px;
         font-size:12px;
@@ -912,12 +932,12 @@ function renderOrdersTable(){
         background:#d4f5dd;
         color:#27ae60;">
         SELESAI
-        </span>`;
-      }
-      
-      if(status === "dibatalkan"){
-        statusBadge = `
-        <span style="
+      </span>`;
+    }
+
+    if(status === "dibatalkan"){
+      statusBadge = `
+      <span style="
         padding:5px 10px;
         border-radius:20px;
         font-size:12px;
@@ -925,76 +945,103 @@ function renderOrdersTable(){
         background:#ffdede;
         color:#e74c3c;">
         DIBATALKAN
-        </span>`;
-      }
-      return `
-        <tr>
-          <td style="font-size:13px; color:var(--gray);">${tgl}</td>
-          <td><b>${o.customer_name || '-'}</b></td>
-          <td>${waLink}</td>
-          <td><span style="font-size:13px;">${labelTipe}</span></td>
-          <td>${statusBadge}</td>
-          <td>${itemStr}</td>
-          <td style="color:var(--success); font-weight:700;">${rupiah(o.grand_total || 0)}</td>
-          <td>
-            <select onchange="updateOrderStatus('${o.id}', this.value)">
-              <option value="new" ${status==='new'?'selected':''}>New</option>
-              <option value="diproses" ${status==='diproses'?'selected':''}>Diproses</option>
-              <option value="selesai" ${status==='selesai'?'selected':''}>Selesai</option>
-              <option value="dibatalkan" ${status==='dibatalkan'?'selected':''}>Dibatalkan</option>
-            </select>
-          
-            <button onclick="reprintOrder('${o.id}')">
-              🖨️
-            </button>
-          
-            <button class="btn-delete"
-                    onclick="deleteOrder('${o.id}')">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
-        </tr>`;
-    }).join('');
+      </span>`;
+    }
 
-  } catch (err) {
-    console.error(err);
-    tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; color:red; padding:20px;'>Gagal memuat log pesanan.</td></tr>";
-  }
+    return `
+      <tr>
+        <td style="font-size:13px;color:var(--gray);">${tgl}</td>
+        <td><b>${o.customer_name || '-'}</b></td>
+        <td>${waLink}</td>
+        <td><span style="font-size:13px;">${labelTipe}</span></td>
+        <td>${statusBadge}</td>
+        <td>${itemStr}</td>
+        <td style="color:var(--success);font-weight:700;">
+          ${rupiah(o.grand_total || 0)}
+        </td>
+        <td>
+
+          <select onchange="updateOrderStatus('${o.id}', this.value)">
+            <option value="new"
+              ${status==='new'?'selected':''}>
+              New
+            </option>
+
+            <option value="diproses"
+              ${status==='diproses'?'selected':''}>
+              Diproses
+            </option>
+
+            <option value="selesai"
+              ${status==='selesai'?'selected':''}>
+              Selesai
+            </option>
+
+            <option value="dibatalkan"
+              ${status==='dibatalkan'?'selected':''}>
+              Dibatalkan
+            </option>
+          </select>
+
+          <button onclick="reprintOrder('${o.id}')">
+            🖨️
+          </button>
+
+          <button class="btn-delete"
+                  onclick="deleteOrder('${o.id}')">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+
+        </td>
+      </tr>
+    `;
+
+  }).join('');
 }
 
-/* ── PESANAN MASUK ── */
 window.loadOrders = async () => {
+
   const tbody = document.getElementById("orderTableBody");
-  tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Sedang menarik data...</td></tr>";
+
+  tbody.innerHTML =
+    "<tr><td colspan='8' style='text-align:center;padding:20px;color:#aaa;'>Sedang menarik data...</td></tr>";
 
   try {
-    const snap = await getDocs(collection(db, "orders"));
+
+    const snap = await getDocs(
+      collection(db, "orders")
+    );
+
     let list = [];
-    
+
     snap.forEach(d => {
       list.push({
         id: d.id,
         ...d.data()
       });
     });
-    
+
     list.sort(
       (a,b)=>
       (b.created_at?.seconds || 0)
       -
       (a.created_at?.seconds || 0)
     );
-    
+
     cachedOrders = list;
+
+    renderOrderSummary(cachedOrders);
     renderOrdersTable();
-  
 
-    if (list.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Belum ada data pesanan terekam.</td></tr>";
-      return;
-    }
+  } catch(err){
 
-    
+    console.error(err);
+
+    tbody.innerHTML =
+      "<tr><td colspan='8' style='text-align:center;color:red;padding:20px;'>Gagal memuat log pesanan.</td></tr>";
+
+  }
+
 };
 
 window.deleteOrder = async (id) => {
