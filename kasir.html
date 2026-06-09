@@ -748,8 +748,12 @@ window.loadOrders = async () => {
     const snap = await getDocs(collection(db, "orders"));
     let list = [];
     snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    cachedOrders = list; 
+    console.log("cachedOrders", cachedOrders);
+    
     list.sort((a, b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
-    cachedOrders = list;
+    
+  
 
     if (list.length === 0) {
       tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Belum ada data pesanan terekam.</td></tr>";
@@ -883,16 +887,32 @@ window.updateOrderStatus = async (id, status) => {
   }
 };
 
-window.reprintOrder = (id) => {
+window.reprintOrder = async (id) => {
 
-  const order = cachedOrders.find(o => o.id === id);
+  try {
 
-  if(!order){
-    alert("Data pesanan tidak ditemukan");
-    return;
+    const snap = await getDoc(
+      doc(db, "orders", id)
+    );
+
+    if (!snap.exists()) {
+      alert("Pesanan tidak ditemukan");
+      return;
+    }
+
+    const order = {
+      id: snap.id,
+      ...snap.data()
+    };
+
+    cetakUlangPesanan(order);
+
+  } catch(err) {
+
+    console.error(err);
+    alert("Gagal mengambil data pesanan");
+
   }
-
-  cetakUlangPesanan(order);
 };
 
 function cetakUlangPesanan(order){
