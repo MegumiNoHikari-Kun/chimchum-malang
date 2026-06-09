@@ -740,7 +740,6 @@ window.submitKasirOrder = async () => {
 
 /* ── PESANAN MASUK ── */
 window.loadOrders = async () => {
-  let cachedOrders = [];
   const tbody = document.getElementById("orderTableBody");
   tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px; color:#aaa;'>Sedang menarik data...</td></tr>";
 
@@ -768,6 +767,7 @@ window.loadOrders = async () => {
     );
     
     cachedOrders = list;
+    console.log("CACHE:", cachedOrders);
     
     console.log(cachedOrders);
     console.log(
@@ -910,12 +910,14 @@ window.updateOrderStatus = async (id, status) => {
 
 window.reprintOrder = (id) => {
 
-  console.log("ID DITERIMA:", id);
-
   const order = cachedOrders.find(o => o.id === id);
 
-  console.log("HASIL:", order);
+  if (!order) {
+    alert("Data pesanan tidak ditemukan.");
+    return;
+  }
 
+  cetakUlangPesanan(order);
 };
 
 function cetakUlangPesanan(order){
