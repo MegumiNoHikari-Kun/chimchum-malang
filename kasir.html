@@ -747,11 +747,11 @@ window.loadOrders = async () => {
   try {
     const snap = await getDocs(collection(db, "orders"));
     let list = [];
-    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));    
+    list.sort((a, b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
+    
     cachedOrders = list; 
     console.log("cachedOrders", cachedOrders);
-    
-    list.sort((a, b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
     
   
 
