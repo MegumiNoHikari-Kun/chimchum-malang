@@ -753,8 +753,6 @@ window.loadOrders = async () => {
     // cachedOrders = list; 
     // console.log("cachedOrders", cachedOrders);
 
-    const snap = await getDocs(collection(db, "orders"));
-
     let list = [];
     
     snap.forEach(d => {
