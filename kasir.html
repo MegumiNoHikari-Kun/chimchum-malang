@@ -414,7 +414,7 @@ th { background: #fff1ea; font-weight: 600; }
 <script type="module">
 import {
   db, authReady, collection, getDocs,
-  addDoc, deleteDoc, updateDoc, doc, serverTimestamp,getDoc
+  addDoc, deleteDoc, updateDoc, doc, serverTimestamp
 } from './firebase.js';
 
 // ── SESSION GUARD ──
@@ -891,7 +891,7 @@ window.reprintOrder = async (id) => {
 
   try {
 
-    const snap = await getDoc(
+    const snap = await getDocs(
       doc(db, "orders", id)
     );
 
