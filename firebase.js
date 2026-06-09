@@ -3,7 +3,7 @@ import { initializeApp }      from 'https://www.gstatic.com/firebasejs/10.12.0/f
 import {
   getFirestore,
   collection, getDocs, addDoc, updateDoc, deleteDoc,
-  doc, serverTimestamp, query, orderBy, where
+  doc, serverTimestamp, query, orderBy, where,limit
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import {
   getAuth,
@@ -46,6 +46,6 @@ export const authReady = new Promise((resolve) => {
 export {
   db, auth,
   collection, getDocs, addDoc, updateDoc, deleteDoc,
-  doc, serverTimestamp, query, orderBy, where,
+  doc, serverTimestamp, query, orderBy, where,limit
   signInWithEmailAndPassword, signOut, onAuthStateChanged
 };
