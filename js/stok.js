@@ -32,31 +32,35 @@ function renderStokSummary() {
   const tipis  = state.stokData.filter(p => Number(p.stok) > 0 && Number(p.stok) <= 5).length;
   const aman   = total - habis - tipis;
 
-  summaryEl.innerHTML = `
-    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;background:#e8f4fd;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">📦</div>
-      <div><div style="font-size:24px;font-weight:700;">${total}</div><div style="font-size:13px;color:#666;">Total Produk</div></div>
+  const active = state.stokFilterStatus || '';
+
+  const cards = [
+    { key:'',      icon:'📦', bg:'#e8f4fd', value:total, color:'#222',    label:'Total Produk' },
+    { key:'aman',  icon:'✅', bg:'#e8faf0', value:aman,  color:'#27ae60', label:'Stok Aman' },
+    { key:'tipis', icon:'⚠️', bg:'#fef9e7', value:tipis, color:'#e67e22', label:'Stok Menipis' },
+    { key:'habis', icon:'❌', bg:'#fdf0ef', value:habis, color:'#e74c3c', label:'Stok Habis' }
+  ];
+
+  summaryEl.innerHTML = cards.map(c => `
+    <div onclick="window.setStokFilter('${c.key}')"
+      style="cursor:pointer; background:white; border-radius:12px; padding:18px; box-shadow:0 2px 10px rgba(0,0,0,.05); display:flex; align-items:center; gap:14px; border:2px solid ${active === c.key ? 'var(--primary)' : 'transparent'}; transition:0.15s;">
+      <div style="width:44px;height:44px;background:${c.bg};border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">${c.icon}</div>
+      <div><div style="font-size:24px;font-weight:700;color:${c.color};">${c.value}</div><div style="font-size:13px;color:#666;">${c.label}</div></div>
     </div>
-    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;background:#e8faf0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">✅</div>
-      <div><div style="font-size:24px;font-weight:700;color:#27ae60;">${aman}</div><div style="font-size:13px;color:#666;">Stok Aman</div></div>
-    </div>
-    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;background:#fef9e7;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">⚠️</div>
-      <div><div style="font-size:24px;font-weight:700;color:#e67e22;">${tipis}</div><div style="font-size:13px;color:#666;">Stok Menipis</div></div>
-    </div>
-    <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;background:#fdf0ef;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">❌</div>
-      <div><div style="font-size:24px;font-weight:700;color:#e74c3c;">${habis}</div><div style="font-size:13px;color:#666;">Stok Habis</div></div>
-    </div>
-  `;
+  `).join('');
 }
+
+window.setStokFilter = (key) => {
+  state.stokFilterStatus = state.stokFilterStatus === key ? '' : key;
+  renderStokSummary();
+  window.renderStokTable();
+};
 
 window.renderStokTable = () => {
   const stokBody = document.getElementById('stokTableBody');
   if (!stokBody) return;
 
-  const filterStatus = document.getElementById('stokFilterStatus')?.value || '';
+  const filterStatus = state.stokFilterStatus || '';
   const searchVal = (document.getElementById('stokSearch')?.value || '').toLowerCase();
 
   let list = state.stokData;
