@@ -279,9 +279,20 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
         <div><label style="font-size:13px; font-weight:500;">Nama Produk</label><input id="nama" placeholder="Contoh: Dimsum Mentai Premium"></div>
         <div><label style="font-size:13px; font-weight:500;">Kategori</label><input id="kategori" placeholder="Contoh: Mentai / Original / Frozen"></div>
         <div><label style="font-size:13px; font-weight:500;">Isi (Pcs / Pack)</label><input id="isi" placeholder="Contoh: 4"></div>
-        <div><label style="font-size:13px; font-weight:500;">Harga (Rp)</label><input id="harga" placeholder="Contoh: 15000"></div>
+        <div>
+            <label style="font-size:13px; font-weight:500;">Harga Jual (Rp)</label>
+            <input id="harga" placeholder="Contoh: 15000">
+        </div>
+
+        <div>
+            <label style="font-size:13px; font-weight:500;">HPP (Rp)</label>
+            <input id="hpp" placeholder="Contoh: 8000">
+        </div>
         <div><label style="font-size:13px; font-weight:500;">Stok Porsi</label><input id="stok" placeholder="Contoh: 50"></div>
-        <div><label style="font-size:13px; font-weight:500;">URL Link Foto</label><input id="foto" placeholder="https://link-foto.com/gambar.jpg"></div>
+        <div>
+            <label style="font-size:13px; font-weight:500;">Upload Foto Produk</label>
+            <input type="file" id="fotoFile" accept="image/*">
+        </div>
       </div>
       <label style="font-size:13px; font-weight:500;">Deskripsi Rasa / Menu</label>
       <textarea id="deskripsi" placeholder="Tulis deskripsi singkat produk di sini..." rows="2"></textarea>
@@ -488,13 +499,13 @@ const kasirMenuList = document.getElementById("kasirMenuList");
 const kasirCartItems = document.getElementById("kasirCartItems");
 
 let editId = null;
+let currentFotoUrl = ""; // Menyimpan URL foto lama saat edit
 let cachedProducts = []; 
 let kasirCart = {};      
-let currentKasirGrandTotal = 0; // Menyimpan hitungan total aktif untuk kalkulator cash
-
-/* ── STATE ── */
+let currentKasirGrandTotal = 0; 
 let cachedOrders = [];
 let currentOrderFilter = "all";
+
 /* HELPERS */
 function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
 
@@ -522,7 +533,7 @@ window.logoutAdmin = () => {
 
 /* LOAD PRODUCTS (TAB 1 & SYNC KASIR) */
 window.loadProducts = async () => {
-  tableBody.innerHTML = "<tr><td colspan='7'>Memuat produk...</td></tr>";
+  tableBody.innerHTML = "<tr><td colspan='8'>Memuat produk...</td></tr>";
   try {
     const snap = await getDocs(collection(db, "products"));
     tableBody.innerHTML = "";
@@ -536,15 +547,16 @@ window.loadProducts = async () => {
 
       tableBody.innerHTML += `
         <tr>
-          <td><img class="prod-img" src="${p.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://via.placeholder.com/60'"></td>
+          <td><img class="prod-img" style="width:60px; height:60px; object-fit:cover; border-radius:6px;" src="${p.foto || 'https://via.placeholder.com/60'}" onerror="this.src='https://via.placeholder.com/60'"></td>
           <td><b>${p.nama}</b></td>
           <td><span style="background:#fff1ea; padding:4px 8px; border-radius:6px; font-size:12px;">${p.kategori}</span></td>
           <td>${p.isi} pcs</td>
           <td style="color:var(--primary); font-weight:600">${rupiah(p.harga)}</td>
+          <td style="color:#64748b">${rupiah(p.hpp || 0)}</td>
           <td>${p.stok} porsi</td>
           <td>
             <div class="action-btns">
-              <button class="btn-edit" onclick="editProduct('${d.id}', \`${p.nama}\`, \`${p.kategori}\`, ${p.isi}, ${p.harga}, ${p.stok}, \`${p.foto}\`, \`${p.deskripsi || ''}\`)">
+              <button class="btn-edit" onclick="editProduct('${d.id}', \`${p.nama}\`, \`${p.kategori}\`, ${p.isi}, ${p.harga}, ${p.hpp || 0}, ${p.stok}, \`${p.foto || ''}\`, \`${p.deskripsi || ''}\`)">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
               <button class="btn-delete" onclick="deleteProduct('${d.id}')">
@@ -560,13 +572,14 @@ window.loadProducts = async () => {
     renderKasirMenu();
   } catch(err) {
     console.error("Error load products:", err);
-    tableBody.innerHTML = "<tr><td colspan='7'>Gagal memuat data produk.</td></tr>";
+    tableBody.innerHTML = "<tr><td colspan='8'>Gagal memuat data produk.</td></tr>";
   }
 };
 
 /* KONTROL DROPDOWN KATEGORI KASIR */
 function updateKasirKategoriDropdown(kategoriSet) {
   const kategoriSelect = document.getElementById('filterKategoriKasir');
+  if(!kategoriSelect) return;
   const daftarKategori = ['Semua', ...Array.from(kategoriSet).sort()];
   
   kategoriSelect.innerHTML = daftarKategori.map(k => `
@@ -576,37 +589,33 @@ function updateKasirKategoriDropdown(kategoriSet) {
 
 /* FUNGSI SEARCH & FILTER KASIR */
 function jalankanFilterKasir() {
-  const kataKunci = document.getElementById('searchMenuKasir').value.toLowerCase();
-  const kategoriTerpilih = document.getElementById('filterKategoriKasir').value;
+  const searchInput = document.getElementById('searchMenuKasir');
+  const filterSelect = document.getElementById('filterKategoriKasir');
+  if(!searchInput || !filterSelect) return;
+
+  const kataKunci = searchInput.value.toLowerCase();
+  const kategoriTerpilih = filterSelect.value;
   const semuaProduk = document.querySelectorAll('.kasir-item-card');
   
-  semuaProduk.forEach(card => {
+  sewaProduk.forEach(card => {
     const namaProduk = card.querySelector('h4').innerText.toLowerCase();
     const kategoriProduk = card.dataset.kategori || 'Umum';
     
     const cocokSearch = namaProduk.includes(kataKunci);
     const cocokKategori = (kategoriTerpilih === 'Semua') || (kategoriProduk === kategoriTerpilih);
     
-    if (cocokSearch && cocokKategori) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
+    card.style.display = (cocokSearch && cocokKategori) ? 'block' : 'none';
   });
 }
 
-document.getElementById('searchMenuKasir').addEventListener('input', jalankanFilterKasir);
-document.getElementById('filterKategoriKasir').addEventListener('change', jalankanFilterKasir);
+document.getElementById('searchMenuKasir')?.addEventListener('input', jalankanFilterKasir);
+document.getElementById('filterKategoriKasir')?.addEventListener('change', jalankanFilterKasir);
 
 /* ================= LOGIKA INTERAKTIF KASIR CASH & KEMBALIAN ================= */
 window.toggleCashSection = () => {
   const metode = document.getElementById("kasirMetodeBayar").value;
   const section = document.getElementById("sectionKalkulatorCash");
-  if (metode === "Cash") {
-    section.style.display = "block";
-  } else {
-    section.style.display = "none";
-  }
+  if(section) section.style.display = (metode === "Cash") ? "block" : "none";
   window.hitungKembalian();
 };
 
@@ -618,6 +627,8 @@ window.hitungKembalian = () => {
   const kembalian = uangBayar - currentKasirGrandTotal;
   const elKembalian = document.getElementById("kasirKembalian");
 
+  if(!elKembalian) return;
+
   if(uangBayar === 0) {
     elKembalian.innerText = "Rp 0";
     elKembalian.style.color = "var(--dark)";
@@ -626,7 +637,7 @@ window.hitungKembalian = () => {
     elKembalian.style.color = "red";
   } else {
     elKembalian.innerText = rupiah(kembalian);
-    elKembalian.style.color = "var(--success)";
+    elKembalian.style.color = "green";
   }
 };
 
@@ -645,26 +656,66 @@ const inpNama = document.getElementById("nama");
 const inpKategori = document.getElementById("kategori");
 const inpIsi = document.getElementById("isi");
 const inpHarga = document.getElementById("harga");
+const inpHpp = document.getElementById("hpp");
 const inpStok = document.getElementById("stok");
-const inpFoto = document.getElementById("foto");
+const inpFotoFile = document.getElementById("fotoFile");
 const inpDeskripsi = document.getElementById("deskripsi");
+
+// FUNGSI GITHUB UPLOAD VIA API
+async function uploadToGithub(file) {
+  const token = "TOKEN_GITHUB_ANDA"; // Ganti dengan token GitHub Anda
+  const repo = "USERNAME/REPO";     // Ganti dengan username/repo Anda
+
+  const fileName = `assets/${Date.now()}-${file.name}`;
+  const content = await file.arrayBuffer();
+  const base64 = btoa(
+    new Uint8Array(content).reduce((data, byte) => data + String.fromCharCode(byte), '')
+  );
+
+  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${fileName}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: `upload ${file.name}`,
+      content: base64
+    })
+  });
+
+  if (!response.ok) throw new Error("Gagal mengupload gambar ke GitHub API.");
+  return `https://cdn.jsdelivr.net/gh/${repo}@main/${fileName}`;
+}
 
 /* CREATE / UPDATE PRODUCT */
 window.saveProduct = async () => {
   if(!inpNama.value || !inpHarga.value) { alert("Nama dan Harga produk wajib diisi!"); return; }
 
-  const data = {
-    nama: inpNama.value.trim(),
-    kategori: inpKategori.value.trim() || 'Umum',
-    isi: Number(inpIsi.value) || 0,
-    harga: Number(inpHarga.value) || 0,
-    stok: Number(inpStok.value) || 0,
-    deskripsi: inpDeskripsi.value.trim(),
-    foto: inpFoto.value.trim(),
-    aktif: true
-  };
+  const btnSimpan = document.querySelector(".btn-primary");
+  btnSimpan.disabled = true;
+  btnSimpan.innerHTML = "Menyimpan...";
 
   try {
+    let fotoUrl = currentFotoUrl;
+
+    // Jika user memilih file gambar baru, upload dulu ke GitHub
+    if (inpFotoFile.files && inpFotoFile.files[0]) {
+      fotoUrl = await uploadToGithub(inpFotoFile.files[0]);
+    }
+
+    const data = {
+      nama: inpNama.value.trim(),
+      kategori: inpKategori.value.trim() || 'Umum',
+      isi: Number(inpIsi.value) || 0,
+      harga: Number(inpHarga.value) || 0,
+      hpp: Number(inpHpp.value) || 0,
+      stok: Number(inpStok.value) || 0,
+      deskripsi: inpDeskripsi.value.trim(),
+      foto: fotoUrl,
+      aktif: true
+    };
+
     if(editId){
       await updateDoc(doc(db, "products", editId), data);
       alert("Produk berhasil diupdate!");
@@ -677,7 +728,10 @@ window.saveProduct = async () => {
     loadProducts();
   } catch(err) {
     console.error(err);
-    alert("Gagal menyimpan produk.");
+    alert("Gagal menyimpan produk: " + err.message);
+  } finally {
+    btnSimpan.disabled = false;
+    btnSimpan.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Informasi Produk`;
   }
 };
 
@@ -691,227 +745,91 @@ window.deleteProduct = async (id) => {
 };
 
 /* EDIT MODE INJECTOR */
-window.editProduct = (id, n, k, i, h, s, f, d) => {
+window.editProduct = (id, n, k, i, h, hpp, s, f, d) => {
   editId = id;
   inpNama.value = n;
   inpKategori.value = k;
   inpIsi.value = i;
   inpHarga.value = h;
+  inpHpp.value = hpp;
   inpStok.value = s;
-  inpFoto.value = f;
+  currentFotoUrl = f; // Simpan URL yang sudah ada
   inpDeskripsi.value = d;
   document.getElementById("nama").scrollIntoView({ behavior: 'smooth' });
 };
 
 function clearForm(){
   inpNama.value = ""; inpKategori.value = ""; inpIsi.value = "";
-  inpHarga.value = ""; inpStok.value = ""; inpFoto.value = ""; inpDeskripsi.value = "";
+  inpHarga.value = ""; inpHpp.value = ""; inpStok.value = ""; 
+  inpFotoFile.value = ""; inpDeskripsi.value = "";
+  editId = null; currentFotoUrl = "";
 }
 
 // ======================= DATA MONITOR TAB PESANAN =======================
-
 function renderOrderSummary(list){
-
   const summaryEl = document.getElementById("orderSummary");
+  if(!summaryEl) return;
 
-  const counts = {
-    all: list.length,
-    new: 0,
-    diproses: 0,
-    selesai: 0,
-    dibatalkan: 0
-  };
-
+  const counts = { all: list.length, new: 0, diproses: 0, selesai: 0, dibatalkan: 0 };
   list.forEach(order => {
     const status = order.status || "new";
-
-    if(counts[status] !== undefined){
-      counts[status]++;
-    }
+    if(counts[status] !== undefined) counts[status]++;
   });
 
   const cards = [
-    {
-      key:"all",
-      title:"Total Pesanan",
-      value:counts.all,
-      color:"#34495e"
-    },
-    {
-      key:"new",
-      title:"Pesanan Baru",
-      value:counts.new,
-      color:"#d35400"
-    },
-    {
-      key:"diproses",
-      title:"Sedang Diproses",
-      value:counts.diproses,
-      color:"#2980b9"
-    },
-    {
-      key:"selesai",
-      title:"Pesanan Selesai",
-      value:counts.selesai,
-      color:"#27ae60"
-    },
-    {
-      key:"dibatalkan",
-      title:"Dibatalkan",
-      value:counts.dibatalkan,
-      color:"#e74c3c"
-    }
+    { key:"all", title:"Total Pesanan", value:counts.all, color:"#34495e" },
+    { key:"new", title:"Pesanan Baru", value:counts.new, color:"#d35400" },
+    { key:"diproses", title:"Sedang Diproses", value:counts.diproses, color:"#2980b9" },
+    { key:"selesai", title:"Pesanan Selesai", value:counts.selesai, color:"#27ae60" },
+    { key:"dibatalkan", title:"Dibatalkan", value:counts.dibatalkan, color:"#e74c3c" }
   ];
 
   summaryEl.innerHTML = cards.map(card => `
-    <div
-      onclick="filterOrders('${card.key}')"
-      style="
-        cursor:pointer;
-        background:white;
-        padding:15px;
-        border-radius:12px;
-        box-shadow:0 2px 10px rgba(0,0,0,.05);
-        border:3px solid ${
-          currentOrderFilter === card.key
-          ? card.color
-          : 'transparent'
-        };
-      ">
-      <div style="font-size:13px;color:#666;">
-        ${card.title}
-      </div>
-
-      <div style="
-        font-size:28px;
-        font-weight:700;
-        color:${card.color};
-      ">
-        ${card.value}
-      </div>
+    <div onclick="filterOrders('${card.key}')" style="cursor:pointer; background:white; padding:15px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.05); border:3px solid ${currentOrderFilter === card.key ? card.color : 'transparent'};">
+      <div style="font-size:13px;color:#666;">${card.title}</div>
+      <div style="font-size:28px; font-weight:700; color:${card.color};">${card.value}</div>
     </div>
   `).join('');
 }
 
 window.filterOrders = (status) => {
   currentOrderFilter = status;
-  renderOrdersTable();
-};
-
-window.filterOrders = (status) => {
-  currentOrderFilter = status;
-
   renderOrderSummary(cachedOrders);
   renderOrdersTable();
 };
 
 function renderOrdersTable(){
-
   const tbody = document.getElementById("orderTableBody");
+  if(!tbody) return;
 
   let list = [...cachedOrders];
-
-  if(currentOrderFilter !== "all"){
-    list = list.filter(
-      o => (o.status || "new") === currentOrderFilter
-    );
+  if(currentOrderFilter !== "all") {
+    list = list.filter(o => (o.status || "new") === currentOrderFilter);
   }
 
   if(list.length === 0){
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8"
-            style="text-align:center;padding:20px;color:#aaa;">
-          Tidak ada data.
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:20px;color:#aaa;">Tidak ada data.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = list.map(o => {
-
-    const tgl = o.created_at
-      ? new Date(o.created_at.seconds * 1000)
-          .toLocaleString('id-ID')
-      : '-';
-
-    const itemStr = Array.isArray(o.items)
-      ? o.items.map(i =>
-          `<span style="display:block;font-size:13px;">
-            📌 ${i.nama} <b>(${i.qty}x)</b>
-          </span>`
-        ).join('')
+    const tgl = o.created_at ? new Date(o.created_at.seconds * 1000).toLocaleString('id-ID') : '-';
+    const itemStr = Array.isArray(o.items) 
+      ? o.items.map(i => `<span style="display:block;font-size:13px;">📌 ${i.nama} <b>(${i.qty}x)</b></span>`).join('')
       : "<span style='color:red;'>Format pesanan lama</span>";
 
-    const labelTipe = o.payment_method
-      ? `${o.address || '-'} <br>
-         <b style="color:var(--primary)">
-           [${o.payment_method}]
-         </b>`
-      : (o.address || '-');
-
-    const waLink =
-      (o.phone && o.phone !== '-')
-      ? `<a href="https://wa.me/${o.phone}"
-            target="_blank"
-            style="color:var(--primary);font-weight:600;">
-            <i class="fa-brands fa-whatsapp"></i>
-            ${o.phone}
-         </a>`
-      : '-';
-
+    const labelTipe = o.payment_method ? `${o.address || '-'} <br><b style="color:var(--primary)">[${o.payment_method}]</b>` : (o.address || '-');
+    const waLink = (o.phone && o.phone !== '-') ? `<a href="https://wa.me/${o.phone}" target="_blank" style="color:var(--primary);font-weight:600;"><i class="fa-brands fa-whatsapp"></i> ${o.phone}</a>` : '-';
     const status = o.status || "new";
 
-    let statusBadge = `
-      <span style="
-        padding:5px 10px;
-        border-radius:20px;
-        font-size:12px;
-        font-weight:600;
-        background:#ffe8cc;
-        color:#d35400;">
-        NEW
-      </span>`;
-
-    if(status === "diproses"){
-      statusBadge = `
-      <span style="
-        padding:5px 10px;
-        border-radius:20px;
-        font-size:12px;
-        font-weight:600;
-        background:#d6ecff;
-        color:#2980b9;">
-        DIPROSES
-      </span>`;
-    }
-
-    if(status === "selesai"){
-      statusBadge = `
-      <span style="
-        padding:5px 10px;
-        border-radius:20px;
-        font-size:12px;
-        font-weight:600;
-        background:#d4f5dd;
-        color:#27ae60;">
-        SELESAI
-      </span>`;
-    }
-
-    if(status === "dibatalkan"){
-      statusBadge = `
-      <span style="
-        padding:5px 10px;
-        border-radius:20px;
-        font-size:12px;
-        font-weight:600;
-        background:#ffdede;
-        color:#e74c3c;">
-        DIBATALKAN
-      </span>`;
-    }
+    let statusStyles = {
+      new: { bg: '#ffe8cc', clr: '#d35400', txt: 'NEW' },
+      diproses: { bg: '#d6ecff', clr: '#2980b9', txt: 'DIPROSES' },
+      selesai: { bg: '#d4f5dd', clr: '#27ae60', txt: 'SELESAI' },
+      dibatalkan: { bg: '#ffdede', clr: '#e74c3c', txt: 'DIBATALKAN' }
+    };
+    const currentStyle = statusStyles[status] || statusStyles.new;
+    const statusBadge = `<span style="padding:5px 10px; border-radius:20px; font-size:12px; font-weight:600; background:${currentStyle.bg}; color:${currentStyle.clr};">${currentStyle.txt}</span>`;
 
     return `
       <tr>
@@ -921,92 +839,37 @@ function renderOrdersTable(){
         <td><span style="font-size:13px;">${labelTipe}</span></td>
         <td>${statusBadge}</td>
         <td>${itemStr}</td>
-        <td style="color:var(--success);font-weight:700;">
-          ${rupiah(o.grand_total || 0)}
-        </td>
+        <td style="color:var(--success);font-weight:700;">${rupiah(o.grand_total || 0)}</td>
         <td>
-
           <select onchange="updateOrderStatus('${o.id}', this.value)">
-            <option value="new"
-              ${status==='new'?'selected':''}>
-              New
-            </option>
-
-            <option value="diproses"
-              ${status==='diproses'?'selected':''}>
-              Diproses
-            </option>
-
-            <option value="selesai"
-              ${status==='selesai'?'selected':''}>
-              Selesai
-            </option>
-
-            <option value="dibatalkan"
-              ${status==='dibatalkan'?'selected':''}>
-              Dibatalkan
-            </option>
+            <option value="new" ${status==='new'?'selected':''}>New</option>
+            <option value="diproses" ${status==='diproses'?'selected':''}>Diproses</option>
+            <option value="selesai" ${status==='selesai'?'selected':''}>Selesai</option>
+            <option value="dibatalkan" ${status==='dibatalkan'?'selected':''}>Dibatalkan</option>
           </select>
-
-          <button onclick="reprintOrder('${o.id}')">
-            🖨️
-          </button>
-
-          <button class="btn-delete"
-                  onclick="deleteOrder('${o.id}')">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-
+          <button onclick="reprintOrder('${o.id}')">🖨️</button>
+          <button class="btn-delete" onclick="deleteOrder('${o.id}')"><i class="fa-solid fa-trash-can"></i></button>
         </td>
       </tr>
     `;
-
   }).join('');
 }
 
 window.loadOrders = async () => {
-
-  const tbody = document.getElementById("orderTableBody");
-
-  tbody.innerHTML =
-    "<tr><td colspan='8' style='text-align:center;padding:20px;color:#aaa;'>Sedang menarik data...</td></tr>";
-
+  if(!orderTableBody) return;
+  orderTableBody.innerHTML = "<tr><td colspan='8' style='text-align:center;padding:20px;color:#aaa;'>Sedang menarik data...</td></tr>";
   try {
-
-    const snap = await getDocs(
-      collection(db, "orders")
-    );
-
+    const snap = await getDocs(collection(db, "orders"));
     let list = [];
-
-    snap.forEach(d => {
-      list.push({
-        id: d.id,
-        ...d.data()
-      });
-    });
-
-    list.sort(
-      (a,b)=>
-      (b.created_at?.seconds || 0)
-      -
-      (a.created_at?.seconds || 0)
-    );
-
+    snap.forEach(d => { list.push({ id: d.id, ...d.data() }); });
+    list.sort((a,b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
     cachedOrders = list;
-
     renderOrderSummary(cachedOrders);
     renderOrdersTable();
-
   } catch(err){
-
     console.error(err);
-
-    tbody.innerHTML =
-      "<tr><td colspan='8' style='text-align:center;color:red;padding:20px;'>Gagal memuat log pesanan.</td></tr>";
-
+    orderTableBody.innerHTML = "<tr><td colspan='8' style='text-align:center;color:red;padding:20px;'>Gagal memuat log pesanan.</td></tr>";
   }
-
 };
 
 window.deleteOrder = async (id) => {
@@ -1019,12 +882,8 @@ window.deleteOrder = async (id) => {
 
 window.updateOrderStatus = async (id, status) => {
   try {
-    await updateDoc(doc(db, "orders", id), {
-      status: status
-    });
-
+    await updateDoc(doc(db, "orders", id), { status: status });
     await loadOrders();
-
   } catch(err){
     console.error(err);
     alert("Gagal update status");
@@ -1032,19 +891,12 @@ window.updateOrderStatus = async (id, status) => {
 };
 
 window.reprintOrder = (id) => {
-
   const order = cachedOrders.find(o => o.id === id);
-
-  if (!order) {
-    alert("Data pesanan tidak ditemukan.");
-    return;
-  }
-
+  if (!order) { alert("Data pesanan tidak ditemukan."); return; }
   cetakUlangPesanan(order);
 };
 
 function cetakUlangPesanan(order){
-
   const itemsHtml = order.items.map(i => `
     <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
       <span>${i.nama} x${i.qty}</span>
@@ -1053,68 +905,41 @@ function cetakUlangPesanan(order){
   `).join('');
 
   const printWindow = window.open('', '_blank', 'width=350,height=700');
-
   printWindow.document.write(`
     <html>
     <head>
       <title>Reprint Pesanan</title>
       <style>
-        body{
-          font-family:Courier New;
-          width:280px;
-          padding:10px;
-        }
-        .line{
-          border-top:1px dashed #000;
-          margin:8px 0;
-        }
+        body{ font-family:Courier New; width:280px; padding:10px; }
+        .line{ border-top:1px dashed #000; margin:8px 0; }
       </style>
     </head>
     <body>
-  
-      <h3 style="text-align:center;">
-        CHIMCHUM MALANG
-      </h3>
-  
+      <h3 style="text-align:center;">CHIMCHUM MALANG</h3>
       <div class="line"></div>
-  
       <p>
         Pelanggan : ${order.customer_name}<br>
         WA : ${order.phone}<br>
         Status : ${(order.status || 'new').toUpperCase()}
       </p>
-  
       <div class="line"></div>
-  
       ${itemsHtml}
-  
       <div class="line"></div>
-  
       <b>Total : ${rupiah(order.grand_total)}</b>
-  
       <div class="line"></div>
-  
-      <center>
-        REPRINT PESANAN
-      </center>
-  
+      <center>REPRINT PESANAN</center>
       <script>
-        window.onload=function(){
-          window.print();
-          setTimeout(()=>window.close(),300);
-        }
+        window.onload=function(){ window.print(); setTimeout(()=>window.close(),300); }
       <\/script>
-  
     </body>
     </html>
-    `);
-  
-    printWindow.document.close();
-  }
+  `);
+  printWindow.document.close();
+}
 
 // ======================= LOGIKA TAB 3: KASIR DINE-IN =======================
-renderKasirMenu();
 function renderKasirMenu() {
+  if(!kasirMenuList) return;
   kasirMenuList.innerHTML = "";
   if(cachedProducts.length === 0) {
     kasirMenuList.innerHTML = "<p>Produk tidak ditemukan. Refresh Page / Klik Kelola Produk.</p>";
@@ -1127,11 +952,8 @@ function renderKasirMenu() {
     const stokClr = habis ? '#e74c3c' : stok <= 5 ? '#e67e22' : '#27ae60';
 
     kasirMenuList.innerHTML += `
-      <div class="kasir-item-card"
-           data-kategori="${p.kategori || 'Umum'}"
-           style="${habis ? 'opacity:.45;pointer-events:none;' : ''}"
-           onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga}, ${stok})">
-        <img src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
+      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" style="${habis ? 'opacity:.45;pointer-events:none;' : ''}" onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga}, ${stok})">
+        <img style="width:100%; height:120px; object-fit:cover; border-radius:8px;" src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
         <h4>${p.nama}</h4>
         <p>${rupiah(p.harga)}</p>
         <span style="font-size:11px;font-weight:600;color:${stokClr};">${stokTxt}</span>
@@ -1148,7 +970,6 @@ window.addToKasirCart = (id, nama, harga, stok) => {
     alert(`Stok ${nama} hanya ${stokMax} porsi, sudah penuh di struk.`);
     return;
   }
-
   if (kasirCart[id]) { kasirCart[id].qty++; }
   else { kasirCart[id] = { id, nama, harga, qty: 1, stok: stokMax }; }
   updateKasirCartUI();
@@ -1169,6 +990,7 @@ window.changeKasirQty = (id, delta) => {
 };
 
 function updateKasirCartUI() {
+  if(!kasirCartItems) return;
   const items = Object.values(kasirCart);
   if (items.length === 0) {
     kasirCartItems.innerHTML = `<p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>`;
@@ -1183,8 +1005,8 @@ function updateKasirCartUI() {
     const totalItemHarga = item.qty * item.harga;
     grandTotal += totalItemHarga;
     return `
-      <div class="receipt-item">
-        <div style="max-width: 60%;">
+      <div class="receipt-item" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+        <div style="max-width: 50%;">
           <div style="font-weight:600; font-size:13px;">${item.nama}</div>
           <div style="font-size:11px; color:var(--gray);">${rupiah(item.harga)}</div>
         </div>
@@ -1204,7 +1026,6 @@ function updateKasirCartUI() {
   renderKasirMenu();
 }
 
-/* FUNGSI CETAK STRUK PRINTER THERMAL (58mm/80mm) */
 function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian) {
   const printWindow = window.open('', '_blank', 'width=350,height=600');
   const tgl = new Date().toLocaleString('id-ID');
@@ -1226,33 +1047,25 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, 
         .text-center { text-align: center; }
         .line { border-top: 1px dashed #000; margin: 8px 0; }
         .bold { font-weight: bold; }
-        .logo-container img { width: 65px; height: 65px; margin-bottom: 5px; }
       </style>
     </head>
     <body>
-      <div class="text-center logo-container">
-        <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg" alt="Logo">
-      </div>
       <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div>
       <div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div>
       <div class="line"></div>
-      
       <div style="font-size:11px; line-height:1.4;">
         Waktu  : ${tgl}<br>
         Meja   : ${noMeja}<br>
         No HP  : ${waPelanggan || '-'}
       </div>
       <div class="line"></div>
-      
       ${itemsHtml}
       <div class="line"></div>
-      
       <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:3px;" class="bold">
         <span>TOTAL TAGIHAN:</span>
         <span>${rupiah(grandTotal)}</span>
       </div>
       <div class="line"></div>
-      
       <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
         <span>Metode Bayar:</span>
         <span class="bold">${metodeBayar}</span>
@@ -1266,13 +1079,9 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, 
         <span class="bold">${rupiah(kembalian)}</span>
       </div>
       <div class="line"></div>
-      
       <div class="text-center" style="font-size:11px; margin-top:12px;">Terima Kasih Atas Kunjungan Anda!</div>
       <script>
-        window.onload = function() {
-          window.print();
-          setTimeout(function() { window.close(); }, 300);
-        }
+        window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 300); }
       <\/script>
     </body>
     </html>
@@ -1280,9 +1089,7 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, 
   printWindow.document.close();
 }
 
-/* SUBMIT TRANSAKSI KASIR */
 window.submitKasirOrder = async () => {
-  renderKasirMenu();
   const items = Object.values(kasirCart);
   if(items.length === 0) { alert("Struk kasir kosong! Pilih menu terlebih dahulu."); return; }
   
@@ -1291,13 +1098,12 @@ window.submitKasirOrder = async () => {
 
   const waPelanggan = document.getElementById("kasirWaPelanggan").value.trim();
   const metodeBayar = document.getElementById("kasirMetodeBayar").value;
-  const statusPrint = document.getElementById("printStrukCheck").checked;
+  const statusPrint = document.getElementById("printStrukCheck")?.checked;
   const grandTotal = items.reduce((total, item) => total + (item.qty * item.harga), 0);
 
   let uangBayar = grandTotal;
   let kembalian = 0;
 
-  // Validasi khusus pembayaran cash tunai
   if (metodeBayar === "Cash") {
     uangBayar = Number(document.getElementById("kasirUangBayar").value) || 0;
     if (uangBayar < grandTotal) {
@@ -1308,7 +1114,6 @@ window.submitKasirOrder = async () => {
   }
 
   try {
-    // 1. Simpan order ke Firestore
     await addDoc(collection(db, "orders"), {
       customer_name: "Dine-In (" + noMeja + ")",
       phone: waPelanggan || "-", 
@@ -1321,7 +1126,6 @@ window.submitKasirOrder = async () => {
       created_at: serverTimestamp()
     });
 
-    // 2. Kurangi stok setiap produk yang dipesan
     await Promise.all(
       items.map(i =>
         updateDoc(doc(db, "products", i.id), {
@@ -1332,12 +1136,10 @@ window.submitKasirOrder = async () => {
 
     alert("🎉 Transaksi Kasir Berhasil Disimpan!");
 
-    // Jalankan sistem cetak jika dicentang
     if (statusPrint) {
       cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, uangBayar, kembalian);
     }
 
-    // Reset Data Formulir POS Kasir kembali ke default semula
     kasirCart = {};
     document.getElementById("kasirNomorMeja").value = "";
     document.getElementById("kasirWaPelanggan").value = "";
@@ -1345,8 +1147,6 @@ window.submitKasirOrder = async () => {
     document.getElementById("kasirMetodeBayar").value = "Cash";
     window.toggleCashSection();
     updateKasirCartUI();
-
-    // Reload produk agar stok ter-update di kartu menu kasir
     await loadProducts();
     
   } catch(err) {
@@ -1358,20 +1158,20 @@ window.submitKasirOrder = async () => {
 // ══════════════════════════════════════════════════════════════
 // MONITORING STOK
 // ══════════════════════════════════════════════════════════════
-let stokData = []; // cache untuk filter/search
+let stokData = []; 
 
 window.loadStokMonitor = async () => {
-  document.getElementById('stokTableBody').innerHTML =
-    '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:30px;">Memuat data...</td></tr>';
+  const stokBody = document.getElementById('stokTableBody');
+  if(!stokBody) return;
+  stokBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:30px;">Memuat data...</td></tr>';
   try {
     const snap = await getDocs(collection(db, 'products'));
-    stokData = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
+    stokData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderStokSummary();
     renderStokTable();
   } catch(e) {
     console.error(e);
-    document.getElementById('stokTableBody').innerHTML =
-      '<tr><td colspan="6" style="text-align:center;color:red;">Gagal memuat stok.</td></tr>';
+    stokBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:red;">Gagal memuat stok.</td></tr>';
   }
 };
 
@@ -1383,12 +1183,14 @@ function stokStatus(stok) {
 }
 
 function renderStokSummary() {
+  const summaryEl = document.getElementById('stokSummary');
+  if(!summaryEl) return;
   const total  = stokData.length;
   const habis  = stokData.filter(p => Number(p.stok) <= 0).length;
   const tipis  = stokData.filter(p => Number(p.stok) > 0 && Number(p.stok) <= 5).length;
   const aman   = total - habis - tipis;
 
-  document.getElementById('stokSummary').innerHTML = `
+  summaryEl.innerHTML = `
     <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;background:#e8f4fd;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">📦</div>
       <div><div style="font-size:24px;font-weight:700;">${total}</div><div style="font-size:13px;color:#666;">Total Produk</div></div>
@@ -1404,90 +1206,32 @@ function renderStokSummary() {
     <div style="background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;background:#fdf0ef;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">❌</div>
       <div><div style="font-size:24px;font-weight:700;color:#e74c3c;">${habis}</div><div style="font-size:13px;color:#666;">Stok Habis</div></div>
-    </div>`;
+    </div>
+  `;
 }
 
-window.renderStokTable = () => {
-  const filterStatus = document.getElementById('stokFilterStatus')?.value || '';
-  const search       = (document.getElementById('stokSearch')?.value || '').toLowerCase();
+function renderStokTable() {
+  const stokBody = document.getElementById('stokTableBody');
+  if(!stokBody) return;
+  if(stokData.length === 0) {
+    stokBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#aaa;">Tidak ada data produk.</td></tr>';
+    return;
+  }
+  stokBody.innerHTML = stokData.map(p => {
+    const status = stokStatus(p.stok);
+    return `
+      <tr>
+        <td><b>${p.nama}</b></td>
+        <td><span style="background:#f1f5f9; padding:4px 8px; border-radius:6px; font-size:12px;">${p.kategori || 'Umum'}</span></td>
+        <td style="font-weight: 700;">${p.stok} Porsi</td>
+        <td><span style="padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600; background:${status.bg}; color:${status.color};">${status.label}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
 
-  const list = stokData.filter(p => {
-    const st = stokStatus(p.stok);
-    const matchStatus = !filterStatus || st.key === filterStatus;
-    const matchSearch = !search || (p.nama||'').toLowerCase().includes(search) || (p.kategori||'').toLowerCase().includes(search);
-    return matchStatus && matchSearch;
-  });
-
-  // Sort: habis dulu, lalu tipis, lalu aman
-  list.sort((a,b) => Number(a.stok||0) - Number(b.stok||0));
-
-  const tbody = document.getElementById('stokTableBody');
-  tbody.innerHTML = list.length === 0
-    ? '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:30px;">Tidak ada produk ditemukan.</td></tr>'
-    : list.map(p => {
-        const st   = stokStatus(p.stok);
-        const stok = Number(p.stok) || 0;
-        return `<tr>
-          <td><img class="prod-img" src="${p.foto||'https://via.placeholder.com/50'}"
-               onerror="this.src='https://via.placeholder.com/50'"></td>
-          <td><b>${p.nama||'—'}</b></td>
-          <td><span style="background:#fff1ea;padding:4px 8px;border-radius:6px;font-size:12px;">${p.kategori||'—'}</span></td>
-          <td>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <!-- progress bar -->
-              <div style="flex:1;max-width:100px;height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;">
-                <div style="height:100%;width:${Math.min(100, stok * 2)}%;background:${st.color};border-radius:4px;transition:.3s;"></div>
-              </div>
-              <span style="font-weight:700;font-size:15px;">${stok}</span>
-              <span style="font-size:12px;color:#aaa;">porsi</span>
-            </div>
-          </td>
-          <td>
-            <span style="background:${st.bg};color:${st.color};padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">
-              ${st.label}
-            </span>
-          </td>
-          <td>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <button onclick="stokDecrement('${p._id}')"
-                      style="
-                        width:30px;
-                        height:30px;
-                        border:none;
-                        background:#f0f0f0;
-                        border-radius:6px;
-                        cursor:pointer;
-                        font-size:16px;
-                        font-weight:700;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                ">−</button>
-              <input type="number" value="${stok}" min="0"
-                style="width:60px;padding:5px;text-align:center;border:1px solid #ddd;border-radius:6px;font-weight:700;margin:0;"
-                id="stok-inp-${p._id}" onchange="stokManualUpdate('${p._id}', this.value)">
-              <button onclick="stokIncrement('${p._id}')"
-                style="
-                        width:30px;
-                        height:30px;
-                        border:none;
-                        background:#ff6b35;
-                        border-radius:6px;
-                        cursor:pointer;
-                        font-size:16px;
-                        font-weight:700;
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;">+</button>
-              <button onclick="stokSave('${p._id}')"
-                style="padding:5px 12px;background:var(--success);color:white;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
-                Simpan
-              </button>
-            </div>
-          </td>
-        </tr>`;
-      }).join('');
-};
+// Inisialisasi awal saat script dimuat pertama kali
+window.loadProducts();
 
 // Edit stok inline
 window.stokDecrement = (id) => {
