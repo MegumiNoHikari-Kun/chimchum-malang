@@ -97,9 +97,10 @@ window.renderKasirMenu = () => {
     const stokClr = habis ? '#e74c3c' : stok <= 5 ? '#e67e22' : '#27ae60';
 
     kasirMenuList.innerHTML += `
-      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" style="${habis ? 'opacity:.45;pointer-events:none;' : ''}" onclick="window.addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga}, ${stok}, ${Number(p.hpp) || 0})">
+      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" style="${habis ? 'opacity:.45;pointer-events:none;' : ''}" onclick="window.addToKasirCart('${p.id}', \`${p.nama}-${p.isi}\`, ${p.harga}, ${stok}, ${Number(p.hpp) || 0})">
         <img style="width:100%; height:120px; object-fit:cover; border-radius:8px;" src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
         <h4>${p.nama}</h4>
+        <p>${p.isi)}</p>
         <p>${rupiah(p.harga)}</p>
         <span style="font-size:11px;font-weight:600;color:${stokClr};">${stokTxt}</span>
       </div>
