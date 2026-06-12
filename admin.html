@@ -665,7 +665,7 @@ const inpDeskripsi = document.getElementById("deskripsi");
 // FUNGSI GITHUB UPLOAD VIA API
 async function uploadToGithub(file) {
   const token = "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"; // Ganti dengan token GitHub Anda
-  const repo = "MegumiNoHikari-Kun/chimchum-malang/assets";     // Ganti dengan username/repo Anda
+  const repo = "MegumiNoHikari-Kun/chimchum-malang";     // Ganti dengan username/repo Anda
 
   const fileName = `assets/${Date.now()}-${file.name}`;
   const content = await file.arrayBuffer();
@@ -673,7 +673,7 @@ async function uploadToGithub(file) {
     new Uint8Array(content).reduce((data, byte) => data + String.fromCharCode(byte), '')
   );
 
-  const response = await fetch(`https://api.github.com/repos/${repo}/contents/${fileName}`, {
+  const response = await fetch(`https://api.github.com/repos/${repo}/contents/assets/${fileName}`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
