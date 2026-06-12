@@ -473,22 +473,18 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
   <!-- ── TAB MONITORING STOK ── -->
   <div id="tab-stok" class="tab-content">
 
-    <!-- Summary cards -->
+    <!-- Summary cards (klik untuk filter) -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px;" id="stokSummary"></div>
-
-    <!-- Filter + Search -->
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
-      <select id="stokFilterStatus" onchange="window.renderStokTable()"
-        style="padding:9px 14px;border:1px solid #ddd;border-radius:8px;outline:none;font-family:'Poppins',sans-serif;background:white;cursor:pointer;">
-        <option value="">Semua Status</option>
-        <option value="aman">✓ Aman</option>
-        <option value="tipis">⚠ Menipis</option>
-        <option value="habis">✕ Habis</option>
-      </select>
-      <input id="stokSearch" placeholder="🔍 Cari produk..." oninput="window.renderStokTable()"
-        style="padding:9px 14px;border:1px solid #ddd;border-radius:8px;outline:none;font-family:'Poppins',sans-serif;flex:1;min-width:180px;">
+    
+    <!-- Search + Refresh -->
+    <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;">
+      <div style="flex:1; position:relative;">
+        <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#aaa; font-size:13px;"></i>
+        <input id="stokSearch" placeholder="Cari produk..." oninput="window.renderStokTable()"
+          style="width:100%; padding:10px 14px 10px 36px; border:1px solid #ddd; border-radius:8px; outline:none; font-family:'Poppins',sans-serif; margin:0;">
+      </div>
       <button onclick="window.loadStokMonitor()"
-        style="padding:9px 18px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">
+        style="padding:10px 16px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap;">
         <i class="fa-solid fa-rotate-right"></i> Refresh
       </button>
     </div>
