@@ -511,6 +511,60 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
     </div>
   </div>
 
+  <!-- ── TAB LAPORAN KEUANGAN ── -->
+<div id="tab-laporan" class="tab-content">
+
+  <!-- Filter tanggal -->
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;align-items:end;background:white;padding:16px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.04);">
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:4px;">Dari Tanggal</label>
+      <input type="date" id="laporanTglMulai" style="padding:9px 12px;border:1px solid #ddd;border-radius:8px;outline:none;margin:0;">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:4px;">Sampai Tanggal</label>
+      <input type="date" id="laporanTglAkhir" style="padding:9px 12px;border:1px solid #ddd;border-radius:8px;outline:none;margin:0;">
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="window.setLaporanRange(7)" style="padding:9px 14px;background:#f1f2f6;color:#222;border:none;border-radius:8px;font-weight:600;cursor:pointer;">7 Hari</button>
+      <button onclick="window.setLaporanRange(30)" style="padding:9px 14px;background:#f1f2f6;color:#222;border:none;border-radius:8px;font-weight:600;cursor:pointer;">30 Hari</button>
+      <button onclick="window.loadLaporanKeuangan()" style="padding:9px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;">
+        <i class="fa-solid fa-magnifying-glass-chart"></i> Tampilkan
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px;" id="laporanSummary"></div>
+
+  <!-- Chart -->
+  <div class="card">
+    <h3><i class="fa-solid fa-chart-column"></i> Grafik Pemasukan vs HPP vs Profit (Harian)</h3>
+    <div style="position:relative; height:340px; margin-top:10px;">
+      <canvas id="laporanChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Tabel rincian harian -->
+  <div style="overflow-x:auto;margin-top:20px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Jumlah Transaksi</th>
+          <th>Omzet (Pemasukan)</th>
+          <th>HPP (Pengeluaran)</th>
+          <th>Profit</th>
+          <th>Margin</th>
+        </tr>
+      </thead>
+      <tbody id="laporanTableBody">
+        <tr><td colspan="6" style="text-align:center;color:#aaa;padding:30px;">Pilih rentang tanggal lalu klik Tampilkan...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
 </div>
 
 <script type="module" src="./js/main.js"></script>
