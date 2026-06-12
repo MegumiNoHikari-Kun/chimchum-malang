@@ -479,7 +479,8 @@ let editId = null;
 let cachedProducts = []; 
 let cachedOrders = [];
 let kasirCart = {};      
-let currentKasirGrandTotal = 0; // Menyimpan hitungan total aktif untuk kalkulator cash
+let currentKasirGrandTotal = 0; 
+let currentOrderFilter = "all";
 
 /* HELPERS */
 function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
