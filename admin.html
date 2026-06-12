@@ -306,26 +306,38 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
     </div>
   </div>
 
+  <!-- ===== TAB PESANAN MASUK ===== -->
   <div id="tab-pesanan" class="tab-content">
-    <div class="card" style="margin-bottom:15px;">
-      <h3><i class="fa-solid fa-bell"></i> Monitor Pesanan Masuk (WhatsApp & Dine-In)</h3>
-      <p style="font-size:13px; color:var(--gray);">Seluruh transaksi yang sukses terkirim dari web utama maupun kasir tercatat di bawah ini secara Real-time.</p>
+    <div class="card">
+      <h3><i class="fa-solid fa-receipt"></i> Riwayat Pesanan &amp; Transaksi</h3>
     </div>
-    <div style="overflow-x: auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>Waktu & Tanggal</th>
-            <th>Pelanggan</th>
-            <th>No. WA</th>
-            <th>Tipe / Metode Pengiriman</th>
-            <th>Item Pesanan</th>
-            <th>Total Pembayaran</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="orderTableBody"></tbody>
-      </table>
+    <div id="orderSummary"
+         style="display:grid;
+                grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+                gap:12px;
+                margin-bottom:15px;">
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Pelanggan</th>
+          <th>WhatsApp</th>
+          <th>Tipe / Bayar</th>
+          <th>Status</th>
+          <th>Item Pesanan</th>
+          <th>Total</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="orderTableBody">
+        <tr>
+          <td colspan="7" style="text-align:center; color:#aaa; padding:30px;">
+            Klik tab untuk memuat data...
+          </td>
+        </tr>
+      </tbody>
+    </table>
     </div>
   </div>
 
@@ -477,10 +489,8 @@ const kasirCartItems = document.getElementById("kasirCartItems");
 
 let editId = null;
 let cachedProducts = []; 
-let cachedOrders = [];
 let kasirCart = {};      
-let currentKasirGrandTotal = 0; 
-let currentOrderFilter = "all";
+let currentKasirGrandTotal = 0; // Menyimpan hitungan total aktif untuk kalkulator cash
 
 /* HELPERS */
 function rupiah(n){ return 'Rp ' + Number(n).toLocaleString('id-ID'); }
