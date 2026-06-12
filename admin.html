@@ -881,8 +881,14 @@ window.deleteOrder = async (id) => {
   if (!confirm("Hapus permanen arsip pesanan ini?")) return;
   try {
     await deleteDoc(doc(db, "orders", id));
-    window.loadOrders();
-  } catch (err) { alert("Gagal menghapus."); }
+    // Update cache lokal tanpa fetch ulang semua data
+    cachedOrders = cachedOrders.filter(o => o.id !== id);
+    renderOrderSummary(cachedOrders);
+    renderOrdersTable();
+  } catch (err) {
+    console.error("Gagal hapus order:", err);
+    alert("Gagal menghapus pesanan: " + err.message);
+  }
 };
 
 window.updateOrderStatus = async (id, status) => {
@@ -902,37 +908,68 @@ window.reprintOrder = (id) => {
 };
 
 function cetakUlangPesanan(order){
-  const itemsHtml = order.items.map(i => `
-    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+  const tgl = order.created_at ? new Date(order.created_at.seconds * 1000).toLocaleString('id-ID') : new Date().toLocaleString('id-ID');
+  const noMeja = order.customer_name || '-';
+  const waPelanggan = (order.phone && order.phone !== '-') ? order.phone : '-';
+  const grandTotal = order.grand_total || 0;
+  const metodeBayar = order.payment_method || '-';
+  const uangBayar = order.cash_received ?? grandTotal;
+  const kembalian = order.cash_change ?? 0;
+
+  const itemsHtml = (order.items || []).map(i => `
+    <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px;">
       <span>${i.nama} x${i.qty}</span>
       <span>${rupiah(i.qty * i.harga)}</span>
     </div>
   `).join('');
 
-  const printWindow = window.open('', '_blank', 'width=350,height=700');
+  const printWindow = window.open('', '_blank', 'width=350,height=600');
   printWindow.document.write(`
     <html>
     <head>
-      <title>Reprint Pesanan</title>
+      <title>Struk Belanja - ChimChum</title>
       <style>
-        body{ font-family:Courier New; width:280px; padding:10px; }
-        .line{ border-top:1px dashed #000; margin:8px 0; }
+        @page { margin: 0; }
+        body { font-family: 'Courier New', Courier, monospace; width: 280px; padding: 10px; color: #000; }
+        .text-center { text-align: center; }
+        .line { border-top: 1px dashed #000; margin: 8px 0; }
+        .bold { font-weight: bold; }
       </style>
     </head>
     <body>
-      <h3 style="text-align:center;">CHIMCHUM MALANG</h3>
+      <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div>
+      <div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div>
       <div class="line"></div>
-      <p>
-        Pelanggan : ${order.customer_name}<br>
-        WA : ${order.phone}<br>
-        Status : ${(order.status || 'new').toUpperCase()}
-      </p>
+      <div style="font-size:11px; line-height:1.4;">
+        Waktu  : ${tgl}<br>
+        Meja   : ${noMeja}<br>
+        No HP  : ${waPelanggan}
+      </div>
       <div class="line"></div>
       ${itemsHtml}
       <div class="line"></div>
-      <b>Total : ${rupiah(order.grand_total)}</b>
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:3px;" class="bold">
+        <span>TOTAL TAGIHAN:</span>
+        <span>${rupiah(grandTotal)}</span>
+      </div>
       <div class="line"></div>
-      <center>REPRINT PESANAN</center>
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+        <span>Metode Bayar:</span>
+        <span class="bold">${metodeBayar}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+        <span>Uang Diterima:</span>
+        <span>${rupiah(uangBayar)}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:3px;">
+        <span>Kembalian:</span>
+        <span class="bold">${rupiah(kembalian)}</span>
+      </div>
+      <div class="line"></div>
+      <div class="text-center" style="font-size:11px; margin-top:12px;">REPRINT PESANAN</div>
+      <script>
+        window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 300); }
+      <\/script>
     </body>
     </html>
   `);
@@ -1275,5 +1312,6 @@ authReady.then(() => {
   renderKasirMenu();
 });
 </script>
+
 </body>
 </html>
