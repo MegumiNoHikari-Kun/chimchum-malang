@@ -694,59 +694,408 @@ function clearForm(){
 }
 
 // ======================= DATA MONITOR TAB PESANAN =======================
-window.loadOrders = async () => {
-  orderTableBody.innerHTML = "<tr><td colspan='7'>Sedang menarik data riwayat transaksi...</td></tr>";
-  try {
-    const snap = await getDocs(collection(db, "orders"));
-    orderTableBody.innerHTML = "";
-    let ordersList = [];
 
-    snap.forEach(d => { ordersList.push({ id: d.id, ...d.data() }); });
-    ordersList.sort((a, b) => (b.created_at?.seconds || 0) - (a.created_at?.seconds || 0));
+function renderOrderSummary(list){
 
-    if(ordersList.length === 0) {
-      orderTableBody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Belum ada data pesanan terekam.</td></tr>";
-      return;
+  const summaryEl = document.getElementById("orderSummary");
+
+  const counts = {
+    all: list.length,
+    new: 0,
+    diproses: 0,
+    selesai: 0,
+    dibatalkan: 0
+  };
+
+  list.forEach(order => {
+    const status = order.status || "new";
+
+    if(counts[status] !== undefined){
+      counts[status]++;
+    }
+  });
+
+  const cards = [
+    {
+      key:"all",
+      title:"Total Pesanan",
+      value:counts.all,
+      color:"#34495e"
+    },
+    {
+      key:"new",
+      title:"Pesanan Baru",
+      value:counts.new,
+      color:"#d35400"
+    },
+    {
+      key:"diproses",
+      title:"Sedang Diproses",
+      value:counts.diproses,
+      color:"#2980b9"
+    },
+    {
+      key:"selesai",
+      title:"Pesanan Selesai",
+      value:counts.selesai,
+      color:"#27ae60"
+    },
+    {
+      key:"dibatalkan",
+      title:"Dibatalkan",
+      value:counts.dibatalkan,
+      color:"#e74c3c"
+    }
+  ];
+
+  summaryEl.innerHTML = cards.map(card => `
+    <div
+      onclick="filterOrders('${card.key}')"
+      style="
+        cursor:pointer;
+        background:white;
+        padding:15px;
+        border-radius:12px;
+        box-shadow:0 2px 10px rgba(0,0,0,.05);
+        border:3px solid ${
+          currentOrderFilter === card.key
+          ? card.color
+          : 'transparent'
+        };
+      ">
+      <div style="font-size:13px;color:#666;">
+        ${card.title}
+      </div>
+
+      <div style="
+        font-size:28px;
+        font-weight:700;
+        color:${card.color};
+      ">
+        ${card.value}
+      </div>
+    </div>
+  `).join('');
+}
+
+window.filterOrders = (status) => {
+  currentOrderFilter = status;
+  renderOrdersTable();
+};
+
+window.filterOrders = (status) => {
+  currentOrderFilter = status;
+
+  renderOrderSummary(cachedOrders);
+  renderOrdersTable();
+};
+
+function renderOrdersTable(){
+
+  const tbody = document.getElementById("orderTableBody");
+
+  let list = [...cachedOrders];
+
+  if(currentOrderFilter !== "all"){
+    list = list.filter(
+      o => (o.status || "new") === currentOrderFilter
+    );
+  }
+
+  if(list.length === 0){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8"
+            style="text-align:center;padding:20px;color:#aaa;">
+          Tidak ada data.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = list.map(o => {
+
+    const tgl = o.created_at
+      ? new Date(o.created_at.seconds * 1000)
+          .toLocaleString('id-ID')
+      : '-';
+
+    const itemStr = Array.isArray(o.items)
+      ? o.items.map(i =>
+          `<span style="display:block;font-size:13px;">
+            📌 ${i.nama} <b>(${i.qty}x)</b>
+          </span>`
+        ).join('')
+      : "<span style='color:red;'>Format pesanan lama</span>";
+
+    const labelTipe = o.payment_method
+      ? `${o.address || '-'} <br>
+         <b style="color:var(--primary)">
+           [${o.payment_method}]
+         </b>`
+      : (o.address || '-');
+
+    const waLink =
+      (o.phone && o.phone !== '-')
+      ? `<a href="https://wa.me/${o.phone}"
+            target="_blank"
+            style="color:var(--primary);font-weight:600;">
+            <i class="fa-brands fa-whatsapp"></i>
+            ${o.phone}
+         </a>`
+      : '-';
+
+    const status = o.status || "new";
+
+    let statusBadge = `
+      <span style="
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:600;
+        background:#ffe8cc;
+        color:#d35400;">
+        NEW
+      </span>`;
+
+    if(status === "diproses"){
+      statusBadge = `
+      <span style="
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:600;
+        background:#d6ecff;
+        color:#2980b9;">
+        DIPROSES
+      </span>`;
     }
 
-    ordersList.forEach(o => {
-      const tgl = o.created_at ? new Date(o.created_at.seconds * 1000).toLocaleString('id-ID') : '-';
-      let itemStr = "";
-      if(Array.isArray(o.items)) {
-        itemStr = o.items.map(i => `<span style="display:block; font-size:13px;">📌 ${i.nama} <b>(${i.qty}x)</b></span>`).join("");
-      } else { itemStr = "<span style='color:red;'>Format pesanan lama</span>"; }
+    if(status === "selesai"){
+      statusBadge = `
+      <span style="
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:600;
+        background:#d4f5dd;
+        color:#27ae60;">
+        SELESAI
+      </span>`;
+    }
 
-      const labelTipe = o.payment_method ? `${o.address || '-'} <br><b style="color:var(--primary)">[${o.payment_method}]</b>` : (o.address || '-');
+    if(status === "dibatalkan"){
+      statusBadge = `
+      <span style="
+        padding:5px 10px;
+        border-radius:20px;
+        font-size:12px;
+        font-weight:600;
+        background:#ffdede;
+        color:#e74c3c;">
+        DIBATALKAN
+      </span>`;
+    }
 
-      orderTableBody.innerHTML += `
-        <tr>
-          <td style="font-size:13px; color:var(--gray);">${tgl}</td>
-          <td><b>${o.customer_name || '-'}</b></td>
-          <td>${o.phone && o.phone !== '-' ? `<a href="https://wa.me/${o.phone}" target="_blank" style="color:var(--primary); font-weight:600;"><i class="fa-brands fa-whatsapp"></i> ${o.phone}</a>` : '-'}</td>
-          <td><span style="font-size:13px;">${labelTipe}</span></td>
-          <td>${itemStr}</td>
-          <td style="color:var(--success); font-weight:700;">${rupiah(o.grand_total || 0)}</td>
-          <td>
-            <button class="btn-delete" style="padding: 6px 10px;" onclick="deleteOrder('${o.id}')">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </td>
-        </tr>
-      `;
+    return `
+      <tr>
+        <td style="font-size:13px;color:var(--gray);">${tgl}</td>
+        <td><b>${o.customer_name || '-'}</b></td>
+        <td>${waLink}</td>
+        <td><span style="font-size:13px;">${labelTipe}</span></td>
+        <td>${statusBadge}</td>
+        <td>${itemStr}</td>
+        <td style="color:var(--success);font-weight:700;">
+          ${rupiah(o.grand_total || 0)}
+        </td>
+        <td>
+
+          <select onchange="updateOrderStatus('${o.id}', this.value)">
+            <option value="new"
+              ${status==='new'?'selected':''}>
+              New
+            </option>
+
+            <option value="diproses"
+              ${status==='diproses'?'selected':''}>
+              Diproses
+            </option>
+
+            <option value="selesai"
+              ${status==='selesai'?'selected':''}>
+              Selesai
+            </option>
+
+            <option value="dibatalkan"
+              ${status==='dibatalkan'?'selected':''}>
+              Dibatalkan
+            </option>
+          </select>
+
+          <button onclick="reprintOrder('${o.id}')">
+            🖨️
+          </button>
+
+          <button class="btn-delete"
+                  onclick="deleteOrder('${o.id}')">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+
+        </td>
+      </tr>
+    `;
+
+  }).join('');
+}
+
+window.loadOrders = async () => {
+
+  const tbody = document.getElementById("orderTableBody");
+
+  tbody.innerHTML =
+    "<tr><td colspan='8' style='text-align:center;padding:20px;color:#aaa;'>Sedang menarik data...</td></tr>";
+
+  try {
+
+    const snap = await getDocs(
+      collection(db, "orders")
+    );
+
+    let list = [];
+
+    snap.forEach(d => {
+      list.push({
+        id: d.id,
+        ...d.data()
+      });
     });
-  } catch(err) {
+
+    list.sort(
+      (a,b)=>
+      (b.created_at?.seconds || 0)
+      -
+      (a.created_at?.seconds || 0)
+    );
+
+    cachedOrders = list;
+
+    renderOrderSummary(cachedOrders);
+    renderOrdersTable();
+
+  } catch(err){
+
     console.error(err);
-    orderTableBody.innerHTML = "<tr><td colspan='7'>Gagal memuat log pesanan.</td></tr>";
+
+    tbody.innerHTML =
+      "<tr><td colspan='8' style='text-align:center;color:red;padding:20px;'>Gagal memuat log pesanan.</td></tr>";
+
   }
+
 };
 
 window.deleteOrder = async (id) => {
-  if(!confirm("Hapus permanen arsip pesanan ini?")) return;
+  if (!confirm("Hapus permanen arsip pesanan ini?")) return;
   try {
     await deleteDoc(doc(db, "orders", id));
-    loadOrders();
+    window.loadOrders();
   } catch (err) { alert("Gagal menghapus."); }
 };
+
+window.updateOrderStatus = async (id, status) => {
+  try {
+    await updateDoc(doc(db, "orders", id), {
+      status: status
+    });
+
+    await loadOrders();
+
+  } catch(err){
+    console.error(err);
+    alert("Gagal update status");
+  }
+};
+
+window.reprintOrder = (id) => {
+
+  const order = cachedOrders.find(o => o.id === id);
+
+  if (!order) {
+    alert("Data pesanan tidak ditemukan.");
+    return;
+  }
+
+  cetakUlangPesanan(order);
+};
+
+function cetakUlangPesanan(order){
+
+  const itemsHtml = order.items.map(i => `
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      <span>${i.nama} x${i.qty}</span>
+      <span>${rupiah(i.qty * i.harga)}</span>
+    </div>
+  `).join('');
+
+  const printWindow = window.open('', '_blank', 'width=350,height=700');
+
+  printWindow.document.write(`
+    <html>
+    <head>
+      <title>Reprint Pesanan</title>
+      <style>
+        body{
+          font-family:Courier New;
+          width:280px;
+          padding:10px;
+        }
+        .line{
+          border-top:1px dashed #000;
+          margin:8px 0;
+        }
+      </style>
+    </head>
+    <body>
+  
+      <h3 style="text-align:center;">
+        CHIMCHUM MALANG
+      </h3>
+  
+      <div class="line"></div>
+  
+      <p>
+        Pelanggan : ${order.customer_name}<br>
+        WA : ${order.phone}<br>
+        Status : ${(order.status || 'new').toUpperCase()}
+      </p>
+  
+      <div class="line"></div>
+  
+      ${itemsHtml}
+  
+      <div class="line"></div>
+  
+      <b>Total : ${rupiah(order.grand_total)}</b>
+  
+      <div class="line"></div>
+  
+      <center>
+        REPRINT PESANAN
+      </center>
+  
+      <script>
+        window.onload=function(){
+          window.print();
+          setTimeout(()=>window.close(),300);
+        }
+      <\/script>
+  
+    </body>
+    </html>
+    `);
+  
+    printWindow.document.close();
+  }
 
 // ======================= LOGIKA TAB 3: KASIR DINE-IN =======================
 renderKasirMenu();
