@@ -85,8 +85,8 @@ window.renderStokTable = () => {
         <td style="font-weight: 700;">${p.stok} Porsi</td>
         <td><span style="padding:4px 10px; border-radius:12px; font-size:12px; font-weight:600; background:${status.bg}; color:${status.color};">${status.label}</span></td>
         <td>
-          <input type="number" id="stok-inp-${p.id}" value="${p.stok}" min="0" style="width:70px;padding:6px;margin:0;display:inline-block;">
           <button onclick="window.stokDecrement('${p.id}')" style="padding:5px 9px;">-</button>
+          <input type="number" id="stok-inp-${p.id}" value="${p.stok}" min="0" style="width:70px;padding:6px;margin:0;display:inline-block;">
           <button onclick="window.stokIncrement('${p.id}')" style="padding:5px 9px;">+</button>
           <button class="btn-primary" onclick="window.stokSave('${p.id}')" style="padding:5px 10px;">Simpan</button>
         </td>
