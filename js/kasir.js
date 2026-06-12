@@ -271,7 +271,7 @@ window.submitKasirOrder = async () => {
       payment_method: metodeBayar,
       cash_received: uangBayar,
       cash_change: kembalian,
-      status: "selesai",
+      status: "new",
       created_at: serverTimestamp()
     });
 
