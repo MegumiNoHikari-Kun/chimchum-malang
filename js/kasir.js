@@ -197,13 +197,16 @@ function cetakStrukThermal(noMeja, waPelanggan, items, grandTotal, metodeBayar, 
       </style>
     </head>
     <body>
+      <div class="center">
+        <img src="https://meguminohikari-kun.github.io/chimchum-malang/assets/logo-transparan.jpg"
+             style="width:65px; height:65px;">
+      </div>
       <div class="text-center bold" style="font-size:15px;">CHIMCHUM MALANG</div>
       <div class="text-center" style="font-size:11px;">Dimsum Mentai & Ohiyong</div>
       <div class="line"></div>
       <div style="font-size:11px; line-height:1.4;">
         Waktu  : ${tgl}<br>
         Meja   : ${noMeja}<br>
-        No HP  : ${waPelanggan || '-'}
       </div>
       <div class="line"></div>
       ${itemsHtml}
