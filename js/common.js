@@ -38,6 +38,7 @@ window.switchTab = (tabId, element) => {
   if (tabId === 'tab-produk') window.loadProducts();
   if (tabId === 'tab-kasir') window.renderKasirMenu();
   if (tabId === 'tab-stok') window.loadStokMonitor();
+  if (tabId === 'tab-laporan') window.loadLaporanKeuangan();
 };
 
 // LOGOUT ADMIN
