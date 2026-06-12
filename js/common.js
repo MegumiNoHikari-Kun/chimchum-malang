@@ -2,7 +2,7 @@
 import {
   db, authReady, collection, getDocs,
   addDoc, deleteDoc, updateDoc, doc, serverTimestamp
-} from './firebase.js';
+} from '././firebase.js';
 
 // ── SESSION GUARD SECURITY ──
 if (sessionStorage.getItem('chimchum_admin') !== 'true') {
