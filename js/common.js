@@ -22,7 +22,8 @@ export const state = {
   currentKasirGrandTotal: 0,
   editId: null,
   currentFotoUrl: "",
-  stokData: []
+  stokData: [],
+  stokFilterStatus: ""
 };
 
 // TAB CONTROLLER SWITCHER
