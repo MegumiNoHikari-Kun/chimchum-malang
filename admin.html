@@ -384,24 +384,33 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
           <span id="kasirGrandTotal" style="color:var(--primary)">Rp 0</span>
         </div>
         
-        <div class="dine-in-details" style="background: #fff5f0; padding: 15px; border-radius: 14px; margin-top: 15px; border: 1px solid #ffe0d0;">
-          <h4 style="font-size: 14px; margin-bottom: 12px; color: #222; font-weight: 600;">📋 Data Pelanggan Dine-In</h4>
-          
-          <div style="margin-bottom: 10px;">
-            <input type="text" id="kasirNomorMeja" placeholder="Nomor Meja * (Contoh: Meja 05)" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 0;" required>
-          </div>
-          
-          <div style="margin-bottom: 10px;">
-            <input type="number" id="kasirWaPelanggan" placeholder="Nomor WhatsApp Pelanggan (Opsional)" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin: 0;">
-          </div>
-
-          <div style="margin-bottom: 10px;">
-            <label style="font-size: 12px; font-weight: 500;">Metode Pembayaran *</label>
-            <select id="kasirMetodeBayar" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; margin-bottom: 0;" onchange="window.toggleCashSection()">
-              <option value="Cash">Cash (Tunai)</option>
-              <option value="QRIS">QRIS</option>
-              <option value="Transfer">Transfer Bank (BCA Syariah : 8881430790)</option>
-            </select>
+        <div style="display:flex; gap:10px; margin-bottom:10px; align-items:end; flex-wrap:wrap;">
+            <div style="flex:0.7; min-width:100px;">
+              <label style="font-size:12px; font-weight:500; display:block; margin-bottom:4px;">
+                Nomor Meja *
+              </label>
+              <input type="text" id="kasirNomorMeja" placeholder="Meja 05"
+                     style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin:0;">
+            </div>
+            <div style="flex:1.3; min-width:130px;">
+              <label style="font-size:12px; font-weight:500; display:block; margin-bottom:4px;">
+                WhatsApp
+              </label>
+              <input type="number" id="kasirWaPelanggan" placeholder="No WA Pelanggan"
+                     style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin:0;">
+            </div>
+            <div style="flex:1; min-width:120px;">
+              <label style="font-size:12px; font-weight:500; display:block; margin-bottom:4px;">
+                Pembayaran *
+              </label>
+              <select id="kasirMetodeBayar"
+                      style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin:0;"
+                      onchange="window.toggleCashSection()">
+                <option value="Cash">Cash (Tunai)</option>
+                <option value="QRIS">QRIS</option>
+                <option value="Transfer">Transfer Bank</option>
+              </select>
+            </div>
           </div>
 
           <div id="sectionKalkulatorCash" style="background: white; padding: 12px; border-radius: 10px; border: 1px solid #ffd0b8; margin-bottom: 12px;">
