@@ -534,6 +534,7 @@ window.logoutAdmin = () => {
 
 /* LOAD PRODUCTS (TAB 1 & SYNC KASIR) */
 window.loadProducts = async () => {
+  if (!tableBody) return;
   tableBody.innerHTML = "<tr><td colspan='8'>Memuat produk...</td></tr>";
   try {
     const snap = await getDocs(collection(db, "products"));
@@ -557,10 +558,10 @@ window.loadProducts = async () => {
           <td>${p.stok} porsi</td>
           <td>
             <div class="action-btns">
-              <button class="btn-edit" onclick="editProduct('${d.id}', \`${p.nama}\`, \`${p.kategori}\`, ${p.isi}, ${p.harga}, ${p.hpp || 0}, ${p.stok}, \`${p.foto || ''}\`, \`${p.deskripsi || ''}\`)">
+              <button class="btn-edit" onclick="window.editProduct('${d.id}', \`${p.nama}\`, \`${p.kategori}\`, ${p.isi}, ${p.harga}, ${p.hpp || 0}, ${p.stok}, \`${p.foto || ''}\`, \`${p.deskripsi || ''}\`)">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-              <button class="btn-delete" onclick="deleteProduct('${d.id}')">
+              <button class="btn-delete" onclick="window.deleteProduct('${d.id}')">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
@@ -598,7 +599,7 @@ function jalankanFilterKasir() {
   const kategoriTerpilih = filterSelect.value;
   const semuaProduk = document.querySelectorAll('.kasir-item-card');
   
-  sewaProduk.forEach(card => {
+  semuaProduk.forEach(card => {
     const namaProduk = card.querySelector('h4').innerText.toLowerCase();
     const kategoriProduk = card.dataset.kategori || 'Umum';
     
@@ -724,7 +725,7 @@ window.saveProduct = async () => {
       alert("Produk baru berhasil ditambahkan!");
     }
     clearForm();
-    loadProducts();
+    window.loadProducts();
   } catch(err) {
     console.error(err);
     alert("Gagal menyimpan produk: " + err.message);
@@ -739,28 +740,33 @@ window.deleteProduct = async (id) => {
   if(!confirm("Apakah Anda yakin ingin menghapus produk ini dari katalog?")) return;
   try {
     await deleteDoc(doc(db, "products", id));
-    loadProducts();
+    window.loadProducts();
   } catch(err) { alert("Gagal menghapus produk."); }
 };
 
 /* EDIT MODE INJECTOR */
 window.editProduct = (id, n, k, i, h, hpp, s, f, d) => {
   editId = id;
-  inpNama.value = n;
-  inpKategori.value = k;
-  inpIsi.value = i;
-  inpHarga.value = h;
-  inpHpp.value = hpp;
-  inpStok.value = s;
+  if(inpNama) inpNama.value = n;
+  if(inpKategori) inpKategori.value = k;
+  if(inpIsi) inpIsi.value = i;
+  if(inpHarga) inpHarga.value = h;
+  if(inpHpp) inpHpp.value = hpp;
+  if(inpStok) inpStok.value = s;
   currentFotoUrl = f; // Simpan URL yang sudah ada
-  inpDeskripsi.value = d;
-  document.getElementById("nama").scrollIntoView({ behavior: 'smooth' });
+  if(inpDeskripsi) inpDeskripsi.value = d;
+  document.getElementById("nama")?.scrollIntoView({ behavior: 'smooth' });
 };
 
 function clearForm(){
-  inpNama.value = ""; inpKategori.value = ""; inpIsi.value = "";
-  inpHarga.value = ""; inpHpp.value = ""; inpStok.value = ""; 
-  inpFotoFile.value = ""; inpDeskripsi.value = "";
+  if(inpNama) inpNama.value = ""; 
+  if(inpKategori) inpKategori.value = ""; 
+  if(inpIsi) inpIsi.value = "";
+  if(inpHarga) inpHarga.value = ""; 
+  if(inpHpp) inpHpp.value = ""; 
+  if(inpStok) inpStok.value = ""; 
+  if(inpFotoFile) inpFotoFile.value = ""; 
+  if(inpDeskripsi) inpDeskripsi.value = "";
   editId = null; currentFotoUrl = "";
 }
 
@@ -784,7 +790,7 @@ function renderOrderSummary(list){
   ];
 
   summaryEl.innerHTML = cards.map(card => `
-    <div onclick="filterOrders('${card.key}')" style="cursor:pointer; background:white; padding:15px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.05); border:3px solid ${currentOrderFilter === card.key ? card.color : 'transparent'};">
+    <div onclick="window.filterOrders('${card.key}')" style="cursor:pointer; background:white; padding:15px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.05); border:3px solid ${currentOrderFilter === card.key ? card.color : 'transparent'};">
       <div style="font-size:13px;color:#666;">${card.title}</div>
       <div style="font-size:28px; font-weight:700; color:${card.color};">${card.value}</div>
     </div>
@@ -840,14 +846,14 @@ function renderOrdersTable(){
         <td>${itemStr}</td>
         <td style="color:var(--success);font-weight:700;">${rupiah(o.grand_total || 0)}</td>
         <td>
-          <select onchange="updateOrderStatus('${o.id}', this.value)">
+          <select onchange="window.updateOrderStatus('${o.id}', this.value)">
             <option value="new" ${status==='new'?'selected':''}>New</option>
             <option value="diproses" ${status==='diproses'?'selected':''}>Diproses</option>
             <option value="selesai" ${status==='selesai'?'selected':''}>Selesai</option>
             <option value="dibatalkan" ${status==='dibatalkan'?'selected':''}>Dibatalkan</option>
           </select>
-          <button onclick="reprintOrder('${o.id}')">🖨️</button>
-          <button class="btn-delete" onclick="deleteOrder('${o.id}')"><i class="fa-solid fa-trash-can"></i></button>
+          <button onclick="window.reprintOrder('${o.id}')">🖨️</button>
+          <button class="btn-delete" onclick="window.deleteOrder('${o.id}')"><i class="fa-solid fa-trash-can"></i></button>
         </td>
       </tr>
     `;
@@ -882,7 +888,7 @@ window.deleteOrder = async (id) => {
 window.updateOrderStatus = async (id, status) => {
   try {
     await updateDoc(doc(db, "orders", id), { status: status });
-    await loadOrders();
+    await window.loadOrders();
   } catch(err){
     console.error(err);
     alert("Gagal update status");
@@ -951,7 +957,7 @@ function renderKasirMenu() {
     const stokClr = habis ? '#e74c3c' : stok <= 5 ? '#e67e22' : '#27ae60';
 
     kasirMenuList.innerHTML += `
-      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" style="${habis ? 'opacity:.45;pointer-events:none;' : ''}" onclick="addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga}, ${stok})">
+      <div class="kasir-item-card" data-kategori="${p.kategori || 'Umum'}" style="${habis ? 'opacity:.45;pointer-events:none;' : ''}" onclick="window.addToKasirCart('${p.id}', \`${p.nama}\`, ${p.harga}, ${stok})">
         <img style="width:100%; height:120px; object-fit:cover; border-radius:8px;" src="${p.foto || 'https://via.placeholder.com/150'}" onerror="this.src='https://via.placeholder.com/150'">
         <h4>${p.nama}</h4>
         <p>${rupiah(p.harga)}</p>
@@ -1010,9 +1016,9 @@ function updateKasirCartUI() {
           <div style="font-size:11px; color:var(--gray);">${rupiah(item.harga)}</div>
         </div>
         <div class="receipt-qty-control" style="display:flex; align-items:center; gap:6px;">
-          <button onclick="changeKasirQty('${item.id}', -1)">-</button>
+          <button onclick="window.changeKasirQty('${item.id}', -1)">-</button>
           <span style="font-weight:700; font-size:14px; min-width:15px; text-align:center;">${item.qty}</span>
-          <button onclick="changeKasirQty('${item.id}', 1)">+</button>
+          <button onclick="window.changeKasirQty('${item.id}', 1)">+</button>
         </div>
         <div style="font-weight:600; font-size:13px; min-width:70px; text-align:right;">${rupiah(totalItemHarga)}</div>
       </div>
@@ -1146,7 +1152,7 @@ window.submitKasirOrder = async () => {
     document.getElementById("kasirMetodeBayar").value = "Cash";
     window.toggleCashSection();
     updateKasirCartUI();
-    await loadProducts();
+    await window.loadProducts();
     
   } catch(err) {
     console.error("Kasir Submit Error:", err);
@@ -1229,33 +1235,31 @@ function renderStokTable() {
   }).join('');
 }
 
-// Inisialisasi awal saat script dimuat pertama kali
-window.loadProducts();
-
 // Edit stok inline
 window.stokDecrement = (id) => {
   const inp = document.getElementById(`stok-inp-${id}`);
-  inp.value = Math.max(0, Number(inp.value) - 1);
+  if (inp) inp.value = Math.max(0, Number(inp.value) - 1);
 };
 window.stokIncrement = (id) => {
   const inp = document.getElementById(`stok-inp-${id}`);
-  inp.value = Number(inp.value) + 1;
+  if (inp) inp.value = Number(inp.value) + 1;
 };
 window.stokManualUpdate = (id, val) => {
   const inp = document.getElementById(`stok-inp-${id}`);
-  inp.value = Math.max(0, Number(val) || 0);
+  if (inp) inp.value = Math.max(0, Number(val) || 0);
 };
 window.stokSave = async (id) => {
-  const newStok = Number(document.getElementById(`stok-inp-${id}`).value) || 0;
+  const inp = document.getElementById(`stok-inp-${id}`);
+  const newStok = inp ? (Number(inp.value) || 0) : 0;
   try {
     await updateDoc(doc(db, 'products', id), { stok: newStok });
     // Update local cache
-    const p = stokData.find(p => p._id === id);
+    const p = stokData.find(p => p.id === id);
     if (p) p.stok = newStok;
     renderStokSummary();
     renderStokTable();
     // feedback singkat
-    const btn = document.querySelector(`button[onclick="stokSave('${id}')"]`);
+    const btn = document.querySelector(`button[onclick="window.stokSave('${id}')"]`);
     if (btn) {
       const orig = btn.innerText;
       btn.innerText = '✓ Tersimpan';
@@ -1268,12 +1272,11 @@ window.stokSave = async (id) => {
   }
 };
 
-// Tunggu auth siap sebelum query Firestore
+// Tunggu auth siap sebelum query Firestore pertama kali
 authReady.then(() => {
-  loadProducts();
+  window.loadProducts();
   renderKasirMenu();
 });
 </script>
-
 </body>
 </html>
