@@ -376,15 +376,23 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
       <div class="kasir-receipt">
         <h3><i class="fa-solid fa-file-invoice-dollar"></i> Struk Kasir Dine-In</h3>
         <div class="receipt-items" id="kasirCartItems">
-          <p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">Belum ada item dipilih.</p>
+          <p style="text-align:center; color:#aaa; font-size:13px; padding:20px 0;">
+            Belum ada item dipilih.
+          </p>
         </div>
 
-        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:16px; margin: 15px 0;">
+        <div style="display:flex; justify-content:space-between; font-weight:700; font-size:16px; margin:15px 0;">
           <span>Total Tagihan:</span>
           <span id="kasirGrandTotal" style="color:var(--primary)">Rp 0</span>
         </div>
-        
-        <div style="display:flex; gap:10px; margin-bottom:10px; align-items:end; flex-wrap:wrap;">
+
+        <div style="background:#fff5f0; padding:15px; border-radius:14px;
+                    margin-top:15px; border:1px solid #ffe0d0;">
+          <h4 style="font-size:14px; margin-bottom:12px; color:#222; font-weight:600;">
+            📋 Data Pelanggan Dine-In
+          </h4>
+
+          <div style="display:flex; gap:10px; margin-bottom:10px; align-items:end; flex-wrap:wrap;">
             <div style="flex:0.7; min-width:100px;">
               <label style="font-size:12px; font-weight:500; display:block; margin-bottom:4px;">
                 Nomor Meja *
@@ -411,35 +419,53 @@ img.prod-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px;
                 <option value="Transfer">Transfer Bank</option>
               </select>
             </div>
+          </div>
 
-          <div id="sectionKalkulatorCash" style="background: white; padding: 12px; border-radius: 10px; border: 1px solid #ffd0b8; margin-bottom: 12px;">
-            <label style="font-size: 11px; font-weight: 600; color: var(--gray);">Uang Tunai Diterima (Rp)</label>
-            <input type="number" id="kasirUangBayar" placeholder="Contoh: 100000" style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 4px; margin-bottom: 8px;" oninput="window.hitungKembalian()">
-            
-            <div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;">
-              <button type="button" style="padding: 4px 8px; font-size: 11px; background: #f1f2f6; color: #222;" onclick="window.setUangCepat(20000)">20.000</button>
-              <button type="button" style="padding: 4px 8px; font-size: 11px; background: #f1f2f6; color: #222;" onclick="window.setUangCepat(50000)">50.000</button>
-              <button type="button" style="padding: 4px 8px; font-size: 11px; background: #f1f2f6; color: #222;" onclick="window.setUangCepat(100000)">100.000</button>
-              <button type="button" style="padding: 4px 8px; font-size: 11px; background: var(--primary); color: white;" onclick="window.setUangPas()">Uang Pas</button>
+          <div id="sectionKalkulatorCash"
+               style="background:white; padding:12px; border-radius:10px;
+                      border:1px solid #ffd0b8; margin-bottom:12px;">
+            <label style="font-size:11px; font-weight:600; color:var(--gray);">
+              Uang Tunai Diterima (Rp)
+            </label>
+            <input type="number" id="kasirUangBayar" placeholder="Contoh: 100000"
+                   style="padding:10px; border:1px solid #ddd; border-radius:8px;
+                          margin-top:4px; margin-bottom:8px;"
+                   oninput="window.hitungKembalian()">
+            <div style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:8px;">
+              <button type="button"
+                      style="padding:4px 8px; font-size:11px; background:#f1f2f6; color:#222;"
+                      onclick="window.setUangCepat(20000)">20.000</button>
+              <button type="button"
+                      style="padding:4px 8px; font-size:11px; background:#f1f2f6; color:#222;"
+                      onclick="window.setUangCepat(50000)">50.000</button>
+              <button type="button"
+                      style="padding:4px 8px; font-size:11px; background:#f1f2f6; color:#222;"
+                      onclick="window.setUangCepat(100000)">100.000</button>
+              <button type="button"
+                      style="padding:4px 8px; font-size:11px; background:var(--primary); color:white;"
+                      onclick="window.setUangPas()">Uang Pas</button>
             </div>
-            
-            <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+            <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:600;">
               <span>Kembalian:</span>
-              <span id="kasirKembalian" style="color: var(--success);">Rp 0</span>
+              <span id="kasirKembalian" style="color:var(--success);">Rp 0</span>
             </div>
           </div>
-          
-          <div style="border-top: 1px dashed #ff6b35; padding-top: 10px;">
-            <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 13px; cursor: pointer; color: #222;">
-              <input type="checkbox" id="printStrukCheck" style="width: 18px; height: 18px; accent-color: #ff6b35; cursor: pointer;" checked> 
+
+          <div style="border-top:1px dashed #ff6b35; padding-top:10px;">
+            <label style="display:flex; align-items:center; gap:10px; font-weight:600;
+                          font-size:13px; cursor:pointer; color:#222;">
+              <input type="checkbox" id="printStrukCheck"
+                     style="width:18px; height:18px; accent-color:#ff6b35; cursor:pointer;" checked>
               🖨️ Otomatis Print Struk Belanja
             </label>
           </div>
-          <button class="btn-primary" style="width:100%; padding:12px; background:var(--success)" onclick="submitKasirOrder()">
-            <i class="fa-solid fa-circle-check"></i> Proses & Simpan Transaksi
-          </button>
         </div>
-        
+
+        <button class="btn-primary"
+                style="width:100%; padding:12px; background:var(--success)"
+                onclick="submitKasirOrder()">
+          <i class="fa-solid fa-circle-check"></i> Proses &amp; Simpan Transaksi
+        </button>
       </div>
     </div>
   </div>
