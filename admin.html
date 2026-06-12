@@ -685,6 +685,15 @@ async function uploadToGithub(file) {
     })
   });
 
+  // ─── TAMBAHKAN BLOK DIAGNOSIS INI ───
+  if (!response.ok) {
+    const errorData = await response.json();
+    console.error("Detail Error GitHub:", errorData); // Akan muncul di Inspect Element -> Console
+    alert(`Gagal API GitHub: ${errorData.message} (${response.status})`);
+    throw new Error(`GitHub API Error: ${errorData.message}`);
+  }
+  // ─────────────────────────────────────
+
   if (!response.ok) throw new Error("Gagal mengupload gambar ke GitHub API.");
   return `https://cdn.jsdelivr.net/gh/${repo}@main/${fileName}`;
 }
