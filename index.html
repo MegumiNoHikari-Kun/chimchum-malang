@@ -595,7 +595,7 @@ async function loadProducts() {
     }
 
     const kategoriSet = new Set();
-    const fotoSet     = new Set();
+    const fotoSet     = new Set(); // Set untuk menyimpan URL foto unik
 
     let menuContentStr = '';
     let galleryContentStr = '';
@@ -643,11 +643,17 @@ async function loadProducts() {
           </div>
         </div>`;
 
-      if (p.foto && !fotoSet.has(p.foto)) {
-        fotoSet.add(p.foto);
-        galleryContentStr += `
-          <img src="${p.foto}" alt="${p.nama}"
-               onerror="this.parentNode.removeChild(this)">`;
+      // CEK DUPLIKAT FOTO GALERI
+      if (p.foto) {
+        // Normalisasi URL untuk menghindari duplikat akibat perbedaan huruf/spasi
+        const normalizedUrl = p.foto.trim().toLowerCase();
+        
+        if (!fotoSet.has(normalizedUrl)) {
+          fotoSet.add(normalizedUrl);
+          galleryContentStr += `
+            <img src="${p.foto}" alt="${p.nama}"
+                 onerror="this.parentNode.removeChild(this)">`;
+        }
       }
     });
 
