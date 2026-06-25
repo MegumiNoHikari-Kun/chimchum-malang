@@ -1027,5 +1027,30 @@ if (btnSubmitLogin) {
   });
 }
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const galleryContainer = document.getElementById('galleryContainer');
+    // Ambil semua elemen gambar di dalam container galeri
+    const images = galleryContainer.getElementsByTagName('img');
+    const seenSrc = new Set();
+
+    // Lakukan iterasi mundur untuk menghindari pergeseran indeks saat menghapus node DOM
+    for (let i = images.length - 1; i >= 0; i--) {
+      const img = images[i];
+      // Ambil dan normalisasikan URL gambar (tambahkan .trim().toLowerCase() untuk antisipasi spasi/kapital)
+      const src = (img.getAttribute('src') || '').trim().toLowerCase();
+
+      if (src) {
+        if (seenSrc.has(src)) {
+          // Jika URL sudah ada di Set, hapus elemen gambar ganda tersebut
+          img.parentNode.removeChild(img);
+        } else {
+          // Jika belum ada, tandai URL ini sudah pernah muncul
+          seenSrc.add(src);
+        }
+      }
+    }
+  });
+</script>
 </body>
 </html>
