@@ -601,6 +601,8 @@ let activeFilter = 'Semua';
 async function loadProducts() {
   try {
     const snapshot = await getDocs(collection(db, 'products'));
+    
+    // Kosongkan container di awal
     menuContainer.innerHTML = '';
     galleryContainer.innerHTML = '';
 
@@ -612,6 +614,10 @@ async function loadProducts() {
 
     const kategoriSet = new Set();
     const fotoSet     = new Set();
+
+    // Tampung HTML sementara menggunakan array atau string builder
+    let menuHTML = '';
+    let galleryHTML = '';
 
     snapshot.forEach((doc) => {
       const p     = doc.data();
@@ -633,10 +639,11 @@ async function loadProducts() {
 
       const habis = stok <= 0;
 
-      menuContainer.innerHTML += `
+      // Bangun string HTML untuk menu, masukkan ke variabel penampung
+      menuHTML += `
         <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
           <img src="${p.foto}" alt="${p.nama}"
-               onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
+                onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
           <div class="card-content">
             <h3>${p.nama}</h3>
             <p>${p.deskripsi}</p>
@@ -656,13 +663,23 @@ async function loadProducts() {
           </div>
         </div>`;
 
+      // Cek duplikat foto galeri menggunakan Set
       if (p.foto && !fotoSet.has(p.foto)) {
         fotoSet.add(p.foto);
-        galleryContainer.innerHTML += `
+        galleryHTML += `
           <img src="${p.foto}" alt="${p.nama}"
-               onerror="this.parentNode.removeChild(this)">`;
+                onerror="this.parentNode.removeChild(this)">`;
       }
     });
+
+    // Render ke DOM hanya sekali di akhir proses loop
+    menuContainer.innerHTML = menuHTML;
+    galleryContainer.innerHTML = galleryHTML;
+
+  } catch (error) {
+    console.error("Error loading products:", error);
+  }
+}
 
     const semua = ['Semua', ...Array.from(kategoriSet).sort()];
     filterTabs.innerHTML = semua.map(k => `
