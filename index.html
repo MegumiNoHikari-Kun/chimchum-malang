@@ -598,88 +598,128 @@ const galleryContainer = document.getElementById('galleryContainer');
 const filterTabs       = document.getElementById('filterTabs');
 let activeFilter = 'Semua';
 
-async function loadProducts() {
+ async function loadProducts() {
+
   try {
+
     const snapshot = await getDocs(collection(db, 'products'));
-    
-    // Kosongkan container di awal
+
     menuContainer.innerHTML = '';
+
     galleryContainer.innerHTML = '';
 
+
     if (snapshot.empty) {
+
       menuContainer.innerHTML = '<p>Belum ada menu tersedia.</p>';
+
       galleryContainer.innerHTML = '<p>Belum ada foto.</p>';
+
       return;
+
     }
 
+
     const kategoriSet = new Set();
+
     const fotoSet     = new Set();
 
-    // Tampung HTML sementara menggunakan array atau string builder
-    let menuHTML = '';
-    let galleryHTML = '';
 
     snapshot.forEach((doc) => {
+
       const p     = doc.data();
+
       const id    = doc.id;
+
       const harga = Number(p.harga);
+
       const kat   = p.kategori || 'Lainnya';
+
       const stok  = Number(p.stok ?? 999); // fallback jika field stok belum ada
+
       kategoriSet.add(kat);
 
+
       // Tentukan status & label stok
+
       let stokClass, stokIcon, stokLabel;
+
       if (stok <= 0) {
+
         stokClass = 'stok-habis'; stokIcon = '✕'; stokLabel = 'Stok Habis';
+
       } else if (stok <= 5) {
+
         stokClass = 'stok-tipis'; stokIcon = '⚠'; stokLabel = `Sisa ${stok} porsi`;
+
       } else {
+
         stokClass = 'stok-aman';  stokIcon = '✓'; stokLabel = `Stok: ${stok} porsi`;
+
       }
+
 
       const habis = stok <= 0;
 
-      // Bangun string HTML untuk menu, masukkan ke variabel penampung
-      menuHTML += `
+
+      menuContainer.innerHTML += `
+
         <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
+
           <img src="${p.foto}" alt="${p.nama}"
-                onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
+
+               onerror="this.src='https://via.placeholder.com/400x320?text=No+Image'">
+
           <div class="card-content">
+
             <h3>${p.nama}</h3>
+
             <p>${p.deskripsi}</p>
+
             <p style="margin-top:4px;font-size:13px;color:#999">Isi ${p.isi} pcs</p>
+
             <div class="price">${rupiah(harga)}</div>
+
             <span class="stok-info ${stokClass}">${stokIcon} ${stokLabel}</span>
+
             <div class="card-order-row" style="${habis ? 'opacity:.45;pointer-events:none;' : ''}">
+
               <button class="card-qty-btn" onclick="cardDecQty('${id}')">−</button>
+
               <span class="card-qty-num" id="cardqty-${id}">1</span>
+
               <button class="card-qty-btn" onclick="cardIncQty('${id}')">+</button>
+
               <button class="btn-add-cart" id="addbtn-${id}"
+
                 ${habis ? 'disabled' : ''}
+
                 onclick="addToCart('${id}','${safeAttr(p.nama)}-${safeAttr(p.isi)}',${harga},'${safeAttr(p.foto)}','${safeAttr(p.isi)}',${stok})">
+
                 ${habis ? 'Stok Habis' : '+ Keranjang'}
+
               </button>
+
             </div>
+
           </div>
+
         </div>`;
 
-      // Cek duplikat foto galeri menggunakan Set
+
       if (p.foto && !fotoSet.has(p.foto)) {
+
         fotoSet.add(p.foto);
-        galleryHTML += `
+
+        galleryContainer.innerHTML += `
+
           <img src="${p.foto}" alt="${p.nama}"
-                onerror="this.parentNode.removeChild(this)">`;
+
+               onerror="this.parentNode.removeChild(this)">`;
+
       }
-    });
 
-    // Render ke DOM hanya sekali di akhir proses loop
-    menuContainer.innerHTML = menuHTML;
-    galleryContainer.innerHTML = galleryHTML;
-
-  } catch (error) {
-    console.error("Error loading products:", error);
-  }
-}
+    }); 
 
     const semua = ['Semua', ...Array.from(kategoriSet).sort()];
     filterTabs.innerHTML = semua.map(k => `
