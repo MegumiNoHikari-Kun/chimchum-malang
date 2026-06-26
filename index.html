@@ -584,28 +584,31 @@ let activeFilter = 'Semua';
 async function loadProducts() {
   try {
     const snapshot = await getDocs(collection(db, 'products'));
-
     menuContainer.innerHTML = '';
     galleryContainer.innerHTML = '';
-
     if (snapshot.empty) {
       menuContainer.innerHTML = '<p>Belum ada menu tersedia.</p>';
       galleryContainer.innerHTML = '<p>Belum ada foto.</p>';
       return;
     }
-
-    const kategoriSet = new Set();
-    const fotoSet     = new Set(); // Set untuk menyimpan URL foto unik
-
-    let menuContentStr = '';
+    const kategoriSet  = new Set();
+    const fotoUrlSet   = new Set(); // exact URL
+    const fotoNameSet  = new Set(); // basename tanpa timestamp
+    let menuContentStr   = '';
     let galleryContentStr = '';
+
+    // Helper: ambil nama file tanpa prefix timestamp (angka + tanda hubung)
+    function getBasename(url) {
+      const filename = url.split('/').pop().split('?')[0];
+      return filename.replace(/^\d+-/, '').trim().toLowerCase();
+    }
 
     snapshot.forEach((doc) => {
       const p     = doc.data();
       const id    = doc.id;
       const harga = Number(p.harga);
       const kat   = p.kategori || 'Lainnya';
-      const stok  = Number(p.stok ?? 999); 
+      const stok  = Number(p.stok ?? 999);
       kategoriSet.add(kat);
 
       let stokClass, stokIcon, stokLabel;
@@ -614,12 +617,10 @@ async function loadProducts() {
       } else if (stok <= 5) {
         stokClass = 'stok-tipis'; stokIcon = '⚠'; stokLabel = `Sisa ${stok} porsi`;
       } else {
-        stokClass = 'stok-aman';  stokIcon = '✓'; stokLabel = `Stok: ${stok} porsi`;
+        stokClass = 'stok-aman'; stokIcon = '✓'; stokLabel = `Stok: ${stok} porsi`;
       }
-
       const habis = stok <= 0;
 
-      // Kumpulan String String concat HTML
       menuContentStr += `
         <div class="card" id="card-${id}" data-kategori="${safeAttr(kat)}">
           <img src="${p.foto}" alt="${p.nama}"
@@ -643,38 +644,35 @@ async function loadProducts() {
           </div>
         </div>`;
 
-      // CEK DUPLIKAT FOTO GALERI
+      // GALERI — skip jika URL exact atau basename file sudah ada
       if (p.foto) {
-        const namaSet = new Set(); // Set nama produk
+        const normalizedUrl = p.foto.trim().toLowerCase();
+        const basename      = getBasename(p.foto);
 
-        if (p.foto && !namaSet.has(p.nama)) {
-          namaSet.add(p.nama);
-          const normalizedUrl = p.foto.trim().toLowerCase();
-          if (!fotoSet.has(normalizedUrl)) {
-            fotoSet.add(normalizedUrl);
-            galleryContentStr += `
-              <img src="${p.foto}" alt="${p.nama}"
-                   onerror="this.parentNode.removeChild(this)">`;
-          }
+        if (!fotoUrlSet.has(normalizedUrl) && !fotoNameSet.has(basename)) {
+          fotoUrlSet.add(normalizedUrl);
+          fotoNameSet.add(basename);
+          galleryContentStr += `
+            <img src="${p.foto}" alt="${p.nama}"
+                 onerror="this.parentNode.removeChild(this)">`;
         }
       }
     });
 
-    menuContainer.innerHTML = menuContentStr;
+    menuContainer.innerHTML   = menuContentStr;
     galleryContainer.innerHTML = galleryContentStr;
 
     const semua = ['Semua', ...Array.from(kategoriSet).sort()];
     filterTabs.innerHTML = semua.map(k => `
-      <button class="filter-btn ${k === activeFilter ? 'active' : ''}" 
+      <button class="filter-btn ${k === activeFilter ? 'active' : ''}"
               onclick="applyFilter('${safeAttr(k)}')">
         ${k}
       </button>`).join('');
-
     applyFilter(activeFilter);
 
   } catch (err) {
     console.error('loadProducts:', err);
-    menuContainer.innerHTML = '<p>Gagal memuat menu dari Firebase.</p>';
+    menuContainer.innerHTML   = '<p>Gagal memuat menu dari Firebase.</p>';
     galleryContainer.innerHTML = '';
   }
 }
