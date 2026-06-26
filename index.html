@@ -645,14 +645,17 @@ async function loadProducts() {
 
       // CEK DUPLIKAT FOTO GALERI
       if (p.foto) {
-        // Normalisasi URL untuk menghindari duplikat akibat perbedaan huruf/spasi
-        const normalizedUrl = p.foto.trim().toLowerCase();
-        
-        if (!fotoSet.has(normalizedUrl)) {
-          fotoSet.add(normalizedUrl);
-          galleryContentStr += `
-            <img src="${p.foto}" alt="${p.nama}"
-                 onerror="this.parentNode.removeChild(this)">`;
+        const namaSet = new Set(); // Set nama produk
+
+        if (p.foto && !namaSet.has(p.nama)) {
+          namaSet.add(p.nama);
+          const normalizedUrl = p.foto.trim().toLowerCase();
+          if (!fotoSet.has(normalizedUrl)) {
+            fotoSet.add(normalizedUrl);
+            galleryContentStr += `
+              <img src="${p.foto}" alt="${p.nama}"
+                   onerror="this.parentNode.removeChild(this)">`;
+          }
         }
       }
     });
