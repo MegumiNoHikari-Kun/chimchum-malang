@@ -896,9 +896,9 @@ window.submitOrder = async () => {
 
   const itemLines = items.map(i => `🍜 ${i.nama} × ${i.qty} = ${rupiah(i.qty * i.harga)}`).join('\n');
   const waText = encodeURIComponent(
-`Halo ChimChum Malang 👋
+`*INVOICE CHIMCHUM MALANG* 👋
 
-Saya ingin memesan:
+Detail Orderan :
 
 ${itemLines}
 ━━━━━━━━━━━━━━
@@ -910,7 +910,15 @@ Nama    : ${customerName}
 WA      : ${customerPhone}
 Alamat  : ${customerAddress || '-'}
 
-Terima kasih! 🙏`
+Silahkan Transfer ke:
+💳 BCA Syariah
+0530045160
+An. Intan Dwi Ambalika Indah Cahyaningtyas
+
+Atau bisa QRIS
+
+Terima kasih
+Jazaakumullaahu khayraa wa Baarakallaahu Fiikum! 🙏`
   );
   const waURL = `https://wa.me/${WA_NUMBER}?text=${waText}`;
 
