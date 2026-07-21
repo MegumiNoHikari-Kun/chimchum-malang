@@ -1091,6 +1091,11 @@ function cetakUlangPesanan(order) {
     </div>
   `).join('');
 
+  const tgl = o.created_at
+      ? new Date(o.created_at.seconds * 1000)
+          .toLocaleString('id-ID')
+      : '-';
+
   // Bagian pembayaran opsional, cuma tampil kalau datanya ada
   const paymentHtml = order.metode_bayar ? `
     <div class="line"></div>
