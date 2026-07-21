@@ -1091,11 +1091,6 @@ function cetakUlangPesanan(order) {
     </div>
   `).join('');
 
-  const tgl = o.created_at
-      ? new Date(o.created_at.seconds * 1000)
-          .toLocaleString('id-ID')
-      : '-';
-
   // Bagian pembayaran opsional, cuma tampil kalau datanya ada
   const paymentHtml = order.metode_bayar ? `
     <div class="line"></div>
@@ -1143,7 +1138,6 @@ function cetakUlangPesanan(order) {
   
       <div style="font-size:11px; line-height:1.4;">
       <div class="center bold" style="font-size:11px; margin-top:6px;">REPRINT PESANAN</div>
-        Waktu : ${tgl}<br>
         Pelanggan : ${order.customer_name}<br>
         WA : ${order.phone}<br>
         Status : ${(order.status || 'new').toUpperCase()}
