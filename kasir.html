@@ -688,7 +688,7 @@ window.submitKasirOrder = async () => {
   if (items.length === 0) { alert("Struk kasir kosong! Pilih menu terlebih dahulu."); return; }
 
   const noMeja = document.getElementById("kasirNomorMeja").value.trim();
-  if (!noMeja) { alert("Harap isi Nomor Meja pelanggan dine-in!"); return; }
+  if (!noMeja) { alert("Harap isi Nama pelanggan dine-in!"); return; }
 
   const waPelanggan  = document.getElementById("kasirWaPelanggan").value.trim();
   const metodeBayar  = document.getElementById("kasirMetodeBayar").value;
